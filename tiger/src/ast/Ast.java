@@ -21,6 +21,8 @@ import java.util.LinkedList;
 
 public class Ast
 {
+
+	// ///////////////////////////////////////////////////////////
 	// type
 	public static class Type
 	{
@@ -31,7 +33,7 @@ public class Ast
 			// int[]: 1
 			// class: 2
 			// Such that one can easily tell who is who
-			public abstract int getNum();// 抽象方法，只能定义在抽象类当中！！
+			public abstract int getNum();// ���󷽷���ֻ�ܶ����ڳ����൱�У���
 		}
 
 		// boolean
@@ -48,7 +50,7 @@ public class Ast
 			}
 
 			@Override
-			public int getNum()// 子类必须实现父类的抽象方法
+			public int getNum()// 
 			{
 				return -1;
 			}
@@ -73,7 +75,8 @@ public class Ast
 			@Override
 			public String toString()
 			{
-				return this.id;
+				// since Type.beelen toString() is "@boolean"
+				return "@" + this.id;
 			}
 
 			@Override
@@ -281,7 +284,7 @@ public class Ast
 			public Type.T rt;
 
 			public Call(
-					// 必须要有，在opt时会用到
+					// ����Ҫ�У���optʱ���õ�
 					T exp, String id, java.util.LinkedList<T> args,
 					String type, java.util.LinkedList<Type.T> at, Type.T rt)
 			{
@@ -347,7 +350,7 @@ public class Ast
 		public static class Id extends T
 		{
 			public String id; // name of the id
-			public Type.T type; // type of the id,type与isField在elab时会给赋值！！
+			public Type.T type; // type of the id,type��isField��elabʱ�����ֵ����
 			public boolean isField; // whether or not this is a class field
 
 			public Id(String id, int linenum)
@@ -665,10 +668,10 @@ public class Ast
 		{
 			public String id;
 			public Exp.T exp;
-			public Type.T type; // type of the id,在elab时会赋值
-			public boolean isField;// 在elab时会赋值
+			public Type.T type; // type of the id,��elabʱ�ḳֵ
+			public boolean isField;// ��elabʱ�ḳֵ
 
-			// 在opt中会用
+			// ��opt�л���
 			public Assign(String id, ast.Ast.Exp.T exp, ast.Ast.Type.T type,
 					boolean isField, int linenum)
 			{
@@ -718,7 +721,7 @@ public class Ast
 			public Type.T tyep;// type of the id
 			public boolean isField;
 
-			// 在opt中会用
+			// ��opt�л���
 			public AssignArray(String id, ast.Ast.Exp.T index,
 					ast.Ast.Exp.T exp, ast.Ast.Type.T tyep, boolean isField,
 					int linenum)
@@ -919,7 +922,7 @@ public class Ast
 					java.util.LinkedList<ast.Ast.Method.T> methods)
 			{
 				this.id = id;
-				this.extendss = extendss;// 何时添加？？在Parse中已经添加了
+				this.extendss = extendss;// ��ʱ��ӣ�����Parse���Ѿ������
 				this.decs = decs;
 				this.methods = methods;
 			}

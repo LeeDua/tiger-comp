@@ -1,62 +1,17 @@
-/*------------------------------------------------------------------*/
-/* Copyright (C) SSE-USTC, 2014-2015                                */
-/*                                                                  */
-/*  FILE NAME             :  Bug.java                               */
-/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
-/*  LANGUAGE              :  Java                                   */
-/*  TARGET ENVIRONMENT    :  ANY                                    */
-/*  DATE OF FIRST RELEASE :  2014/10/05                             */
-/*  DESCRIPTION           :  the tiger compiler                     */
-/*------------------------------------------------------------------*/
-
-/*
- * Revision log:
- *
- * 
- *
- */
 package util;
 
 public class Bug
 {
-  public Bug()
-  {
-    throw new java.lang.Error("Compiler bug");
-  }
-  
-  public enum Error
-  {
-	MISTYPE,
-	UNDECL,
-	RET,
-	COOKBLOCK;
-	
-  }
+	public Bug()
+	{
+		// throw new java.lang.Error("Compiler bug");
+		System.err.println("error");
+		System.exit(0);
+	}
 
-
-public static void error(Error c)
-{
-	System.out.println("cookboloc error");
-	System.exit(1);
-}
-
-public static void error(Error c,ast.Ast.Type.T type,int linenum)
-{
-	  switch(c){
-	  case MISTYPE:
-		  System.err.println("error:type mismatch at line "+linenum);
-		  System.err.println("need type:"+type.toString());
-		  System.exit(1);
-		  break;
-	  case UNDECL:
-		  System.err.println("error:un decl var at line "+linenum);
-		  System.exit(1);
-		  break;
-	  case RET:
-		  System.err.println("error:return val mis at line "+linenum);
-		  System.err.println("return type must be "+type.toString());
-		  System.exit(1);
-	  }
-  
-}
+	public Bug(String info)
+	{
+		System.err.println(info);
+		System.exit(0);
+	}
 }

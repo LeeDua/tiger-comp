@@ -1,24 +1,9 @@
-/*------------------------------------------------------------------*/
-/* Copyright (C) SSE-USTC, 2014-2015                                */
-/*                                                                  */
-/*  FILE NAME             :  Ast.java                               */
-/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
-/*  LANGUAGE              :  Java                                   */
-/*  TARGET ENVIRONMENT    :  ANY                                    */
-/*  DATE OF FIRST RELEASE :  2014/10/05                             */
-/*  DESCRIPTION           :  the tiger compiler                     */
-/*------------------------------------------------------------------*/
-
-/*
- * Revision log:
- *
- * 
- *
- */
 package codegen.C;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+
+import ast.Ast.Type.T;
 
 public class Ast
 {
@@ -28,18 +13,8 @@ public class Ast
 	{
 		public static abstract class T implements codegen.C.Acceptable
 		{
-			/*
-			 * 此处使用class T实现Acceptable接口，然后再让所有的Type的内部类继承自T，
-			 * 目的是可以用Type.T代表所有类型。
-			 * 
-			 * 之所以定义为abstract，是因为抽象类可以部分实现或不实现接口中的方法。
-			 */
 		}
 
-		// public static class ClassType implements codegen.C.Acceptable
-		/*
-		 * 如果直接实现接口，则没有一种可以代表所有类型的类，所以需要上面那个T作为父类。
-		 */
 		public static class ClassType extends T
 		{
 			public String id;
@@ -199,10 +174,9 @@ public class Ast
 		public static class Call extends T
 		{
 			public String assign;
-			public T exp;// 表示调用者 id 或者是new id
+			public T exp;
 			public String id;
 			public LinkedList<T> args;
-			public Type.T retType;
 
 			public Call(String assign, T exp, String id,
 					java.util.LinkedList<T> args)
@@ -211,17 +185,6 @@ public class Ast
 				this.exp = exp;
 				this.id = id;
 				this.args = args;
-			}
-
-			public Call(String assign, T exp, String id,
-					java.util.LinkedList<T> args, Type.T retType)
-			{
-				this.assign = assign;
-				this.exp = exp;
-				this.id = id;
-				this.args = args;
-				this.retType = retType;
-
 			}
 
 			@Override
@@ -451,7 +414,6 @@ public class Ast
 			}
 		}
 
-		// id[index]=exp;
 		public static class AssignArray extends T
 		{
 			public String id;
@@ -557,7 +519,7 @@ public class Ast
 
 		public static class ClassSingle extends T
 		{
-			public String id;// class id
+			public String id;
 			public LinkedList<codegen.C.Tuple> decs;
 
 			public ClassSingle(String id, LinkedList<codegen.C.Tuple> decs)
@@ -585,7 +547,7 @@ public class Ast
 		}
 
 		public static class VtableSingle extends T
-		{// 虚方法表存放类以及类的所有方法信息
+		{
 			public String id; // name of the class
 			public java.util.ArrayList<codegen.C.Ftuple> ms; // all methods
 
@@ -682,8 +644,8 @@ public class Ast
 
 		public static class ProgramSingle extends T
 		{
-			public LinkedList<Class.T> classes;// class表
-			public LinkedList<Vtable.T> vtables;// 虚函数表
+			public LinkedList<Class.T> classes;
+			public LinkedList<Vtable.T> vtables;
 			public LinkedList<Method.T> methods;
 			public MainMethod.T mainMethod;
 

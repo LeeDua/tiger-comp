@@ -1,20 +1,3 @@
-/*------------------------------------------------------------------*/
-/* Copyright (C) SSE-USTC, 2014-2015                                */
-/*                                                                  */
-/*  FILE NAME             :  ClassTable.java                        */
-/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
-/*  LANGUAGE              :  Java                                   */
-/*  TARGET ENVIRONMENT    :  ANY                                    */
-/*  DATE OF FIRST RELEASE :  2014/10/05                             */
-/*  DESCRIPTION           :  the tiger compiler                     */
-/*------------------------------------------------------------------*/
-
-/*
- * Revision log:
- *
- * 
- *
- */
 package elaborator;
 
 import ast.Ast.Type;
@@ -35,7 +18,7 @@ public class ClassTable
 	{
 		if (this.table.get(c) != null)
 		{
-			System.err.println("duplicated class: " + c + "at line:");
+			System.out.println("duplicated class: " + c + "at line:");
 			System.exit(1);
 		}
 		this.table.put(c, cb);
@@ -73,7 +56,7 @@ public class ClassTable
 		ClassBinding cb = this.table.get(className);
 		Type.T type = cb.fields.get(xid);
 		while (type == null)
-		{ // search all parent classes until found or fail！！
+		{ // search all parent classes until found or fail
 			if (cb.extendss == null)
 				return type;
 

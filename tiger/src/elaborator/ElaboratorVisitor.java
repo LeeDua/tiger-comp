@@ -19,7 +19,6 @@ package elaborator;
 
 import java.util.LinkedList;
 
-import ast.Ast;
 import ast.Ast.Class;
 import ast.Ast.Exp.False;
 import ast.Ast.Exp.Id;
@@ -73,7 +72,8 @@ public class ElaboratorVisitor implements ast.Visitor
 
 	}
 
-	public enum Error {
+	public enum Error
+	{
 		MISTYPE, UNDECL, RET;
 	}
 
@@ -128,7 +128,7 @@ public class ElaboratorVisitor implements ast.Visitor
 		if (!t.toString().equals(this.type.toString()))
 			error(Error.MISTYPE, e.linenum);
 		if (!t.toString().equals("@boolean"))
-			error(Error.MISTYPE, e.linenum);// &&两边必须为&&
+			error(Error.MISTYPE, e.linenum);//
 		return;
 	}
 
@@ -141,11 +141,7 @@ public class ElaboratorVisitor implements ast.Visitor
 			error(Error.MISTYPE, e.linenum);
 		e.array.accept(this);
 
-		// 特殊处理ArraySelect
-		/*
-		 * i[3]+3 上面的e.array.accept之后this.type=IntArray，所以要特殊处理
-		 * 让所有ArraySelect都为Int类型。
-		 */
+		//
 		this.type = new ast.Ast.Type.Int();
 		// System.out.println(this.type.toString());
 
@@ -163,33 +159,29 @@ public class ElaboratorVisitor implements ast.Visitor
 		if (leftty instanceof ClassType)
 		{
 			ty = (ClassType) leftty;
-			e.type = ty.id;// 将调用者的id记录
+			e.type = ty.id;
 		}
 		else
 			error(Error.MISTYPE, e.linenum);
-		MethodType mty = this.classTable.getm(ty.id, e.id);// 在Tree里面找accept
-		// 收集call的所有参数的Type
+		MethodType mty = this.classTable.getm(ty.id, e.id);
 		java.util.LinkedList<Type.T> argsty = new LinkedList<Type.T>();
 		for (Exp.T a : e.args)
 		{
 			a.accept(this);
 			argsty.addLast(this.type);
 		}
-		// 验证方法的参数个数是否匹配
+		//
 		if (mty.argsType.size() != argsty.size())
 			error(Error.MISTYPE, e.linenum);
-		// 验证方法的参数类型是否匹配
+		//
 		for (int i = 0; i < argsty.size(); i++)
 		{
 			Dec.DecSingle dec = (Dec.DecSingle) mty.argsType.get(i);
 			if (dec.type.toString().equals(argsty.get(i).toString()))
-				;// 如果相等
+				;
 			else
-			{// 如果不相等，有父类型的话，父类型和argsty匹配也可。
-				/*
-				 * (不加这种情况的处理，会在Elab时直接报错mistype) 此时要比较的两个type必须是ClassType的实例。
-				 * 因为Classbinding对象里面记录的extenss，通过classTable查看是否有父类
-				 */
+			{
+
 				if (dec.type instanceof ClassType)
 				{
 					String currentcla = argsty.get(i).toString();
@@ -213,12 +205,6 @@ public class ElaboratorVisitor implements ast.Visitor
 				else
 					error(Error.MISTYPE, e.linenum);
 
-				/*
-				 * 更改call里面的参数列表的类型，之所以可以改变ast是因为在TransC时不需要Call.at，如果以后
-				 * 有情况需要这个字段，可以在Ast.Call里面再加一个)
-				 * 
-				 * 循环将Call.at里面的类型全改为函数原型的类型
-				 */
 				if (dec.type instanceof ClassType
 						&& argsty.get(i) instanceof ClassType)
 				{
@@ -227,7 +213,7 @@ public class ElaboratorVisitor implements ast.Visitor
 						Dec.DecSingle decc = (Dec.DecSingle) mty.argsType
 								.get(j);
 						Type.ClassType tcc = (Type.ClassType) decc.type;
-						argsty.set(j, tcc);// 通过e.at=argsty直接改变javaAst
+						argsty.set(j, tcc);
 					}
 				}
 			}
@@ -258,12 +244,12 @@ public class ElaboratorVisitor implements ast.Visitor
 			// useful in later phase.
 			e.isField = true;
 		}
-		// 在上一步中已经遍历的所有的祖先！！！！
+		//
 		if (type == null)
 			error(Error.UNDECL, e.linenum);
 		this.type = type;
 		// record this type on this node for future use.
-		e.type = type;// 给这个id加上类型。
+		e.type = type;//
 		return;
 	}
 
@@ -371,9 +357,9 @@ public class ElaboratorVisitor implements ast.Visitor
 		if (type == null)
 			error(Error.UNDECL, s.linenum);
 
-		s.type = type;// 为了适应bytecode的需要！！！！！在此时需要给Assign的type赋值！！！！
-		s.exp.accept(this);// type是存放=左边的id的类型，this.type是存放=右边exp的类型，
-							// 因此，执行完s.exp.accept(this)后，this.type一定要改变。
+		s.type = type;//
+		s.exp.accept(this);//
+							//
 
 		return;
 	}
@@ -381,9 +367,9 @@ public class ElaboratorVisitor implements ast.Visitor
 	@Override
 	public void visit(AssignArray s)
 	{
-		// 先在本方法中找
+		//
 		Type.T type = this.methodTable.get(s.id);
-		// 在类中找
+		//
 		if (type == null)
 		{
 			type = this.classTable.get(this.currentClass, s.id);
@@ -393,14 +379,14 @@ public class ElaboratorVisitor implements ast.Visitor
 		if (type == null)
 			error(Error.UNDECL, s.linenum);
 		s.tyep = type;
-		// 判断索引号
+		//
 		// System.out.println(type.toString());//
 		// ---------------------------------------
 		s.index.accept(this);
 		if (!this.type.toString().equals("@int"))
 			error(Error.UNDECL, s.linenum);
 		// System.out.println("index finished.................");
-		// 判断id类型
+		//
 		s.exp.accept(this);
 		// System.out.println(s.exp.getClass().getName());
 		if (!s.exp.getClass().getName().equals("ast.Ast$Exp$ArraySelect"))
@@ -515,6 +501,8 @@ public class ElaboratorVisitor implements ast.Visitor
 		MethodType methodtype = cb.methods.get(m.id);
 
 		m.retExp.accept(this);
+		String rett = methodtype.retType.toString();
+		String rettt = this.type.toString();
 		if (!methodtype.retType.toString().equals(this.type.toString()))// Why??
 		// methodtype.retType==this.type
 		{
@@ -533,9 +521,6 @@ public class ElaboratorVisitor implements ast.Visitor
 	{
 		this.currentClass = c.id;
 		/*
-		 * 在这里应该添加extendss的判断。 当继承了基类时，应该将基类的声明和方法拼接在这个子类
-		 * 
-		 * 当实现了继承特性之后，子类中可以用在基类中声明的变量。 可以用基类中的方法
 		 */
 
 		for (Method.T m : c.methods)

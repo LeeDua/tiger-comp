@@ -254,7 +254,7 @@ class LL{
 	System.out.println(head.Search(el02));
 	System.out.println(head.Search(el03));
 	System.out.println(10000000);
-	// inserting fourth element
+	/* inserting fourth element*****/
 	el01 = new Element();
 	aux01 = el01.Init(28,35000,false);
 	head = head.Insert(el01);
@@ -275,4 +275,4 @@ class LL{
 	
     }
     
-}
+}/**/

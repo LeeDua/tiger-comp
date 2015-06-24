@@ -1,44 +1,127 @@
-/*------------------------------------------------------------------*/
-/* Copyright (C) SSE-USTC, 2014-2015                                */
-/*                                                                  */
-/*  FILE NAME             :  Lexer.java                             */
-/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
-/*  LANGUAGE              :  Java                                   */
-/*  TARGET ENVIRONMENT    :  ANY                                    */
-/*  DATE OF FIRST RELEASE :  2014/10/05                             */
-/*  DESCRIPTION           :  the tiger compiler                     */
-/*------------------------------------------------------------------*/
-
-/*
- * Revision log:
- *
- * 
- *
- */
 package lexer;
 
 import static control.Control.ConLexer.dump;
 
 import java.io.IOException;
-import java.io.PushbackInputStream;
+import java.io.InputStream;
 
 import lexer.Token.Kind;
 
 public class Lexer
 {
 	String fname; // the input file name to be compiled
-	PushbackInputStream fstream; // input stream for the above file
+	InputStream fstream; // input stream for the above file
+	TokenMap tmap;
 
 	public String s = "";
 	int linenum = 1;
-	Token behind = null;
-	Token cmp = null;
-	int ex = 0;
 
-	public Lexer(String fname, PushbackInputStream fstream)
+	public Lexer(String fname, InputStream fstream)
 	{
 		this.fname = fname;
 		this.fstream = fstream;
+		this.tmap = new TokenMap();
+	}
+
+	/**
+	 * 
+	 * @param c
+	 *            must be 0~9
+	 * @return
+	 * @throws IOException
+	 */
+	private String dealNum(int c) throws IOException
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append((char) c);
+
+		while (true)
+		{
+			this.fstream.mark(1);
+			int next = this.fstream.read();
+			if (next >= '0' && next <= '9')
+			{
+				sb.append((char) next);
+				continue;
+			}
+			// 999aa is not legal
+			if ((next == '_') || (next >= 'a' && next <= 'z')
+					|| (next >= 'A' && next <= 'Z'))
+				new util.Bug("illegal number");
+
+			break;
+		}
+
+		this.fstream.reset();
+		return sb.toString();
+	}
+
+	/**
+	 * @param c
+	 *            the char just read now
+	 * @return Token if s is keyword or s is Id, null if c == ' '&&s==""
+	 * **/
+	private Token expectIdOrKey(int c) throws Exception
+	{
+		Kind k = tmap.getKind(s);
+		if (k != null)// keywords
+		{
+			Token tk = new Token(k, linenum, s);
+			s = "";
+			this.fstream.reset();// need reset to push back char
+			return tk;
+		}
+		else if (s == "")// c must be key word
+		{
+			if (c != ' ')
+			{
+				Kind keyword_kind = tmap.getKind(String.valueOf((char) c));
+				Token tk = new Token(keyword_kind, linenum,
+						String.valueOf((char) c));
+				return tk;
+			}
+			else
+				return null;
+		}
+		else
+		// s must be Id
+		{
+			Token tk = new Token(Kind.TOKEN_ID, linenum, s);
+			s = "";
+			this.fstream.reset();
+			return tk;
+		}
+	}
+
+	/**
+	 * for the Binary Operator like &&, ||, ++, --
+	 * 
+	 * @param expect
+	 *            expect keyword except the first alphabet e.g. &&'s expect is
+	 *            '&'
+	 * @return true if match the keyword, false if not
+	 **/
+	private boolean expectKeyword(String expect) throws IOException
+	{
+		this.fstream.mark(expect.length());
+
+		for (int i = 0; i < expect.length(); i++)
+		{
+			if (expect.charAt(i) == this.fstream.read())
+				continue;
+
+			this.fstream.reset();
+			return false;
+		}
+
+		this.fstream.mark(1);
+		int next = this.fstream.read();
+		this.fstream.reset();
+		if ((next == '_') || (next > 'a' && next < 'z')
+				|| (next > 'A' && next < 'Z') || (next > '0' && next < '9'))
+			return false;
+		else
+			return true;
 	}
 
 	// When called, return the next token (refer to the code "Token.java")
@@ -46,7 +129,7 @@ public class Lexer
 	// Return TOKEN_EOF when reaching the end of the input stream.
 	private Token nextTokenInternal() throws Exception
 	{
-
+		this.fstream.mark(1);
 		int c = this.fstream.read();
 
 		if (-1 == c)
@@ -57,239 +140,103 @@ public class Lexer
 			return new Token(Kind.TOKEN_EOF, linenum);
 
 		// skip all kinds of "blanks"
-
 		while ('\t' == c || '\n' == c)
 		{
+			this.fstream.mark(1);
 			if ('\n' == c)
 				linenum++;
 			c = this.fstream.read();
 		}
-
 		if (-1 == c)
 			return new Token(Kind.TOKEN_EOF, linenum);
 
-		// analysis the Comments
-		if ('/' == c)
-		{
-			ex = c;
-			c = this.fstream.read();
-			isComments(c, ex);
-			return null;
-		}
-
 		switch (c)
 		{
-		case ' ':
-		{
-			return printTokenforspace(c);
-
-		}
-		case '+':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_ADD, linenum);
-			else
-				return behind;
-		}
 		case '&':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return null;
-			return behind;
-
-		}
+			if (expectKeyword("&"))
+				return new Token(Kind.TOKEN_AND, linenum, "&&");
+			else
+				new util.Bug();
+			break;
+		case ' ':
+		case '+':
 		case '=':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_ASSIGN, linenum);
-			else
-				return behind;
-		}
 		case ',':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_COMMER, linenum);
-			else
-				return behind;
-		}
 		case '.':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_DOT, linenum);
-			else
-				return behind;
-		}
 		case '{':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_LBRACE, linenum);
-			else
-				return behind;
-		}
 		case '[':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_LBRACK, linenum);
-			else
-				return behind;
-		}
 		case '(':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_LPAREN, linenum);
-			else
-				return behind;
-		}
 		case '<':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_LT, linenum);
-			else
-				return behind;
-		}
 		case '!':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_NOT, linenum);
-			else
-				return behind;
-		}
 		case '}':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_RBRACE, linenum);
-			else
-				return behind;
-		}
 		case ']':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_RBRACK, linenum);
-			else
-				return behind;
-		}
 		case ')':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_RPAREN, linenum);
-			else
-				return behind;
-		}
 		case ';':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_SEMI, linenum);
-			else
-				return behind;
-		}
 		case '-':
-		{// 需要特殊处理一下!!!在parser中在判断"-"到底是减号还是负号。
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_SUB, linenum);
-			else
-				return behind;
-		}
 		case '*':
-		{
-			cmp = printTokenforspace(c);
-			if (cmp == null)
-				return new Token(Kind.TOKEN_TIMES, linenum);
-			else
-				return behind;
-		}
-
+			return expectIdOrKey(c);
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			if (s == "")
+				return new Token(Kind.TOKEN_NUM, linenum, dealNum(c));
+			s += (char) c;
+			break;
+		case '/':
+			dealComments(c);
+			break;
 		default:
-			// Lab 1, exercise 2: supply missing code to
-			// lex other kinds of tokens.
-			// Hint: think carefully about the basic
-			// data structure and algorithms. The code
-			// is not that much and may be less than 50 lines. If you
-			// find you are writing a lot of code, you
-			// are on the wrong way.
-
-			// new Todo();
-			s += (char) (c);
-			// System.out.println(s);
-			return nextTokenInternal();
+			s += (char) c;
+			break;
 		}
+		return null;
 	}
 
-	public void isComments(int c, int ex) throws IOException
+	/**
+	 * skip comments
+	 * 
+	 * @param c
+	 *            must be '/'
+	 * */
+	private void dealComments(int c) throws IOException
 	{
-		if (c == '/' || c == '*')
+		int ex = this.fstream.read();
+		if (ex == '/')
 		{
-			if (c == '/')
+			while (ex != '\n' && ex != -1)
 			{
-				while (c != '\n')
-					c = this.fstream.read();
-				linenum++;
-
-			}
-			else
-			{// confirm comment
+				this.fstream.mark(1);
 				ex = this.fstream.read();
-				while (c != '*' || ex != '/')
-				{
-					c = ex;
-					ex = this.fstream.read();
-				}
 			}
-		}
-		// the else is well down
-		else
-		{
-			new util.Bug();
-		}
-	}
 
-	public Token printTokenforspace(int c) throws IOException
-	{
-		if (c == '&' && s == "&")
-		{
-			// s里面是&，又读到&
-			behind = new Token(Kind.TOKEN_AND, linenum);
-			s = "";
-		}
-		else if (s != "")
-		{// s不为空，将s里面的变为token
-			Token token = new Token();
-			Kind k = token.getkey(s);
-
-			behind = new Token(k, linenum, s);
-
-			if (c == '&')// 读到的是&
-				s = "&";
+			if (ex == -1)
+			{
+				this.fstream.reset();
+				return;
+			}
 			else
-				s = "";
-			if (c != 32 && c != '&')// 如果不是sp，不是&，需要回退
-				fstream.unread(c);
-			return behind;
-
+				linenum++;
 		}
-		else if (s == "" && c == '&')
-		{// 读到第一个&的情况
-			s = "&";
-			behind = null;// 并不返回token
+		else if (ex == '*')
+		{// confirm comment
+			ex = this.fstream.read();
+			while ((c != '*' || ex != '/') && (ex != -1))
+			{
+				c = ex;
+				ex = this.fstream.read();
+			}
+			if (ex == -1)
+				new util.Bug("Comments must end with */");
 		}
 		else
-			return null;
-		return behind;
-
+			new util.Bug();
 	}
 
 	public Token nextToken()
@@ -299,7 +246,6 @@ public class Lexer
 		try
 		{
 			while (t == null)
-				// 当t为null时，一直读token
 				t = this.nextTokenInternal();
 		} catch (Exception e)
 		{

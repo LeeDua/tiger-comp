@@ -1,20 +1,3 @@
-/*------------------------------------------------------------------*/
-/* Copyright (C) SSE-USTC, 2014-2015                                */
-/*                                                                  */
-/*  FILE NAME             :  PrettyPrintVisitor.java                */
-/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
-/*  LANGUAGE              :  Java                                   */
-/*  TARGET ENVIRONMENT    :  ANY                                    */
-/*  DATE OF FIRST RELEASE :  2014/10/05                             */
-/*  DESCRIPTION           :  the tiger compiler                     */
-/*------------------------------------------------------------------*/
-
-/*
- * Revision log:
- *
- * 
- *
- */
 package ast;
 
 import ast.Ast.Class.ClassSingle;
@@ -354,8 +337,7 @@ public class PrettyPrintVisitor implements Visitor
 			if (i != m.formals.size())
 			{
 				this.say(" " + dec.id + ", ");
-			}
-			else
+			} else
 				this.say(" " + dec.id);
 		}
 		this.sayln(")");

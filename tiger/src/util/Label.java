@@ -1,19 +1,18 @@
 package util;
 
-public class Label 
+public class Label
 {
- 
-	public int i;
+	private int i;
 	private static int count = 0;
 
-  public Label()
-  {
-    i = count++;
-  }
+	public Label()
+	{
+		i = count++;
+	}
 
-  @Override
-  public String toString()
-  {
-    return "L_" + (Integer.toString(this.i));
-  }
+	@Override
+	public String toString()
+	{
+		return "L_" + (Integer.toString(this.i));
+	}
 }

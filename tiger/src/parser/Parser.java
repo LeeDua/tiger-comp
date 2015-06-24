@@ -17,6 +17,7 @@
  */
 package parser;
 
+import java.io.InputStream;
 import java.util.LinkedList;
 
 import ast.Ast.Class;
@@ -38,7 +39,6 @@ import ast.Ast.Program.ProgramSingle;
 import ast.Ast.Stm.If;
 import ast.Ast.Stm.Print;
 import ast.Ast.Stm;
-
 import lexer.Lexer;
 import lexer.Token;
 import lexer.Token.Kind;
@@ -50,11 +50,11 @@ public class Parser
 	Token currentNext;// in order to deal with the margin between VarDecls and
 						// Statements
 	boolean isSpecial = false;// when current.kind=Kind.TOKEN_ID,it may special
-	boolean isField = true;// 为了将声明分类，区别class与method的声明，在bytecode中会用到
+	boolean isField = true;// Ϊ�˽��������࣬����class��method����������bytecode�л��õ�
 	int linenum = 1;
 	Type.T currentType = null;
 
-	public Parser(String fname, java.io.PushbackInputStream f)
+	public Parser(String fname, InputStream f)
 	{
 		lexer = new Lexer(fname, f);
 		current = lexer.nextToken();
@@ -78,8 +78,7 @@ public class Parser
 		if (kind == current.kind)
 		{
 			advance();
-		}
-		else
+		} else
 		{
 			System.err.println("Expects: " + kind.toString());
 			System.err.println("But got: " + current.kind.toString());
@@ -143,8 +142,7 @@ public class Parser
 				i = -j;
 				advance();
 				return new Exp.Num(i, linenum);
-			}
-			else
+			} else
 				error();
 		case TOKEN_LPAREN:
 			advance();
@@ -224,8 +222,7 @@ public class Parser
 				LinkedList<T> args = parseExpList();
 				eatToken(Kind.TOKEN_RPAREN);
 				return new Call(exp, s, args, linenum);
-			}
-			else
+			} else
 			{
 				// [exp]
 				Exp.T t = (Exp.Id) exp;
@@ -287,8 +284,7 @@ public class Parser
 				advance();
 				right = parseAddSubExp();
 				return new Exp.Add(left, right, linenum);
-			}
-			else
+			} else
 			{
 				advance();
 				right = parseAddSubExp();
@@ -426,8 +422,7 @@ public class Parser
 
 				}
 
-			}
-			else
+			} else
 			{
 				eatToken(Kind.TOKEN_ID);
 				switch (current.kind)
@@ -534,8 +529,7 @@ public class Parser
 			eatToken(Kind.TOKEN_ID);
 			eatToken(Kind.TOKEN_SEMI);
 			return dec;
-		}
-		else
+		} else
 		{
 			Type.T type = new Type.ClassType(current.lexeme);
 			current = currentNext;
@@ -564,8 +558,7 @@ public class Parser
 			if (current.kind != Kind.TOKEN_ID)
 			{
 				decs.add(parseVarDecl());
-			}
-			else
+			} else
 			{// the current must be TOKEN_ID
 				String id = current.lexeme;
 				int linenum = current.lineNum;
