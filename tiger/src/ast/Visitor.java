@@ -1,3 +1,20 @@
+/*------------------------------------------------------------------*/
+/* Copyright (C) SSE-USTC, 2014-2015                                */
+/*                                                                  */
+/*  FILE NAME             :  Visitor.java                           */
+/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
+/*  LANGUAGE              :  Java                                   */
+/*  TARGET ENVIRONMENT    :  ANY                                    */
+/*  DATE OF FIRST RELEASE :  2014/10/05                             */
+/*  DESCRIPTION           :  the tiger compiler                     */
+/*------------------------------------------------------------------*/
+
+/*
+ * Revision log:
+ *
+ * 
+ *
+ */
 package ast;
 
 import ast.Ast.Class;
@@ -33,73 +50,73 @@ import ast.Ast.Type.IntArray;
 
 public interface Visitor
 {
-  // expressions
-  public void visit(Add e);
+	// expressions
+	public void visit(Add e);
 
-  public void visit(And e);
+	public void visit(And e);
 
-  public void visit(ArraySelect e);
+	public void visit(ArraySelect e);
 
-  public void visit(Call e);
+	public void visit(Call e);
 
-  public void visit(False e);
+	public void visit(False e);
 
-  public void visit(Id e);
+	public void visit(Id e);
 
-  public void visit(Length e);
+	public void visit(Length e);
 
-  public void visit(Lt e);
+	public void visit(Lt e);
 
-  public void visit(NewIntArray e);
+	public void visit(NewIntArray e);
 
-  public void visit(NewObject e);
+	public void visit(NewObject e);
 
-  public void visit(Not e);
+	public void visit(Not e);
 
-  public void visit(Num e);
+	public void visit(Num e);
 
-  public void visit(Sub e);
+	public void visit(Sub e);
 
-  public void visit(This e);
+	public void visit(This e);
 
-  public void visit(Times e);
+	public void visit(Times e);
 
-  public void visit(True e);
+	public void visit(True e);
 
-  // statements
-  public void visit(Assign s);
+	// statements
+	public void visit(Assign s);
 
-  public void visit(AssignArray s);
+	public void visit(AssignArray s);
 
-  public void visit(Block s);
+	public void visit(Block s);
 
-  public void visit(If s);
+	public void visit(If s);
 
-  public void visit(Print s);
+	public void visit(Print s);
 
-  public void visit(While s);
+	public void visit(While s);
 
-  // type
-  public void visit(Boolean t);
+	// type
+	public void visit(Boolean t);
 
-  public void visit(ClassType t);
+	public void visit(ClassType t);
 
-  public void visit(Int t);
+	public void visit(Int t);
 
-  public void visit(IntArray t);
+	public void visit(IntArray t);
 
-  // dec
-  public void visit(Dec.DecSingle d);
+	// dec
+	public void visit(Dec.DecSingle d);
 
-  // method
-  public void visit(MethodSingle m);
+	// method
+	public void visit(MethodSingle m);
 
-  // class
-  public void visit(Class.ClassSingle c);
+	// class
+	public void visit(Class.ClassSingle c);
 
-  // main class
-  public void visit(MainClassSingle c);
+	// main class
+	public void visit(MainClassSingle c);
 
-  // program
-  public void visit(ast.Ast.Program.ProgramSingle p);
+	// program
+	public void visit(ast.Ast.Program.ProgramSingle p);
 }

@@ -57,558 +57,569 @@ import control.Control.ConAst;
 
 public class ElaboratorVisitor implements ast.Visitor
 {
-  public ClassTable classTable; // symbol table for class
-  public MethodTable methodTable; // symbol table for each method
-  public String currentClass; // the class name being elaborated
-  public  Type.T type; // type of the expression being elaborated
-  public String currentMethod;
-  public int linenum;
-  public ElaboratorVisitor()
-  {
-    this.classTable = new ClassTable();
-    this.methodTable = new MethodTable();
-    this.currentClass = null;
-    this.type = null;
-    
-  }
-  public enum Error
-  {
-	MISTYPE,
-	UNDECL,
-	RET;
-  }
-private void error()
-{
-	System.exit(1);
-}
-  private void error(Error c,int linenum)
-  {
-	  switch(c){
-	  case MISTYPE:
-		  System.err.println("error:type mismatch at line "+linenum);
-		  System.err.println("need type:"+type.toString());
-		  System.exit(1);
-		  break;
-	  case UNDECL:
-		  System.err.println("error:un decl var at line "+linenum);
-		  System.exit(1);
-		  break;
-	  case RET:
-		  System.err.println("error:return val mis at line "+linenum);
-		  System.err.println("return type must be "+type.toString());
-		  System.exit(1);
-	  }
-	  
-    
-    
-    
-  }
+	public ClassTable classTable; // symbol table for class
+	public MethodTable methodTable; // symbol table for each method
+	public String currentClass; // the class name being elaborated
+	public Type.T type; // type of the expression being elaborated
+	public String currentMethod;
+	public int linenum;
 
-  // /////////////////////////////////////////////////////
-  // expressions
-  @Override
-  public void visit(Add e)
-  {
-	  e.left.accept(this);
-	  Type.T t=this.type;
-	  e.right.accept(this);
-	  if(!t.toString().equals(this.type.toString()))
-		  error(Error.MISTYPE,e.linenum);								
-	  if(!t.toString().equals("@int"))			
-		  error(Error.MISTYPE,e.linenum);
-	  return;
-	  
-  }
+	public ElaboratorVisitor()
+	{
+		this.classTable = new ClassTable();
+		this.methodTable = new MethodTable();
+		this.currentClass = null;
+		this.type = null;
 
-  @Override
-  public void visit(And e)
-  {
-	  e.left.accept(this);
-	  Type.T t=this.type;
-	  e.right.accept(this);
-	  if(!t.toString().equals(this.type.toString()))
-		  error(Error.MISTYPE,e.linenum);
-	  if(!t.toString().equals("@boolean"))
-		  error(Error.MISTYPE,e.linenum);//&&Á½±ß±ØĞëÎª&&
-	  return;
-  }
+	}
 
-  @Override
-  public void visit(ArraySelect e)
-  {
-	  
-	  e.index.accept(this);
-	  if(!this.type.toString().equals("@int"))
-		  error(Error.MISTYPE,e.linenum);
-	  e.array.accept(this);
-	  
-	  //ÌØÊâ´¦ÀíArraySelect
-	  /*
-	   * i[3]+3 ÉÏÃæµÄe.array.acceptÖ®ºóthis.type=IntArray£¬ËùÒÔÒªÌØÊâ´¦Àí
-	   * ÈÃËùÓĞArraySelect¶¼ÎªIntÀàĞÍ¡£
-	   */
-	  this.type=new ast.Ast.Type.Int();
-	  //System.out.println(this.type.toString());
-	  
-	  return;
-  }
+	public enum Error {
+		MISTYPE, UNDECL, RET;
+	}
 
-  @Override
-  public void visit(Call e)
-  {
-    Type.T leftty;
-    Type.ClassType ty = null;
+	private void error()
+	{
+		System.exit(1);
+	}
 
-    e.exp.accept(this);
-    leftty = this.type;
-    if (leftty instanceof ClassType) {
-      ty = (ClassType) leftty;
-      e.type = ty.id;//½«µ÷ÓÃÕßµÄid¼ÇÂ¼
-    } else
-      error(Error.MISTYPE,e.linenum);
-    MethodType mty = this.classTable.getm(ty.id, e.id);//ÔÚTreeÀïÃæÕÒaccept
-    //ÊÕ¼¯callµÄËùÓĞ²ÎÊıµÄType
-    java.util.LinkedList<Type.T> argsty = new LinkedList<Type.T>();
-    for (Exp.T a : e.args) {
-      a.accept(this);
-      argsty.addLast(this.type);
-    }
-    //ÑéÖ¤·½·¨µÄ²ÎÊı¸öÊıÊÇ·ñÆ¥Åä
-    if (mty.argsType.size() != argsty.size())
-      error(Error.MISTYPE,e.linenum);
-    //ÑéÖ¤·½·¨µÄ²ÎÊıÀàĞÍÊÇ·ñÆ¥Åä
-    for (int i = 0; i < argsty.size(); i++) {
-      Dec.DecSingle dec = (Dec.DecSingle) mty.argsType.get(i);
-      if (dec.type.toString().equals(argsty.get(i).toString()))
-    	  ;//Èç¹ûÏàµÈ
-      else
-      {//  Èç¹û²»ÏàµÈ£¬ÓĞ¸¸ÀàĞÍµÄ»°£¬¸¸ÀàĞÍºÍargstyÆ¥ÅäÒ²¿É¡£
-    	  /*(²»¼ÓÕâÖÖÇé¿öµÄ´¦Àí£¬»áÔÚElabÊ±Ö±½Ó±¨´ímistype)
-    	   * ´ËÊ±Òª±È½ÏµÄÁ½¸ötype±ØĞëÊÇClassTypeµÄÊµÀı¡£
-    	   * ÒòÎªClassbinding¶ÔÏóÀïÃæ¼ÇÂ¼µÄextenss£¬Í¨¹ıclassTable²é¿´ÊÇ·ñÓĞ¸¸Àà
-    	   */
-    	  if(dec.type instanceof ClassType)
-    	  {
-    		  String currentcla=argsty.get(i).toString();
-    		  ClassBinding cb=this.classTable.get(currentcla);
-    		  boolean succ=false;
-    		  while(cb.extendss!=null)
-    		  {
-    			  if(cb.extendss.equals(dec.type.toString()))
-    			  {
-    				  succ=true;
-    				  break;
-    			  }
-    			  else
-    				  cb=this.classTable.get(cb.extendss);
-    		  }
-    		  if(succ)
-    			  ;
-    		  else
-    			  error(Error.MISTYPE,e.linenum);
-    	  }
-    	  else
-    		  error(Error.MISTYPE,e.linenum);
-    	  
-    	  
-    	  /* ¸ü¸ÄcallÀïÃæµÄ²ÎÊıÁĞ±íµÄÀàĞÍ£¬Ö®ËùÒÔ¿ÉÒÔ¸Ä±äastÊÇÒòÎªÔÚTransCÊ±²»ĞèÒªCall.at£¬Èç¹ûÒÔºó
-    	  * ÓĞÇé¿öĞèÒªÕâ¸ö×Ö¶Î£¬¿ÉÒÔÔÚAst.CallÀïÃæÔÙ¼ÓÒ»¸ö)
-    	  * 
-    	  * Ñ­»·½«Call.atÀïÃæµÄÀàĞÍÈ«¸ÄÎªº¯ÊıÔ­ĞÍµÄÀàĞÍ
-    	  */
-    	  if(dec.type instanceof ClassType&&
-    			  argsty.get(i) instanceof ClassType)
-    	  {
-    		  for (int j = 0; j < argsty.size(); j++) 
-    		  {
-    		      Dec.DecSingle decc = (Dec.DecSingle) mty.argsType.get(j);
-    		      Type.ClassType tcc=(Type.ClassType)decc.type;
-    		      argsty.set(j, tcc);//Í¨¹ıe.at=argstyÖ±½Ó¸Ä±äjavaAst
-    		  }
-    	  }
-      }
-        
-    }
-    this.type = mty.retType;
-    e.at = argsty;
-    e.rt = this.type;
-    return;
-  }
+	private void error(Error c, int linenum)
+	{
+		switch (c)
+		{
+		case MISTYPE:
+			System.err.println("error:type mismatch at line " + linenum);
+			System.err.println("need type:" + type.toString());
+			System.exit(1);
+			break;
+		case UNDECL:
+			System.err.println("error:un decl var at line " + linenum);
+			System.exit(1);
+			break;
+		case RET:
+			System.err.println("error:return val mis at line " + linenum);
+			System.err.println("return type must be " + type.toString());
+			System.exit(1);
+		}
 
-  @Override
-  public void visit(False e)
-  {
-	  this.type=new Type.Boolean();
-  }
+	}
 
-  @Override
-  public void visit(Id e)
-  {
-    // first look up the id in method table
-    Type.T type = this.methodTable.get(e.id);
-    // if search failed, then s.id must be a class field.
-    if (type == null) {
-      type = this.classTable.get(this.currentClass, e.id);
-      // mark this id as a field id, this fact will be
-      // useful in later phase.
-      e.isField = true;
-    }
-    //ÔÚÉÏÒ»²½ÖĞÒÑ¾­±éÀúµÄËùÓĞµÄ×æÏÈ£¡£¡£¡£¡
-    if (type == null)
-      error(Error.UNDECL,e.linenum);
-    this.type = type;
-    // record this type on this node for future use.
-    e.type = type;//¸øÕâ¸öid¼ÓÉÏÀàĞÍ¡£
-    return;
-  }
+	// /////////////////////////////////////////////////////
+	// expressions
+	@Override
+	public void visit(Add e)
+	{
+		e.left.accept(this);
+		Type.T t = this.type;
+		e.right.accept(this);
+		if (!t.toString().equals(this.type.toString()))
+			error(Error.MISTYPE, e.linenum);
+		if (!t.toString().equals("@int"))
+			error(Error.MISTYPE, e.linenum);
+		return;
 
-  @Override
-  public void visit(Length e)
-  {
-	  e.array.accept(this);
-	  
-	  this.type= new Type.Int();
-	  return;
-  }
+	}
 
-  @Override
-  public void visit(Lt e)
-  {
-    e.left.accept(this);
-    Type.T ty = this.type;
-    e.right.accept(this);
-    if (!this.type.toString().equals(ty.toString()))
-      error(Error.MISTYPE,e.linenum);
-    this.type = new Type.Boolean();
-    return;
-  }
+	@Override
+	public void visit(And e)
+	{
+		e.left.accept(this);
+		Type.T t = this.type;
+		e.right.accept(this);
+		if (!t.toString().equals(this.type.toString()))
+			error(Error.MISTYPE, e.linenum);
+		if (!t.toString().equals("@boolean"))
+			error(Error.MISTYPE, e.linenum);// &&ä¸¤è¾¹å¿…é¡»ä¸º&&
+		return;
+	}
 
-  @Override
-  public void visit(NewIntArray e)
-  {
-	  e.exp.accept(this);
-	  if(!this.type.toString().equals("@int"))
-		  error(Error.MISTYPE,e.linenum);
-	  this.type=new Type.IntArray();
-  }
+	@Override
+	public void visit(ArraySelect e)
+	{
 
-  @Override
-  public void visit(NewObject e)
-  {
-    this.type = new Type.ClassType(e.id);
-    return;
-  }
+		e.index.accept(this);
+		if (!this.type.toString().equals("@int"))
+			error(Error.MISTYPE, e.linenum);
+		e.array.accept(this);
 
-  @Override
-  public void visit(Not e)
-  {
-	  e.exp.accept(this);
-	  this.type=new Type.Boolean();
-  }
+		// ç‰¹æ®Šå¤„ç†ArraySelect
+		/*
+		 * i[3]+3 ä¸Šé¢çš„e.array.acceptä¹‹åthis.type=IntArrayï¼Œæ‰€ä»¥è¦ç‰¹æ®Šå¤„ç†
+		 * è®©æ‰€æœ‰ArraySelectéƒ½ä¸ºIntç±»å‹ã€‚
+		 */
+		this.type = new ast.Ast.Type.Int();
+		// System.out.println(this.type.toString());
 
-  @Override
-  public void visit(Num e)
-  {
-    this.type = new Type.Int();
-    return;
-  }
+		return;
+	}
 
-  @Override
-  public void visit(Sub e)
-  {
-    e.left.accept(this);
-    Type.T leftty = this.type;
-    e.right.accept(this);
-    if (!this.type.toString().equals(leftty.toString()))
-      error(Error.MISTYPE,e.linenum);
-    this.type = new Type.Int();
-    return;
-  }
+	@Override
+	public void visit(Call e)
+	{
+		Type.T leftty;
+		Type.ClassType ty = null;
 
-  @Override
-  public void visit(This e)
-  {
-    this.type = new Type.ClassType(this.currentClass);
-    return;
-  }
+		e.exp.accept(this);
+		leftty = this.type;
+		if (leftty instanceof ClassType)
+		{
+			ty = (ClassType) leftty;
+			e.type = ty.id;// å°†è°ƒç”¨è€…çš„idè®°å½•
+		}
+		else
+			error(Error.MISTYPE, e.linenum);
+		MethodType mty = this.classTable.getm(ty.id, e.id);// åœ¨Treeé‡Œé¢æ‰¾accept
+		// æ”¶é›†callçš„æ‰€æœ‰å‚æ•°çš„Type
+		java.util.LinkedList<Type.T> argsty = new LinkedList<Type.T>();
+		for (Exp.T a : e.args)
+		{
+			a.accept(this);
+			argsty.addLast(this.type);
+		}
+		// éªŒè¯æ–¹æ³•çš„å‚æ•°ä¸ªæ•°æ˜¯å¦åŒ¹é…
+		if (mty.argsType.size() != argsty.size())
+			error(Error.MISTYPE, e.linenum);
+		// éªŒè¯æ–¹æ³•çš„å‚æ•°ç±»å‹æ˜¯å¦åŒ¹é…
+		for (int i = 0; i < argsty.size(); i++)
+		{
+			Dec.DecSingle dec = (Dec.DecSingle) mty.argsType.get(i);
+			if (dec.type.toString().equals(argsty.get(i).toString()))
+				;// å¦‚æœç›¸ç­‰
+			else
+			{// å¦‚æœä¸ç›¸ç­‰ï¼Œæœ‰çˆ¶ç±»å‹çš„è¯ï¼Œçˆ¶ç±»å‹å’ŒargstyåŒ¹é…ä¹Ÿå¯ã€‚
+				/*
+				 * (ä¸åŠ è¿™ç§æƒ…å†µçš„å¤„ç†ï¼Œä¼šåœ¨Elabæ—¶ç›´æ¥æŠ¥é”™mistype) æ­¤æ—¶è¦æ¯”è¾ƒçš„ä¸¤ä¸ªtypeå¿…é¡»æ˜¯ClassTypeçš„å®ä¾‹ã€‚
+				 * å› ä¸ºClassbindingå¯¹è±¡é‡Œé¢è®°å½•çš„extenssï¼Œé€šè¿‡classTableæŸ¥çœ‹æ˜¯å¦æœ‰çˆ¶ç±»
+				 */
+				if (dec.type instanceof ClassType)
+				{
+					String currentcla = argsty.get(i).toString();
+					ClassBinding cb = this.classTable.get(currentcla);
+					boolean succ = false;
+					while (cb.extendss != null)
+					{
+						if (cb.extendss.equals(dec.type.toString()))
+						{
+							succ = true;
+							break;
+						}
+						else
+							cb = this.classTable.get(cb.extendss);
+					}
+					if (succ)
+						;
+					else
+						error(Error.MISTYPE, e.linenum);
+				}
+				else
+					error(Error.MISTYPE, e.linenum);
 
-  @Override
-  public void visit(Times e)
-  {
-    e.left.accept(this);
-    Type.T leftty = this.type;
-    e.right.accept(this);
-    if (!this.type.toString().equals(leftty.toString()))
-    	error(Error.MISTYPE,e.linenum);
-    this.type = new Type.Int();
-    return;
-  }
+				/*
+				 * æ›´æ”¹callé‡Œé¢çš„å‚æ•°åˆ—è¡¨çš„ç±»å‹ï¼Œä¹‹æ‰€ä»¥å¯ä»¥æ”¹å˜astæ˜¯å› ä¸ºåœ¨TransCæ—¶ä¸éœ€è¦Call.atï¼Œå¦‚æœä»¥å
+				 * æœ‰æƒ…å†µéœ€è¦è¿™ä¸ªå­—æ®µï¼Œå¯ä»¥åœ¨Ast.Callé‡Œé¢å†åŠ ä¸€ä¸ª)
+				 * 
+				 * å¾ªç¯å°†Call.até‡Œé¢çš„ç±»å‹å…¨æ”¹ä¸ºå‡½æ•°åŸå‹çš„ç±»å‹
+				 */
+				if (dec.type instanceof ClassType
+						&& argsty.get(i) instanceof ClassType)
+				{
+					for (int j = 0; j < argsty.size(); j++)
+					{
+						Dec.DecSingle decc = (Dec.DecSingle) mty.argsType
+								.get(j);
+						Type.ClassType tcc = (Type.ClassType) decc.type;
+						argsty.set(j, tcc);// é€šè¿‡e.at=argstyç›´æ¥æ”¹å˜javaAst
+					}
+				}
+			}
 
-  @Override
-  public void visit(True e)
-  {
-	 this.type=new Type.Boolean(); 
-  }
+		}
+		this.type = mty.retType;
+		e.at = argsty;
+		e.rt = this.type;
+		return;
+	}
 
-  // statements
-  @Override
-  public void visit(Assign s)
-  {
-    // first look up the id in method table
-    Type.T type = this.methodTable.get(s.id);
-    // if search failed, then s.id must
-    if (type == null)
-    {
-      type = this.classTable.get(this.currentClass, s.id);
-      s.isField=true;
-    }
-    
-    if (type == null)
-    	error(Error.UNDECL,s.linenum);
-    
-    s.type=type;//ÎªÁËÊÊÓ¦bytecodeµÄĞèÒª£¡£¡£¡£¡£¡ÔÚ´ËÊ±ĞèÒª¸øAssignµÄtype¸³Öµ£¡£¡£¡£¡
-    s.exp.accept(this);//typeÊÇ´æ·Å=×ó±ßµÄidµÄÀàĞÍ£¬this.typeÊÇ´æ·Å=ÓÒ±ßexpµÄÀàĞÍ£¬
-    					//Òò´Ë£¬Ö´ĞĞÍês.exp.accept(this)ºó£¬this.typeÒ»¶¨Òª¸Ä±ä¡£
-    
-    
-    return;
-  }
+	@Override
+	public void visit(False e)
+	{
+		this.type = new Type.Boolean();
+	}
 
-  @Override
-  public void visit(AssignArray s)
-  {
-	  //ÏÈÔÚ±¾·½·¨ÖĞÕÒ
-	  Type.T type=this.methodTable.get(s.id);
-	 //ÔÚÀàÖĞÕÒ
-	  if(type==null)
-	  {
-		  type=this.classTable.get(this.currentClass, s.id);
-		  s.isField=true;
-		  
-	  }
-	  if(type==null)
-		  error(Error.UNDECL,s.linenum);
-	  s.tyep=type;
-	  //ÅĞ¶ÏË÷ÒıºÅ
-	 // System.out.println(type.toString());// ---------------------------------------
-	  s.index.accept(this);
-	  if(!this.type.toString().equals("@int"))
-		  error(Error.UNDECL,s.linenum);
-	  //System.out.println("index finished.................");
-	  //ÅĞ¶ÏidÀàĞÍ
-	  s.exp.accept(this);
-	 // System.out.println(s.exp.getClass().getName());
-	  if(!s.exp.getClass().getName().equals("ast.Ast$Exp$ArraySelect"))
-	  {
-		  if(!this.type.toString().equals("@int"))
-			  error(Error.MISTYPE,s.linenum);
-	  }
-	  else
-	  {
-		  if(!type.toString().equals("@int[]"))
-			  error(Error.MISTYPE,s.linenum);
-		  
-	  }
-	  
-  }
+	@Override
+	public void visit(Id e)
+	{
+		// first look up the id in method table
+		Type.T type = this.methodTable.get(e.id);
+		// if search failed, then s.id must be a class field.
+		if (type == null)
+		{
+			type = this.classTable.get(this.currentClass, e.id);
+			// mark this id as a field id, this fact will be
+			// useful in later phase.
+			e.isField = true;
+		}
+		// åœ¨ä¸Šä¸€æ­¥ä¸­å·²ç»éå†çš„æ‰€æœ‰çš„ç¥–å…ˆï¼ï¼ï¼ï¼
+		if (type == null)
+			error(Error.UNDECL, e.linenum);
+		this.type = type;
+		// record this type on this node for future use.
+		e.type = type;// ç»™è¿™ä¸ªidåŠ ä¸Šç±»å‹ã€‚
+		return;
+	}
 
-  @Override
-  public void visit(Block s)
-  {
-	  for(Stm.T t:s.stms)
-		  t.accept(this);
-  }
+	@Override
+	public void visit(Length e)
+	{
+		e.array.accept(this);
 
-  @Override
-  public void visit(If s)
-  {
-    s.condition.accept(this);
-    if (!this.type.toString().equals("@boolean"))
-    	error(Error.MISTYPE,s.linenum);
-    s.thenn.accept(this);
-    s.elsee.accept(this);
-    return;
-  }
+		this.type = new Type.Int();
+		return;
+	}
 
-  @Override
-  public void visit(Print s)
-  {
-    s.exp.accept(this);
-    
-    if (!this.type.toString().equals("@int"))
-    	error(Error.MISTYPE,s.linenum);
-    
-    return;
-  }
+	@Override
+	public void visit(Lt e)
+	{
+		e.left.accept(this);
+		Type.T ty = this.type;
+		e.right.accept(this);
+		if (!this.type.toString().equals(ty.toString()))
+			error(Error.MISTYPE, e.linenum);
+		this.type = new Type.Boolean();
+		return;
+	}
 
-  @Override
-  public void visit(While s)
-  {
-	  s.condition.accept(this);
-	  if(!this.type.toString().equals("@boolean"))
-		  error(Error.MISTYPE,s.linenum);
-	  s.body.accept(this);
-	  return;
-  }
+	@Override
+	public void visit(NewIntArray e)
+	{
+		e.exp.accept(this);
+		if (!this.type.toString().equals("@int"))
+			error(Error.MISTYPE, e.linenum);
+		this.type = new Type.IntArray();
+	}
 
-  // type
-  @Override
-  public void visit(Type.Boolean t)
-  {
-	  System.out.println("The Ast is wrong!");
-	  error();
-  }
+	@Override
+	public void visit(NewObject e)
+	{
+		this.type = new Type.ClassType(e.id);
+		return;
+	}
 
-  @Override
-  public void visit(Type.ClassType t)
-  {
-	  System.out.println("The Ast is wrong!");
-	  error();
-  }
+	@Override
+	public void visit(Not e)
+	{
+		e.exp.accept(this);
+		this.type = new Type.Boolean();
+	}
 
-  @Override
-  public void visit(Type.Int t)
-  {
-	  System.out.println("The Ast is wrong!");
-	  error();
-  }
+	@Override
+	public void visit(Num e)
+	{
+		this.type = new Type.Int();
+		return;
+	}
 
-  @Override
-  public void visit(Type.IntArray t)
-  {
-	  System.out.println("The Ast is wrong!");
-	  error();
-  }
+	@Override
+	public void visit(Sub e)
+	{
+		e.left.accept(this);
+		Type.T leftty = this.type;
+		e.right.accept(this);
+		if (!this.type.toString().equals(leftty.toString()))
+			error(Error.MISTYPE, e.linenum);
+		this.type = new Type.Int();
+		return;
+	}
 
-  // dec
-  @Override
-  public void visit(Dec.DecSingle d)
-  {
-	  System.out.println("The Ast is wrong!");
-	  error();
-  }
+	@Override
+	public void visit(This e)
+	{
+		this.type = new Type.ClassType(this.currentClass);
+		return;
+	}
 
-  // method
-  @Override
-  public void visit(Method.MethodSingle m)
-  {
-    // construct the method table
-	this.methodTable = new  MethodTable();
-    this.methodTable.put(m.formals, m.locals);
+	@Override
+	public void visit(Times e)
+	{
+		e.left.accept(this);
+		Type.T leftty = this.type;
+		e.right.accept(this);
+		if (!this.type.toString().equals(leftty.toString()))
+			error(Error.MISTYPE, e.linenum);
+		this.type = new Type.Int();
+		return;
+	}
 
-    if (ConAst.elabMethodTable)
-      this.methodTable.dump();
+	@Override
+	public void visit(True e)
+	{
+		this.type = new Type.Boolean();
+	}
 
-    for (Stm.T s : m.stms)
-    {
-    	System.out.println("This is the Stm:"+s.linenum+" is "+s.toString() );
-    	s.accept(this);
-    	linenum=s.linenum;
-    }
-    ClassBinding cb=this.classTable.get(currentClass);
-    MethodType methodtype=cb.methods.get(m.id);
-    
-     m.retExp.accept(this);
-     if(!methodtype.retType.toString().equals(this.type.toString()))//Why??
-    	 //methodtype.retType==this.type
-     {
-    	 //test
-    	 System.out.println(methodtype.retType.toString());
-    	 System.out.println(this.type.toString());
-    	 
-    	 error(Error.RET,linenum);
-     }
-    return;
-  }
+	// statements
+	@Override
+	public void visit(Assign s)
+	{
+		// first look up the id in method table
+		Type.T type = this.methodTable.get(s.id);
+		// if search failed, then s.id must
+		if (type == null)
+		{
+			type = this.classTable.get(this.currentClass, s.id);
+			s.isField = true;
+		}
 
-  // class
-  @Override
-  public void visit(Class.ClassSingle c)
-  {
-    this.currentClass = c.id;
-    /*
-     * ÔÚÕâÀïÓ¦¸ÃÌí¼ÓextendssµÄÅĞ¶Ï¡£
-     * µ±¼Ì³ĞÁË»ùÀàÊ±£¬Ó¦¸Ã½«»ùÀàµÄÉùÃ÷ºÍ·½·¨Æ´½ÓÔÚÕâ¸ö×ÓÀà
-     * 
-     * µ±ÊµÏÖÁË¼Ì³ĞÌØĞÔÖ®ºó£¬×ÓÀàÖĞ¿ÉÒÔÓÃÔÚ»ùÀàÖĞÉùÃ÷µÄ±äÁ¿¡£
-     * ¿ÉÒÔÓÃ»ùÀàÖĞµÄ·½·¨
-     */
+		if (type == null)
+			error(Error.UNDECL, s.linenum);
 
-    for (Method.T m : c.methods) {
-    	MethodSingle mm = (MethodSingle) m;
-    	System.out.println("This is the method:  "+ mm.id);
-      m.accept(this);
-    }
-    return;
-  }
+		s.type = type;// ä¸ºäº†é€‚åº”bytecodeçš„éœ€è¦ï¼ï¼ï¼ï¼ï¼åœ¨æ­¤æ—¶éœ€è¦ç»™Assignçš„typeèµ‹å€¼ï¼ï¼ï¼ï¼
+		s.exp.accept(this);// typeæ˜¯å­˜æ”¾=å·¦è¾¹çš„idçš„ç±»å‹ï¼Œthis.typeæ˜¯å­˜æ”¾=å³è¾¹expçš„ç±»å‹ï¼Œ
+							// å› æ­¤ï¼Œæ‰§è¡Œå®Œs.exp.accept(this)åï¼Œthis.typeä¸€å®šè¦æ”¹å˜ã€‚
 
-  // main class
-  @Override
-  public void visit(MainClass.MainClassSingle c)
-  {
-    this.currentClass = c.id;
-    // "main" has an argument "arg" of type "String[]", but
-    // one has no chance to use it. So it's safe to skip it...
-    
-    c.stm.accept(this);
-    
-    return;
-  }
+		return;
+	}
 
-  // ////////////////////////////////////////////////////////
-  // step 1: build class table
-  // class table for Main class
-  private void buildMainClass(MainClass.MainClassSingle main)
-  {
-    this.classTable.put(main.id, new ClassBinding(null));
-  }
+	@Override
+	public void visit(AssignArray s)
+	{
+		// å…ˆåœ¨æœ¬æ–¹æ³•ä¸­æ‰¾
+		Type.T type = this.methodTable.get(s.id);
+		// åœ¨ç±»ä¸­æ‰¾
+		if (type == null)
+		{
+			type = this.classTable.get(this.currentClass, s.id);
+			s.isField = true;
 
-  // class table for normal classes
-  private void buildClass(ClassSingle c)
-  {
-    this.classTable.put(c.id, new ClassBinding(c.extendss));
-    //VarDecls
-    for (Dec.T dec : c.decs) {
-      Dec.DecSingle d = (Dec.DecSingle) dec;
-      this.classTable.put(c.id, d.id, d.type);
-    }
-    //Method
-    for (Method.T method : c.methods) {
-      MethodSingle m = (MethodSingle) method;
-      this.classTable.put(c.id, m.id, new MethodType(m.retType, m.formals));
-    }
-  }
+		}
+		if (type == null)
+			error(Error.UNDECL, s.linenum);
+		s.tyep = type;
+		// åˆ¤æ–­ç´¢å¼•å·
+		// System.out.println(type.toString());//
+		// ---------------------------------------
+		s.index.accept(this);
+		if (!this.type.toString().equals("@int"))
+			error(Error.UNDECL, s.linenum);
+		// System.out.println("index finished.................");
+		// åˆ¤æ–­idç±»å‹
+		s.exp.accept(this);
+		// System.out.println(s.exp.getClass().getName());
+		if (!s.exp.getClass().getName().equals("ast.Ast$Exp$ArraySelect"))
+		{
+			if (!this.type.toString().equals("@int"))
+				error(Error.MISTYPE, s.linenum);
+		}
+		else
+		{
+			if (!type.toString().equals("@int[]"))
+				error(Error.MISTYPE, s.linenum);
 
-  // step 1: end
-  // ///////////////////////////////////////////////////
+		}
 
-  // program
-  @Override
-  public void visit(ProgramSingle p)
-  {
-    // ////////////////////////////////////////////////
-    // step 1: build a symbol table for class (the class table)
-    // a class table is a mapping from class names to class bindings
-    // classTable: className -> ClassBinding{extends, fields, methods}
-    buildMainClass((MainClass.MainClassSingle) p.mainClass);
-    for (Class.T c : p.classes) {
-      buildClass((ClassSingle) c);
-    }
+	}
 
-    // we can double check that the class table is OK!
-    if (control.Control.ConAst.elabClassTable) {
-      this.classTable.dump();
-    }
+	@Override
+	public void visit(Block s)
+	{
+		for (Stm.T t : s.stms)
+			t.accept(this);
+	}
 
-    // ////////////////////////////////////////////////
-    // step 2: elaborate each class in turn, under the class table
-    // built above.
-    System.out.println("mainClass....................");
-    p.mainClass.accept(this);
-    for (Class.T c : p.classes) {
-    	System.out.println("normalClass....................");
-      c.accept(this);
-    }
+	@Override
+	public void visit(If s)
+	{
+		s.condition.accept(this);
+		if (!this.type.toString().equals("@boolean"))
+			error(Error.MISTYPE, s.linenum);
+		s.thenn.accept(this);
+		s.elsee.accept(this);
+		return;
+	}
 
-  }
+	@Override
+	public void visit(Print s)
+	{
+		s.exp.accept(this);
+
+		if (!this.type.toString().equals("@int"))
+			error(Error.MISTYPE, s.linenum);
+
+		return;
+	}
+
+	@Override
+	public void visit(While s)
+	{
+		s.condition.accept(this);
+		if (!this.type.toString().equals("@boolean"))
+			error(Error.MISTYPE, s.linenum);
+		s.body.accept(this);
+		return;
+	}
+
+	// type
+	@Override
+	public void visit(Type.Boolean t)
+	{
+		System.out.println("The Ast is wrong!");
+		error();
+	}
+
+	@Override
+	public void visit(Type.ClassType t)
+	{
+		System.out.println("The Ast is wrong!");
+		error();
+	}
+
+	@Override
+	public void visit(Type.Int t)
+	{
+		System.out.println("The Ast is wrong!");
+		error();
+	}
+
+	@Override
+	public void visit(Type.IntArray t)
+	{
+		System.out.println("The Ast is wrong!");
+		error();
+	}
+
+	// dec
+	@Override
+	public void visit(Dec.DecSingle d)
+	{
+		System.out.println("The Ast is wrong!");
+		error();
+	}
+
+	// method
+	@Override
+	public void visit(Method.MethodSingle m)
+	{
+		// construct the method table
+		this.methodTable = new MethodTable();
+		this.methodTable.put(m.formals, m.locals);
+
+		if (ConAst.elabMethodTable)
+			this.methodTable.dump();
+
+		for (Stm.T s : m.stms)
+		{
+			System.out.println("This is the Stm:" + s.linenum + " is "
+					+ s.toString());
+			s.accept(this);
+			linenum = s.linenum;
+		}
+		ClassBinding cb = this.classTable.get(currentClass);
+		MethodType methodtype = cb.methods.get(m.id);
+
+		m.retExp.accept(this);
+		if (!methodtype.retType.toString().equals(this.type.toString()))// Why??
+		// methodtype.retType==this.type
+		{
+			// test
+			System.out.println(methodtype.retType.toString());
+			System.out.println(this.type.toString());
+
+			error(Error.RET, linenum);
+		}
+		return;
+	}
+
+	// class
+	@Override
+	public void visit(Class.ClassSingle c)
+	{
+		this.currentClass = c.id;
+		/*
+		 * åœ¨è¿™é‡Œåº”è¯¥æ·»åŠ extendssçš„åˆ¤æ–­ã€‚ å½“ç»§æ‰¿äº†åŸºç±»æ—¶ï¼Œåº”è¯¥å°†åŸºç±»çš„å£°æ˜å’Œæ–¹æ³•æ‹¼æ¥åœ¨è¿™ä¸ªå­ç±»
+		 * 
+		 * å½“å®ç°äº†ç»§æ‰¿ç‰¹æ€§ä¹‹åï¼Œå­ç±»ä¸­å¯ä»¥ç”¨åœ¨åŸºç±»ä¸­å£°æ˜çš„å˜é‡ã€‚ å¯ä»¥ç”¨åŸºç±»ä¸­çš„æ–¹æ³•
+		 */
+
+		for (Method.T m : c.methods)
+		{
+			MethodSingle mm = (MethodSingle) m;
+			System.out.println("This is the method:  " + mm.id);
+			m.accept(this);
+		}
+		return;
+	}
+
+	// main class
+	@Override
+	public void visit(MainClass.MainClassSingle c)
+	{
+		this.currentClass = c.id;
+		// "main" has an argument "arg" of type "String[]", but
+		// one has no chance to use it. So it's safe to skip it...
+
+		c.stm.accept(this);
+
+		return;
+	}
+
+	// ////////////////////////////////////////////////////////
+	// step 1: build class table
+	// class table for Main class
+	private void buildMainClass(MainClass.MainClassSingle main)
+	{
+		this.classTable.put(main.id, new ClassBinding(null));
+	}
+
+	// class table for normal classes
+	private void buildClass(ClassSingle c)
+	{
+		this.classTable.put(c.id, new ClassBinding(c.extendss));
+		// VarDecls
+		for (Dec.T dec : c.decs)
+		{
+			Dec.DecSingle d = (Dec.DecSingle) dec;
+			this.classTable.put(c.id, d.id, d.type);
+		}
+		// Method
+		for (Method.T method : c.methods)
+		{
+			MethodSingle m = (MethodSingle) method;
+			this.classTable.put(c.id, m.id,
+					new MethodType(m.retType, m.formals));
+		}
+	}
+
+	// step 1: end
+	// ///////////////////////////////////////////////////
+
+	// program
+	@Override
+	public void visit(ProgramSingle p)
+	{
+		// ////////////////////////////////////////////////
+		// step 1: build a symbol table for class (the class table)
+		// a class table is a mapping from class names to class bindings
+		// classTable: className -> ClassBinding{extends, fields, methods}
+		buildMainClass((MainClass.MainClassSingle) p.mainClass);
+		for (Class.T c : p.classes)
+		{
+			buildClass((ClassSingle) c);
+		}
+
+		// we can double check that the class table is OK!
+		if (control.Control.ConAst.elabClassTable)
+		{
+			this.classTable.dump();
+		}
+
+		// ////////////////////////////////////////////////
+		// step 2: elaborate each class in turn, under the class table
+		// built above.
+		System.out.println("mainClass....................");
+		p.mainClass.accept(this);
+		for (Class.T c : p.classes)
+		{
+			System.out.println("normalClass....................");
+			c.accept(this);
+		}
+
+	}
 }

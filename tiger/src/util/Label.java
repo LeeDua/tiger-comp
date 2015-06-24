@@ -1,9 +1,10 @@
 package util;
 
-public class Label
+public class Label 
 {
-  private int i;
-  private static int count = 0;
+ 
+	public int i;
+	private static int count = 0;
 
   public Label()
   {

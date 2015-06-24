@@ -41,406 +41,420 @@ import codegen.bytecode.Ast.Stm.*;
 
 public class PrettyPrintVisitor implements Visitor
 {
-  private java.io.BufferedWriter writer;
+	private java.io.BufferedWriter writer;
 
-  public PrettyPrintVisitor()
-  {
-  }
+	public PrettyPrintVisitor()
+	{
+	}
 
-  private void sayln(String s)
-  {
-    say(s);
-    try {
-      this.writer.write("\n");
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(1);
-    }
-  }
+	private void sayln(String s)
+	{
+		say(s);
+		try
+		{
+			this.writer.write("\n");
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
 
-  private void isayln(String s)
-  {
-    say("    ");
-    say(s);
-    try {
-      this.writer.write("\n");
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(1);
-    }
-  }
+	private void isayln(String s)
+	{
+		say("    ");
+		say(s);
+		try
+		{
+			this.writer.write("\n");
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
 
-  private void say(String s)
-  {
-    try {
-      this.writer.write(s);
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(1);
-    }
-  }
-  private void isay(String s)
-  {
-	  say("    ");
-	  say(s);
-	  
-  }
+	private void say(String s)
+	{
+		try
+		{
+			this.writer.write(s);
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
 
-  // /////////////////////////////////////////////////////
-  // statements
-  @Override
-  public void visit(Aload s)
-  {
-    this.isayln("aload " + s.index);
-    return;
-  }
+	private void isay(String s)
+	{
+		say("    ");
+		say(s);
 
-  @Override
-  public void visit(Areturn s)
-  {
-    this.isayln("areturn");
-    return;
-  }
+	}
 
-  @Override
-  public void visit(Astore s)
-  {
-    this.isayln("astore " + s.index);
-    return;
-  }
+	// /////////////////////////////////////////////////////
+	// statements
+	@Override
+	public void visit(Aload s)
+	{
+		this.isayln("aload " + s.index);
+		return;
+	}
 
-  @Override
-  public void visit(Goto s)
-  {
-    this.isayln("goto " + s.l.toString());
-    return;
-  }
+	@Override
+	public void visit(Areturn s)
+	{
+		this.isayln("areturn");
+		return;
+	}
 
-  @Override
-  public void visit(Ificmplt s)
-  {
-    this.isayln("if_icmplt " + s.l.toString());
-    return;
-  }
+	@Override
+	public void visit(Astore s)
+	{
+		this.isayln("astore " + s.index);
+		return;
+	}
 
-  @Override
-  public void visit(Ifne s)
-  {
-    this.isayln("ifne " + s.l.toString());
-    return;
-  }
+	@Override
+	public void visit(Goto s)
+	{
+		this.isayln("goto " + s.l.toString());
+		return;
+	}
 
-  @Override
-  public void visit(Iload s)
-  {
-    this.isayln("iload " + s.index);
-    return;
-  }
+	@Override
+	public void visit(Ificmplt s)
+	{
+		this.isayln("if_icmplt " + s.l.toString());
+		return;
+	}
 
-  @Override
-  public void visit(Imul s)
-  {
-    this.isayln("imul");
-    return;
-  }
+	@Override
+	public void visit(Ifne s)
+	{
+		this.isayln("ifne " + s.l.toString());
+		return;
+	}
 
-  @Override
-  public void visit(Invokevirtual s)
-  {
-    this.say("    invokevirtual " + s.c + "/" + s.f + "(");
-    for (Type.T t : s.at) {
-      t.accept(this);
-    }
-    this.say(")");
-    s.rt.accept(this);
-    this.sayln("");
-    return;
-  }
+	@Override
+	public void visit(Iload s)
+	{
+		this.isayln("iload " + s.index);
+		return;
+	}
 
-  @Override
-  public void visit(Ireturn s)
-  {
-    this.isayln("ireturn");
-    return;
-  }
+	@Override
+	public void visit(Imul s)
+	{
+		this.isayln("imul");
+		return;
+	}
 
-  @Override
-  public void visit(Istore s)
-  {
-    this.isayln("istore " + s.index);
-    return;
-  }
-  
-  @Override
-  public void visit(Iadd s)
-  {
-	  this.isayln("iadd");
-	  return;
-  }
-  
+	@Override
+	public void visit(Invokevirtual s)
+	{
+		this.say("    invokevirtual " + s.c + "/" + s.f + "(");
+		for (Type.T t : s.at)
+		{
+			t.accept(this);
+		}
+		this.say(")");
+		s.rt.accept(this);
+		this.sayln("");
+		return;
+	}
 
-  @Override
-  public void visit(Isub s)
-  {
-    this.isayln("isub");
-    return;
-  }
+	@Override
+	public void visit(Ireturn s)
+	{
+		this.isayln("ireturn");
+		return;
+	}
 
-  @Override
-  public void visit(LabelJ s)
-  {
-    this.sayln(s.l.toString() + ":");
-    return;
-  }
+	@Override
+	public void visit(Istore s)
+	{
+		this.isayln("istore " + s.index);
+		return;
+	}
 
-  @Override
-  public void visit(Ldc s)
-  {
-    this.isayln("ldc " + s.i);
-    return;
-  }
+	@Override
+	public void visit(Iadd s)
+	{
+		this.isayln("iadd");
+		return;
+	}
 
-  @Override
-  public void visit(New s)
-  {
-    this.isayln("new " + s.c);
-    this.isayln("dup");//duplicate top single-word item on the stack
-    this.isayln("invokespecial " + s.c + "/<init>()V");
-    /*
-     * <method-spec> is a method specification. 
-     * It is a single token made up of three parts:
-     *  a classname, a methodname and a descriptor. e.g.
-     * java/lang/StringBuffer/<init>()V
-     *
-     *invoke method belonging to a specific class
-    /*----------------------
-     * Before    |  After   |
-     * ---------------------
-     *  argN     | result   |
-     * ---------------------
-     *  ...      |          |
-     * ---------------------
-     * arg2      |          |
-     * ---------------------
-     * arg1      |          |
-     * ----------------------
-     * objref    |          |
-     * ---------------------
-     * ...       |          |
-     * ---------------------*/
-    return;
-  }
+	@Override
+	public void visit(Isub s)
+	{
+		this.isayln("isub");
+		return;
+	}
 
-  @Override
-  public void visit(Print s)
-  {
-	  /*
-	   * getstatic 会让一个objref进栈
-	   * invokevirtual会调用一个函数
-	   * swap的原因是，在Tanslate时让print的exp先进栈了
-	   */
-    this.isayln("getstatic java/lang/System/out Ljava/io/PrintStream;");
-    this.isayln("swap");//exchange top two of the stack，本来应该在此处让参数进栈
-    this.isayln("invokevirtual java/io/PrintStream/println(I)V");
-    return;
-  }
+	@Override
+	public void visit(LabelJ s)
+	{
+		this.sayln(s.l.toString() + ":");
+		return;
+	}
 
-  // type
-  @Override
-  public void visit(ClassType t)
-  {
-    this.say("L" + t.id + ";");
-  }
+	@Override
+	public void visit(Ldc s)
+	{
+		this.isayln("ldc " + s.i);
+		return;
+	}
 
-  @Override
-  public void visit(Int t)
-  {
-    this.say("I");
-  }
+	@Override
+	public void visit(New s)
+	{
+		this.isayln("new " + s.c);
+		this.isayln("dup");// duplicate top single-word item on the stack
+		this.isayln("invokespecial " + s.c + "/<init>()V");
+		/*
+		 * <method-spec> is a method specification. It is a single token made up
+		 * of three parts: a classname, a methodname and a descriptor. e.g.
+		 * java/lang/StringBuffer/<init>()V
+		 * 
+		 * invoke method belonging to a specific class /*----------------------
+		 * Before | After | --------------------- argN | result |
+		 * --------------------- ... | | --------------------- arg2 | |
+		 * --------------------- arg1 | | ---------------------- objref | |
+		 * --------------------- ... | | ---------------------
+		 */
+		return;
+	}
 
-  @Override
-  public void visit(IntArray t)
-  {
-    this.say("[I");
-  }
+	@Override
+	public void visit(Print s)
+	{
+		/*
+		 * getstatic 会让一个objref进栈 invokevirtual会调用一个函数
+		 * swap的原因是，在Tanslate时让print的exp先进栈了
+		 */
+		this.isayln("getstatic java/lang/System/out Ljava/io/PrintStream;");
+		this.isayln("swap");// exchange top two of the stack，本来应该在此处让参数进栈
+		this.isayln("invokevirtual java/io/PrintStream/println(I)V");
+		return;
+	}
 
-  // dec
-  @Override
-  public void visit(DecSingle d)
-  {
-  }
+	// type
+	@Override
+	public void visit(ClassType t)
+	{
+		this.say("L" + t.id + ";");
+	}
 
-  // method
-  @Override
-  public void visit(MethodSingle m)
-  {
-    this.say(".method public " + m.id + "(");
-    for (Dec.T d : m.formals) {
-      DecSingle dd = (DecSingle) d;
-      dd.type.accept(this);//参数列表的类型
-    }
-    this.say(")");
-    m.retType.accept(this);//方法返回值类型
-    this.sayln("");
-    this.sayln(".limit stack 4096");
-    this.sayln(".limit locals " + (m.index + 1));
+	@Override
+	public void visit(Int t)
+	{
+		this.say("I");
+	}
 
-    //方法内部的声明不需要打印，在indexTable里面隐含了声明。
-    for (Stm.T s : m.stms)
-      s.accept(this);
+	@Override
+	public void visit(IntArray t)
+	{
+		this.say("[I");
+	}
 
-    this.sayln(".end method");
-    return;
-  }
+	// dec
+	@Override
+	public void visit(DecSingle d)
+	{
+	}
 
-  // class
-  @Override
-  public void visit(ClassSingle c)
-  {
-    // Every class must go into its own class file.
-    try {
-      this.writer = new java.io.BufferedWriter(new java.io.OutputStreamWriter(
-          new java.io.FileOutputStream("test\\"+c.id + ".j")));
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(1);
-    }
+	// method
+	@Override
+	public void visit(MethodSingle m)
+	{
+		this.say(".method public " + m.id + "(");
+		for (Dec.T d : m.formals)
+		{
+			DecSingle dd = (DecSingle) d;
+			dd.type.accept(this);// 参数列表的类型
+		}
+		this.say(")");
+		m.retType.accept(this);// 方法返回值类型
+		this.sayln("");
+		this.sayln(".limit stack 4096");
+		this.sayln(".limit locals " + (m.index + 1));
 
-    // header
-    this.sayln("; This is automatically generated by the Tiger compiler.");
-    this.sayln("; Do NOT modify!\n");
+		// 方法内部的声明不需要打印，在indexTable里面隐含了声明。
+		for (Stm.T s : m.stms)
+			s.accept(this);
 
-    this.sayln(".class public " + c.id);
-    if (c.extendss == null)
-      this.sayln(".super java/lang/Object\n");
-    else
-      this.sayln(".super " + c.extendss);
+		this.sayln(".end method");
+		return;
+	}
 
-    // fields打印Class里面的声明。
-    for (Dec.T d : c.decs) {
-      DecSingle dd = (DecSingle) d;
-      this.say(".field public " + dd.id+" ");
-      dd.type.accept(this);
-      this.sayln("");
-    }
+	// class
+	@Override
+	public void visit(ClassSingle c)
+	{
+		// Every class must go into its own class file.
+		try
+		{
+			this.writer = new java.io.BufferedWriter(
+					new java.io.OutputStreamWriter(
+							new java.io.FileOutputStream("test\\" + c.id + ".j")));
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			System.exit(1);
+		}
 
-    // methods
-    this.sayln(".method public <init>()V");
-    this.isayln("aload 0");
-    if (c.extendss == null)
-      this.isayln("invokespecial java/lang/Object/<init>()V");
-    else
-      this.isayln("invokespecial " + c.extendss + "/<init>()V");
-    this.isayln("return");
-    this.sayln(".end method\n\n");
+		// header
+		this.sayln("; This is automatically generated by the Tiger compiler.");
+		this.sayln("; Do NOT modify!\n");
 
-    for (Method.T m : c.methods) {
-      m.accept(this);
-    }
+		this.sayln(".class public " + c.id);
+		if (c.extendss == null)
+			this.sayln(".super java/lang/Object\n");
+		else
+			this.sayln(".super " + c.extendss);
 
-    try {
-      this.writer.close();
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(1);
-    }
-    return;
-  }
+		// fields打印Class里面的声明。
+		for (Dec.T d : c.decs)
+		{
+			DecSingle dd = (DecSingle) d;
+			this.say(".field public " + dd.id + " ");
+			dd.type.accept(this);
+			this.sayln("");
+		}
 
-  // main class
-  @Override
-  public void visit(MainClassSingle c)
-  {
-    // Every class must go into its own class file.
-    try {
-      this.writer = new java.io.BufferedWriter(new java.io.OutputStreamWriter(
-          new java.io.FileOutputStream("test\\"+c.id + ".j")));
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(1);
-    }
+		// methods
+		this.sayln(".method public <init>()V");
+		this.isayln("aload 0");
+		if (c.extendss == null)
+			this.isayln("invokespecial java/lang/Object/<init>()V");
+		else
+			this.isayln("invokespecial " + c.extendss + "/<init>()V");
+		this.isayln("return");
+		this.sayln(".end method\n\n");
 
-    this.sayln("; This is automatically generated by the Tiger compiler.\n");
-    this.sayln("; Do NOT modify!\n");
+		for (Method.T m : c.methods)
+		{
+			m.accept(this);
+		}
 
-    this.sayln(".class public " + c.id);
-    this.sayln(".super java/lang/Object\n");
-    this.sayln(".method public static main([Ljava/lang/String;)V");
-    this.isayln(".limit stack 4096");
-    this.isayln(".limit locals 2");
-    for (Stm.T s : c.stms)
-      s.accept(this);
-    this.isayln("return");
-    this.sayln(".end method");
+		try
+		{
+			this.writer.close();
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return;
+	}
 
-    try {
-      this.writer.close();
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(1);
-    }
-    return;
-  }
+	// main class
+	@Override
+	public void visit(MainClassSingle c)
+	{
+		// Every class must go into its own class file.
+		try
+		{
+			this.writer = new java.io.BufferedWriter(
+					new java.io.OutputStreamWriter(
+							new java.io.FileOutputStream("test\\" + c.id + ".j")));
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			System.exit(1);
+		}
 
-  // program
-  @Override
-  public void visit(ProgramSingle p)
-  {
+		this.sayln("; This is automatically generated by the Tiger compiler.\n");
+		this.sayln("; Do NOT modify!\n");
 
-    p.mainClass.accept(this);
+		this.sayln(".class public " + c.id);
+		this.sayln(".super java/lang/Object\n");
+		this.sayln(".method public static main([Ljava/lang/String;)V");
+		this.isayln(".limit stack 4096");
+		this.isayln(".limit locals 2");
+		for (Stm.T s : c.stms)
+			s.accept(this);
+		this.isayln("return");
+		this.sayln(".end method");
 
-    for (Class.T c : p.classes) {
-      c.accept(this);
-    }
+		try
+		{
+			this.writer.close();
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return;
+	}
 
-  }
+	// program
+	@Override
+	public void visit(ProgramSingle p)
+	{
 
-@Override
-public void visit(Iand s) {
-	this.isayln("iand");
-	
-}
+		p.mainClass.accept(this);
 
-@Override
-public void visit(IAload s) {
-	this.isayln("iaload");
-	
-}
+		for (Class.T c : p.classes)
+		{
+			c.accept(this);
+		}
 
-@Override
-public void visit(ArrayLength s) {
-	this.isayln("arraylength");
-	
-}
+	}
 
-@Override
-public void visit(NewIntArray s) {
-	this.isayln("newarray int");
-	
-}
+	@Override
+	public void visit(Iand s)
+	{
+		this.isayln("iand");
 
-@Override
-public void visit(IAstore s) {
-	this.isayln("iastore");
-	
-}
+	}
 
-@Override
-public void visit(Getfield s) {
-	this.isay("getfield "+s.classId+"/"+s.id+" ");
-	s.type.accept(this);
-	this.sayln("");
-	
-}
+	@Override
+	public void visit(IAload s)
+	{
+		this.isayln("iaload");
 
-@Override
-public void visit(Putfield s) {
-	this.isay("putfield "+s.classId+"/"+s.id+" ");
-	s.type.accept(this);
-	this.sayln("");
-	
-}
+	}
 
+	@Override
+	public void visit(ArrayLength s)
+	{
+		this.isayln("arraylength");
 
+	}
+
+	@Override
+	public void visit(NewIntArray s)
+	{
+		this.isayln("newarray int");
+
+	}
+
+	@Override
+	public void visit(IAstore s)
+	{
+		this.isayln("iastore");
+
+	}
+
+	@Override
+	public void visit(Getfield s)
+	{
+		this.isay("getfield " + s.classId + "/" + s.id + " ");
+		s.type.accept(this);
+		this.sayln("");
+
+	}
+
+	@Override
+	public void visit(Putfield s)
+	{
+		this.isay("putfield " + s.classId + "/" + s.id + " ");
+		s.type.accept(this);
+		this.sayln("");
+
+	}
 
 }

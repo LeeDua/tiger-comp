@@ -4,12 +4,25 @@ class Factorial {
     }
 }
 class Fac {
+	int k;
+	int p;
+	int j;
     public int ComputeFac(int num) {
-        int num_aux;
-        if (num < 1)
-            num_aux = 1;
-        else
-            num_aux = num * (this.ComputeFac(num-1));
-        return num_aux;
+       Fac f1;
+       Fac f2;
+       Fac f3;
+       Fac f4;
+       Fac f5;
+       Fac f6;
+       int v;
+       
+       v = 1;
+       while(v<10)
+       {
+    	   f1 = new Fac();
+    	   v = v+1;
+       }
+       
+        return 1;
     }
 }

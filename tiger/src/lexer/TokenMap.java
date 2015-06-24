@@ -1,18 +1,35 @@
+/*------------------------------------------------------------------*/
+/* Copyright (C) SSE-USTC, 2014-2015                                */
+/*                                                                  */
+/*  FILE NAME             :  TokenMap.java                          */
+/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
+/*  LANGUAGE              :  Java                                   */
+/*  TARGET ENVIRONMENT    :  ANY                                    */
+/*  DATE OF FIRST RELEASE :  2014/10/05                             */
+/*  DESCRIPTION           :  the tiger compiler                     */
+/*------------------------------------------------------------------*/
+
+/*
+ * Revision log:
+ *
+ * 
+ *
+ */
 package lexer;
 
 import java.util.HashMap;
 
 import lexer.Token.Kind;
 
-public class TokenMap {
-	
-	public HashMap<String,Kind> tokenMap; 
-	
-	
+public class TokenMap
+{
+
+	public HashMap<String, Kind> tokenMap;
+
 	public TokenMap()
 	{
-		tokenMap=new HashMap<String,Kind>();
-		
+		tokenMap = new HashMap<String, Kind>();
+
 		tokenMap.put("+", Kind.TOKEN_ADD);
 		tokenMap.put("&&", Kind.TOKEN_AND);
 		tokenMap.put("=", Kind.TOKEN_ASSIGN);
@@ -24,7 +41,7 @@ public class TokenMap {
 		tokenMap.put("EOF", Kind.TOKEN_EOF);
 		tokenMap.put("extends", Kind.TOKEN_EXTENDS);
 		tokenMap.put("false", Kind.TOKEN_FALSE);
-		//id
+		// id
 		tokenMap.put("if", Kind.TOKEN_IF);
 		tokenMap.put("int", Kind.TOKEN_INT);
 		tokenMap.put("{", Kind.TOKEN_LBRACE);
@@ -35,7 +52,7 @@ public class TokenMap {
 		tokenMap.put("main", Kind.TOKEN_MAIN);
 		tokenMap.put("new", Kind.TOKEN_NEW);
 		tokenMap.put("!", Kind.TOKEN_NOT);
-		//number
+		// number
 		tokenMap.put("out", Kind.TOKEN_OUT);
 		tokenMap.put("println", Kind.TOKEN_PRINTLN);
 		tokenMap.put("public", Kind.TOKEN_PUBLIC);
@@ -54,10 +71,10 @@ public class TokenMap {
 		tokenMap.put("void", Kind.TOKEN_VOID);
 		tokenMap.put("while", Kind.TOKEN_WHILE);
 	}
-	
+
 	public Kind getKind(String s)
 	{
-		Kind k=tokenMap.get(s);
+		Kind k = tokenMap.get(s);
 		return k;
 	}
 
