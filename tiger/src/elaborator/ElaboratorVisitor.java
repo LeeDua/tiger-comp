@@ -1,3 +1,20 @@
+/*------------------------------------------------------------------*/
+/* Copyright (C) SSE-USTC, 2014-2015                                */
+/*                                                                  */
+/*  FILE NAME             :  ElaboratorVisitor.java                 */
+/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
+/*  LANGUAGE              :  Java                                   */
+/*  TARGET ENVIRONMENT    :  ANY                                    */
+/*  DATE OF FIRST RELEASE :  2014/10/05                             */
+/*  DESCRIPTION           :  the tiger compiler                     */
+/*------------------------------------------------------------------*/
+
+/*
+ * Revision log:
+ *
+ * 
+ *
+ */
 package elaborator;
 
 import java.util.LinkedList;
@@ -112,7 +129,7 @@ private void error()
 	  if(!t.toString().equals(this.type.toString()))
 		  error(Error.MISTYPE,e.linenum);
 	  if(!t.toString().equals("@boolean"))
-		  error(Error.MISTYPE,e.linenum);//&&ä¸¤è¾¹å¿…é¡»ä¸º&&
+		  error(Error.MISTYPE,e.linenum);//&&Á½±ß±ØĞëÎª&&
 	  return;
   }
 
@@ -124,6 +141,13 @@ private void error()
 	  if(!this.type.toString().equals("@int"))
 		  error(Error.MISTYPE,e.linenum);
 	  e.array.accept(this);
+	  
+	  //ÌØÊâ´¦ÀíArraySelect
+	  /*
+	   * i[3]+3 ÉÏÃæµÄe.array.acceptÖ®ºóthis.type=IntArray£¬ËùÒÔÒªÌØÊâ´¦Àí
+	   * ÈÃËùÓĞArraySelect¶¼ÎªIntÀàĞÍ¡£
+	   */
+	  this.type=new ast.Ast.Type.Int();
 	  //System.out.println(this.type.toString());
 	  
 	  return;
@@ -139,29 +163,29 @@ private void error()
     leftty = this.type;
     if (leftty instanceof ClassType) {
       ty = (ClassType) leftty;
-      e.type = ty.id;//å°†è°ƒç”¨è€…çš„idè®°å½•
+      e.type = ty.id;//½«µ÷ÓÃÕßµÄid¼ÇÂ¼
     } else
       error(Error.MISTYPE,e.linenum);
-    MethodType mty = this.classTable.getm(ty.id, e.id);//åœ¨Treeé‡Œé¢æ‰¾accept
-    //æ”¶é›†callçš„æ‰€æœ‰å‚æ•°çš„Type
+    MethodType mty = this.classTable.getm(ty.id, e.id);//ÔÚTreeÀïÃæÕÒaccept
+    //ÊÕ¼¯callµÄËùÓĞ²ÎÊıµÄType
     java.util.LinkedList<Type.T> argsty = new LinkedList<Type.T>();
     for (Exp.T a : e.args) {
       a.accept(this);
       argsty.addLast(this.type);
     }
-    //éªŒè¯æ–¹æ³•çš„å‚æ•°ä¸ªæ•°æ˜¯å¦åŒ¹é…
+    //ÑéÖ¤·½·¨µÄ²ÎÊı¸öÊıÊÇ·ñÆ¥Åä
     if (mty.argsType.size() != argsty.size())
       error(Error.MISTYPE,e.linenum);
-    //éªŒè¯æ–¹æ³•çš„å‚æ•°ç±»å‹æ˜¯å¦åŒ¹é…
+    //ÑéÖ¤·½·¨µÄ²ÎÊıÀàĞÍÊÇ·ñÆ¥Åä
     for (int i = 0; i < argsty.size(); i++) {
       Dec.DecSingle dec = (Dec.DecSingle) mty.argsType.get(i);
       if (dec.type.toString().equals(argsty.get(i).toString()))
-    	  ;//å¦‚æœç›¸ç­‰
+    	  ;//Èç¹ûÏàµÈ
       else
-      {//  å¦‚æœä¸ç›¸ç­‰ï¼Œæœ‰çˆ¶ç±»å‹çš„è¯ï¼Œçˆ¶ç±»å‹å’ŒargstyåŒ¹é…ä¹Ÿå¯ã€‚
-    	  /*(ä¸åŠ è¿™ç§æƒ…å†µçš„å¤„ç†ï¼Œä¼šåœ¨Elabæ—¶ç›´æ¥æŠ¥é”™mistype)
-    	   * æ­¤æ—¶è¦æ¯”è¾ƒçš„ä¸¤ä¸ªtypeå¿…é¡»æ˜¯ClassTypeçš„å®ä¾‹ã€‚
-    	   * å› ä¸ºClassbindingå¯¹è±¡é‡Œé¢è®°å½•çš„extenssï¼Œé€šè¿‡classTableæŸ¥çœ‹æ˜¯å¦æœ‰çˆ¶ç±»
+      {//  Èç¹û²»ÏàµÈ£¬ÓĞ¸¸ÀàĞÍµÄ»°£¬¸¸ÀàĞÍºÍargstyÆ¥ÅäÒ²¿É¡£
+    	  /*(²»¼ÓÕâÖÖÇé¿öµÄ´¦Àí£¬»áÔÚElabÊ±Ö±½Ó±¨´ímistype)
+    	   * ´ËÊ±Òª±È½ÏµÄÁ½¸ötype±ØĞëÊÇClassTypeµÄÊµÀı¡£
+    	   * ÒòÎªClassbinding¶ÔÏóÀïÃæ¼ÇÂ¼µÄextenss£¬Í¨¹ıclassTable²é¿´ÊÇ·ñÓĞ¸¸Àà
     	   */
     	  if(dec.type instanceof ClassType)
     	  {
@@ -187,10 +211,10 @@ private void error()
     		  error(Error.MISTYPE,e.linenum);
     	  
     	  
-    	  /* æ›´æ”¹callé‡Œé¢çš„å‚æ•°åˆ—è¡¨çš„ç±»å‹ï¼Œä¹‹æ‰€ä»¥å¯ä»¥æ”¹å˜astæ˜¯å› ä¸ºåœ¨TransCæ—¶ä¸éœ€è¦Call.atï¼Œå¦‚æœä»¥å
-    	  * æœ‰æƒ…å†µéœ€è¦è¿™ä¸ªå­—æ®µï¼Œå¯ä»¥åœ¨Ast.Callé‡Œé¢å†åŠ ä¸€ä¸ª)
+    	  /* ¸ü¸ÄcallÀïÃæµÄ²ÎÊıÁĞ±íµÄÀàĞÍ£¬Ö®ËùÒÔ¿ÉÒÔ¸Ä±äastÊÇÒòÎªÔÚTransCÊ±²»ĞèÒªCall.at£¬Èç¹ûÒÔºó
+    	  * ÓĞÇé¿öĞèÒªÕâ¸ö×Ö¶Î£¬¿ÉÒÔÔÚAst.CallÀïÃæÔÙ¼ÓÒ»¸ö)
     	  * 
-    	  * å¾ªç¯å°†Call.até‡Œé¢çš„ç±»å‹å…¨æ”¹ä¸ºå‡½æ•°åŸå‹çš„ç±»å‹
+    	  * Ñ­»·½«Call.atÀïÃæµÄÀàĞÍÈ«¸ÄÎªº¯ÊıÔ­ĞÍµÄÀàĞÍ
     	  */
     	  if(dec.type instanceof ClassType&&
     			  argsty.get(i) instanceof ClassType)
@@ -199,7 +223,7 @@ private void error()
     		  {
     		      Dec.DecSingle decc = (Dec.DecSingle) mty.argsType.get(j);
     		      Type.ClassType tcc=(Type.ClassType)decc.type;
-    		      argsty.set(j, tcc);//é€šè¿‡e.at=argstyç›´æ¥æ”¹å˜javaAst
+    		      argsty.set(j, tcc);//Í¨¹ıe.at=argstyÖ±½Ó¸Ä±äjavaAst
     		  }
     	  }
       }
@@ -229,12 +253,12 @@ private void error()
       // useful in later phase.
       e.isField = true;
     }
-    //åœ¨ä¸Šä¸€æ­¥ä¸­å·²ç»éå†çš„æ‰€æœ‰çš„ç¥–å…ˆï¼ï¼ï¼ï¼
+    //ÔÚÉÏÒ»²½ÖĞÒÑ¾­±éÀúµÄËùÓĞµÄ×æÏÈ£¡£¡£¡£¡
     if (type == null)
       error(Error.UNDECL,e.linenum);
     this.type = type;
     // record this type on this node for future use.
-    e.type = type;//ç»™è¿™ä¸ªidåŠ ä¸Šç±»å‹ã€‚
+    e.type = type;//¸øÕâ¸öid¼ÓÉÏÀàĞÍ¡£
     return;
   }
 
@@ -342,29 +366,20 @@ private void error()
     if (type == null)
     	error(Error.UNDECL,s.linenum);
     
-    s.type=type;//ä¸ºäº†é€‚åº”bytecodeçš„éœ€è¦ï¼ï¼ï¼ï¼ï¼åœ¨æ­¤æ—¶éœ€è¦ç»™Assignçš„typeèµ‹å€¼ï¼ï¼ï¼ï¼
-    s.exp.accept(this);//typeæ˜¯å­˜æ”¾=å·¦è¾¹çš„idçš„ç±»å‹ï¼Œthis.typeæ˜¯å­˜æ”¾=å³è¾¹expçš„ç±»å‹ï¼Œ
-    					//å› æ­¤ï¼Œæ‰§è¡Œå®Œs.exp.accept(this)åï¼Œthis.typeä¸€å®šè¦æ”¹å˜ã€‚
-    if(!s.exp.getClass().getName().equals("ast.Ast$Exp$ArraySelect"))
-    {
-    	//typeä»£è¡¨å·¦è¾¹ï¼Œthis.typeä»£è¡¨å³è¾¹
-    	if(!this.type.toString().equals(type.toString()))
-    		error(Error.MISTYPE,s.linenum);
-    }
-    else//å¦‚æœ=å³è¾¹æ˜¯ArraySelectç±»å‹ï¼Œé‚£å·¦è¾¹åªèƒ½æ˜¯intå‹ã€‚
-    {
-    	if(!type.toString().equals("@int"))
-    		error(Error.MISTYPE,s.linenum);
-    }
+    s.type=type;//ÎªÁËÊÊÓ¦bytecodeµÄĞèÒª£¡£¡£¡£¡£¡ÔÚ´ËÊ±ĞèÒª¸øAssignµÄtype¸³Öµ£¡£¡£¡£¡
+    s.exp.accept(this);//typeÊÇ´æ·Å=×ó±ßµÄidµÄÀàĞÍ£¬this.typeÊÇ´æ·Å=ÓÒ±ßexpµÄÀàĞÍ£¬
+    					//Òò´Ë£¬Ö´ĞĞÍês.exp.accept(this)ºó£¬this.typeÒ»¶¨Òª¸Ä±ä¡£
+    
+    
     return;
   }
 
   @Override
   public void visit(AssignArray s)
   {
-	  //å…ˆåœ¨æœ¬æ–¹æ³•ä¸­æ‰¾
+	  //ÏÈÔÚ±¾·½·¨ÖĞÕÒ
 	  Type.T type=this.methodTable.get(s.id);
-	 //åœ¨ç±»ä¸­æ‰¾
+	 //ÔÚÀàÖĞÕÒ
 	  if(type==null)
 	  {
 		  type=this.classTable.get(this.currentClass, s.id);
@@ -374,13 +389,13 @@ private void error()
 	  if(type==null)
 		  error(Error.UNDECL,s.linenum);
 	  s.tyep=type;
-	  //åˆ¤æ–­ç´¢å¼•å·
+	  //ÅĞ¶ÏË÷ÒıºÅ
 	 // System.out.println(type.toString());// ---------------------------------------
 	  s.index.accept(this);
 	  if(!this.type.toString().equals("@int"))
 		  error(Error.UNDECL,s.linenum);
 	  //System.out.println("index finished.................");
-	  //åˆ¤æ–­idç±»å‹
+	  //ÅĞ¶ÏidÀàĞÍ
 	  s.exp.accept(this);
 	 // System.out.println(s.exp.getClass().getName());
 	  if(!s.exp.getClass().getName().equals("ast.Ast$Exp$ArraySelect"))
@@ -419,16 +434,10 @@ private void error()
   public void visit(Print s)
   {
     s.exp.accept(this);
-    if(!s.exp.getClass().getName().equals("ast.Ast$Exp$ArraySelect"))
-    {
-    	if (!this.type.toString().equals("@int"))
-    		error(Error.MISTYPE,s.linenum);
-    }
-    else
-    {
-    	if (!this.type.toString().equals("@int[]"))
-    		error(Error.MISTYPE,s.linenum);
-    }
+    
+    if (!this.type.toString().equals("@int"))
+    	error(Error.MISTYPE,s.linenum);
+    
     return;
   }
 
@@ -492,7 +501,7 @@ private void error()
 
     for (Stm.T s : m.stms)
     {
-//    	System.out.println("This is the Stm:"+s.linenum+" is "+s.toString() );
+    	System.out.println("This is the Stm:"+s.linenum+" is "+s.toString() );
     	s.accept(this);
     	linenum=s.linenum;
     }
@@ -503,6 +512,9 @@ private void error()
      if(!methodtype.retType.toString().equals(this.type.toString()))//Why??
     	 //methodtype.retType==this.type
      {
+    	 //test
+    	 System.out.println(methodtype.retType.toString());
+    	 System.out.println(this.type.toString());
     	 
     	 error(Error.RET,linenum);
      }
@@ -515,16 +527,16 @@ private void error()
   {
     this.currentClass = c.id;
     /*
-     * åœ¨è¿™é‡Œåº”è¯¥æ·»åŠ extendssçš„åˆ¤æ–­ã€‚
-     * å½“ç»§æ‰¿äº†åŸºç±»æ—¶ï¼Œåº”è¯¥å°†åŸºç±»çš„å£°æ˜å’Œæ–¹æ³•æ‹¼æ¥åœ¨è¿™ä¸ªå­ç±»
+     * ÔÚÕâÀïÓ¦¸ÃÌí¼ÓextendssµÄÅĞ¶Ï¡£
+     * µ±¼Ì³ĞÁË»ùÀàÊ±£¬Ó¦¸Ã½«»ùÀàµÄÉùÃ÷ºÍ·½·¨Æ´½ÓÔÚÕâ¸ö×ÓÀà
      * 
-     * å½“å®ç°äº†ç»§æ‰¿ç‰¹æ€§ä¹‹åï¼Œå­ç±»ä¸­å¯ä»¥ç”¨åœ¨åŸºç±»ä¸­å£°æ˜çš„å˜é‡ã€‚
-     * å¯ä»¥ç”¨åŸºç±»ä¸­çš„æ–¹æ³•
+     * µ±ÊµÏÖÁË¼Ì³ĞÌØĞÔÖ®ºó£¬×ÓÀàÖĞ¿ÉÒÔÓÃÔÚ»ùÀàÖĞÉùÃ÷µÄ±äÁ¿¡£
+     * ¿ÉÒÔÓÃ»ùÀàÖĞµÄ·½·¨
      */
 
     for (Method.T m : c.methods) {
     	MethodSingle mm = (MethodSingle) m;
-//    	System.out.println("This is the method:  "+ mm.id);
+    	System.out.println("This is the method:  "+ mm.id);
       m.accept(this);
     }
     return;
@@ -591,10 +603,10 @@ private void error()
     // ////////////////////////////////////////////////
     // step 2: elaborate each class in turn, under the class table
     // built above.
-//    System.out.println("mainClass....................");
+    System.out.println("mainClass....................");
     p.mainClass.accept(this);
     for (Class.T c : p.classes) {
-//    	System.out.println("normalClass....................");
+    	System.out.println("normalClass....................");
       c.accept(this);
     }
 

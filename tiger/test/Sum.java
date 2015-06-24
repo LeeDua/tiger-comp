@@ -5,18 +5,27 @@ class Sum {
 }
 
 class Doit {
+	int k;
+	int p;
     public int doit(int n) {
         int sum;
         int i;
-        int j;
-        int k;
+
+        int[] j;
+        
+
        // DeadClass d;
+
         
         i = 0;
         sum = 0;
-        while (!i){
+        j=new int[10];
+        i=j.length;
+        j[1]=1;
+        System.out.println(j[1]);
+        while (i<n){
         	sum = sum + i;
-        	i = 1;
+        	i = i+1;
         }
         return sum;
     }

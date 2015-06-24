@@ -1,3 +1,20 @@
+/*------------------------------------------------------------------*/
+/* Copyright (C) SSE-USTC, 2014-2015                                */
+/*                                                                  */
+/*  FILE NAME             :  Parser.java                            */
+/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
+/*  LANGUAGE              :  Java                                   */
+/*  TARGET ENVIRONMENT    :  ANY                                    */
+/*  DATE OF FIRST RELEASE :  2014/10/05                             */
+/*  DESCRIPTION           :  the tiger compiler                     */
+/*------------------------------------------------------------------*/
+
+/*
+ * Revision log:
+ *
+ * 
+ *
+ */
 package parser;
 
 import java.util.LinkedList;
@@ -31,7 +48,7 @@ public class Parser {
 	Token current;
 	Token currentNext;//in order to deal with the margin between VarDecls and Statements
 	boolean isSpecial=false;//when current.kind=Kind.TOKEN_ID,it may special
-	boolean isField=true;//涓轰簡灏嗗０鏄庡垎绫伙紝鍖哄埆class涓巑ethod鐨勫０鏄庯紝鍦╞ytecode涓細鐢ㄥ埌
+	boolean isField=true;//为了将声明分类，区别class与method的声明，在bytecode中会用到
 	int linenum=1;
 	Type.T currentType=null;
 	

@@ -1,3 +1,20 @@
+/*------------------------------------------------------------------*/
+/* Copyright (C) SSE-USTC, 2014-2015                                */
+/*                                                                  */
+/*  FILE NAME             :  Ast.java                               */
+/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
+/*  LANGUAGE              :  Java                                   */
+/*  TARGET ENVIRONMENT    :  ANY                                    */
+/*  DATE OF FIRST RELEASE :  2014/10/05                             */
+/*  DESCRIPTION           :  the tiger compiler                     */
+/*------------------------------------------------------------------*/
+
+/*
+ * Revision log:
+ *
+ * 
+ *
+ */
 package ast;
 
 import java.util.LinkedList;
@@ -16,7 +33,7 @@ public class Ast
       // int[]: 1
       // class: 2
       // Such that one can easily tell who is who
-      public abstract int getNum();//æŠ½è±¡æ–¹æ³•ï¼Œåªèƒ½å®šä¹‰åœ¨æŠ½è±¡ç±»å½“ä¸­ï¼ï¼
+      public abstract int getNum();//³éÏó·½·¨£¬Ö»ÄÜ¶¨ÒåÔÚ³éÏóÀàµ±ÖĞ£¡£¡
     }
 
     // boolean
@@ -33,7 +50,7 @@ public class Ast
       }
 
       @Override
-      public int getNum()//å­ç±»å¿…é¡»å®ç°çˆ¶ç±»çš„æŠ½è±¡æ–¹æ³•
+      public int getNum()//×ÓÀà±ØĞëÊµÏÖ¸¸ÀàµÄ³éÏó·½·¨
       {
         return -1;
       }
@@ -262,7 +279,7 @@ public class Ast
       public java.util.LinkedList<Type.T> at; // arg's type
       public Type.T rt;
       
-      public Call(//å¿…é¡»è¦æœ‰ï¼Œåœ¨optæ—¶ä¼šç”¨åˆ°
+      public Call(//±ØĞëÒªÓĞ£¬ÔÚoptÊ±»áÓÃµ½
     		  T exp,String id,java.util.LinkedList<T> args,
     		  String type,java.util.LinkedList<Type.T> at,Type.T rt)
       {
@@ -326,7 +343,7 @@ public class Ast
     public static class Id extends T
     {
       public String id; // name of the id
-      public Type.T type; // type of the id,typeä¸isFieldåœ¨elabæ—¶ä¼šç»™èµ‹å€¼ï¼ï¼
+      public Type.T type; // type of the id,typeÓëisFieldÔÚelabÊ±»á¸ø¸³Öµ£¡£¡
       public boolean isField; // whether or not this is a class field
 
       public Id(String id,int linenum)
@@ -632,11 +649,11 @@ public class Ast
     {
       public String id;
       public Exp.T exp;
-      public Type.T type; // type of the id,åœ¨elabæ—¶ä¼šèµ‹å€¼
-      public boolean isField;//åœ¨elabæ—¶ä¼šèµ‹å€¼
+      public Type.T type; // type of the id,ÔÚelabÊ±»á¸³Öµ
+      public boolean isField;//ÔÚelabÊ±»á¸³Öµ
       
       
-    //åœ¨optä¸­ä¼šç”¨
+    //ÔÚoptÖĞ»áÓÃ
       public Assign(String id, ast.Ast.Exp.T exp, ast.Ast.Type.T type,
 			boolean isField,int linenum) {
 		this.id = id;
@@ -684,7 +701,7 @@ public class Ast
       
       
       
-//åœ¨optä¸­ä¼šç”¨
+//ÔÚoptÖĞ»áÓÃ
       public AssignArray(String id, ast.Ast.Exp.T index, ast.Ast.Exp.T exp,
 			ast.Ast.Type.T tyep, boolean isField,int linenum) {
 		this.id = id;
@@ -880,7 +897,7 @@ public class Ast
           java.util.LinkedList<ast.Ast.Method.T> methods)
       {
         this.id = id;
-        this.extendss = extendss;//ä½•æ—¶æ·»åŠ ï¼Ÿï¼Ÿåœ¨Parseä¸­å·²ç»æ·»åŠ äº†
+        this.extendss = extendss;//ºÎÊ±Ìí¼Ó£¿£¿ÔÚParseÖĞÒÑ¾­Ìí¼ÓÁË
         this.decs = decs;
         this.methods = methods;
       }
