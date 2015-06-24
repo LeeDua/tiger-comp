@@ -230,7 +230,7 @@ public class Tiger
     			{
     			System.out.println(err);
     			}
-    			command="./"+fname+".out";
+    			command="./"+fname+".out -help";
     			Process proC2=Runtime.getRuntime().exec(command);
     			br=new BufferedReader(new InputStreamReader(proC2.getInputStream()));
     			while((err=br.readLine())!=null)

@@ -11,12 +11,8 @@ struct Doit
   struct Doit_vtable *vptr;
   int k;
   int p;
-};
-struct DeadClass
-{
-  struct DeadClass_vtable *vptr;
-  int i;
   int j;
+  int y;
 };
 // vtables structures
 struct Sum_vtable
@@ -28,15 +24,9 @@ struct Doit_vtable
   int (*doit)(struct Doit * this,int n);
 };
 
-struct DeadClass_vtable
-{
-  int (*deadMethod)(struct DeadClass * this,int n);
-};
-
 
 //methods decl
 int Doit_doit(struct Doit * this, int n);
-int DeadClass_deadMethod(struct DeadClass * this, int n);
 // vtables
 struct Sum_vtable Sum_vtable_ = 
 {
@@ -47,11 +37,6 @@ struct Doit_vtable Doit_vtable_ =
   Doit_doit,
 };
 
-struct DeadClass_vtable DeadClass_vtable_ = 
-{
-  DeadClass_deadMethod,
-};
-
 
 // methods
 int Doit_doit(struct Doit * this, int n)
@@ -59,7 +44,36 @@ int Doit_doit(struct Doit * this, int n)
   int sum;
   int i;
   int*  j;
+  struct Doit * d1;
 
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
+  d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
   i = 0;
   sum = 0;
   j = (int*)Tiger_new_array(10);
@@ -72,11 +86,6 @@ int Doit_doit(struct Doit * this, int n)
       i = i + 1;
     }
     return sum;
-}
-int DeadClass_deadMethod(struct DeadClass * this, int n)
-{
-
-  return 1;
 }
 
 // main method

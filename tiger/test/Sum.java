@@ -7,6 +7,8 @@ class Sum {
 class Doit {
 	int k;
 	int p;
+	int j;
+	int y;
     public int doit(int n) {
         int sum;
         int i;
@@ -14,7 +16,35 @@ class Doit {
         int[] j;
         
 
-       // DeadClass d;
+     Doit d1;
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
+     d1 =new Doit();
 
         
         i = 0;
@@ -31,10 +61,4 @@ class Doit {
     }
 }
 
-class DeadClass{
-	int i;
-	int j;
-	public int deadMethod(int n){
-		return 1;
-	}
-}
+
