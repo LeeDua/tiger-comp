@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 public class Ast
 {
-	 
 
   // ///////////////////////////////////////////////////////////
   // type
@@ -17,7 +16,7 @@ public class Ast
       // int[]: 1
       // class: 2
       // Such that one can easily tell who is who
-      public abstract int getNum();
+      public abstract int getNum();//抽象方法，只能定义在抽象类当中！！
     }
 
     // boolean
@@ -34,7 +33,7 @@ public class Ast
       }
 
       @Override
-      public int getNum()
+      public int getNum()//子类必须实现父类的抽象方法
       {
         return -1;
       }
@@ -104,8 +103,10 @@ public class Ast
     // int[]
     public static class IntArray extends T
     {
+    	//String id;
       public IntArray()
       {
+    	  //this.id=id;
       }
 
       @Override
@@ -141,11 +142,13 @@ public class Ast
     {
       public Type.T type;
       public String id;
+      public boolean isField;
 
-      public DecSingle(Type.T type, String id)
+      public DecSingle(Type.T type, String id,boolean isField)
       {
         this.type = type;
         this.id = id;
+        this.isField=isField;
       }
 
       @Override
@@ -178,6 +181,13 @@ public class Ast
         this.right = right;
         this.linenum=linenum;
       }
+      public Add(T left, T right)
+      {
+        this.left = left;
+        this.right = right;
+        this.linenum=0;
+       
+      }
 
       @Override
       public void accept(ast.Visitor v)
@@ -197,6 +207,14 @@ public class Ast
       {
         this.left = left;
         this.right = right;
+        this.linenum=linenum;
+      }
+      public And(T left, T right)
+      {
+        this.left = left;
+        this.right = right;
+        this.linenum=0;
+        
       }
 
       @Override
@@ -219,6 +237,12 @@ public class Ast
         this.index = index;
         this.linenum=linenum;
       }
+      public ArraySelect(T array, T index)
+      {
+        this.array = array;
+        this.index = index;
+        this.linenum=0;
+      }
 
       @Override
       public void accept(ast.Visitor v)
@@ -237,6 +261,20 @@ public class Ast
       public String type; // type of first field "exp"
       public java.util.LinkedList<Type.T> at; // arg's type
       public Type.T rt;
+      
+      public Call(//必须要有，在opt时会用到
+    		  T exp,String id,java.util.LinkedList<T> args,
+    		  String type,java.util.LinkedList<Type.T> at,Type.T rt)
+      {
+    	  this.exp=exp;
+    	  this.id=id;
+    	  this.args=args;
+    	  this.type=type;
+    	  this.at=at;
+    	  this.rt=rt;
+    			  
+    	  
+      }
 
       public Call(T exp, String id, java.util.LinkedList<T> args,int linenum)
       {
@@ -245,6 +283,14 @@ public class Ast
         this.args = args;
         this.type = null;
         this.linenum=linenum;
+      }
+      public Call(T exp, String id, java.util.LinkedList<T> args)
+      {
+        this.exp = exp;
+        this.id = id;
+        this.args = args;
+        this.type = null;
+        this.linenum=0;
       }
 
       @Override
@@ -263,6 +309,10 @@ public class Ast
       {
     	 this.linenum=linenum;
       }
+      public False()
+      {
+    	  this.linenum=0;
+      }
 
       @Override
       public void accept(ast.Visitor v)
@@ -276,7 +326,7 @@ public class Ast
     public static class Id extends T
     {
       public String id; // name of the id
-      public Type.T type; // type of the id
+      public Type.T type; // type of the id,type与isField在elab时会给赋值！！
       public boolean isField; // whether or not this is a class field
 
       public Id(String id,int linenum)
@@ -286,6 +336,13 @@ public class Ast
         this.isField = false;
         this.linenum=linenum;
       }
+      public Id(String id)
+      {
+        this.id = id;
+        this.type = null;
+        this.isField = false;
+        this.linenum=0;
+      }
 
       public Id(String id, Type.T type, boolean isField,int linenum)
       {
@@ -294,6 +351,20 @@ public class Ast
         this.isField = isField;
         this.linenum=linenum;
       }
+      public Id(String id, Type.T type, boolean isField)
+      {
+        this.id = id;
+        this.type = type;
+        this.isField = isField;
+        this.linenum=0;
+      }
+//      public Id(String id,boolean isField)
+//      {
+//    	  this.id=id;
+//    	  this.isField=isField;
+//    	  this.linenum=0;
+//    	  
+//      }
 
       @Override
       public void accept(ast.Visitor v)
@@ -312,6 +383,11 @@ public class Ast
       {
         this.array = array;
         this.linenum=linenum;
+      }
+      public Length(T array)
+      {
+        this.array = array;
+        this.linenum=0;
       }
 
       @Override
@@ -334,6 +410,12 @@ public class Ast
         this.right = right;
         this.linenum=linenum;
       }
+      public Lt(T left, T right)
+      {
+        this.left = left;
+        this.right = right;
+        this.linenum=0;
+      }
 
       @Override
       public void accept(ast.Visitor v)
@@ -352,6 +434,10 @@ public class Ast
       {
         this.exp = exp;
         this.linenum=linenum;
+      }
+      public NewIntArray(T exp)
+      {
+        this.exp = exp;
       }
 
       @Override
@@ -372,6 +458,11 @@ public class Ast
         this.id = id;
         this.linenum=linenum;
       }
+      public NewObject(String id)
+      {
+        this.id = id;
+        this.linenum=0;
+      }
 
       @Override
       public void accept(ast.Visitor v)
@@ -391,6 +482,11 @@ public class Ast
         this.exp = exp;
         this.linenum=linenum;
       }
+      public Not(T exp)
+      {
+        this.exp = exp;
+        this.linenum=0;
+      }
 
       @Override
       public void accept(ast.Visitor v)
@@ -409,6 +505,11 @@ public class Ast
       {
         this.num = num;
         this.linenum=linenum;
+      }
+      public Num(int num)
+      {
+        this.num = num;
+        this.linenum=0;
       }
 
       @Override
@@ -431,6 +532,12 @@ public class Ast
         this.right = right;
         this.linenum=linenum;
       }
+      public Sub(T left, T right)
+      {
+        this.left = left;
+        this.right = right;
+        this.linenum=0;
+      }
 
       @Override
       public void accept(ast.Visitor v)
@@ -446,6 +553,10 @@ public class Ast
       public This(int linenum)
       {
     	  this.linenum=linenum;
+      }
+      public This()
+      {
+    	  this.linenum=0;
       }
 
       @Override
@@ -468,6 +579,12 @@ public class Ast
     	  this.right = right;
     	  this.linenum=linenum;
       }
+      public Times(T left, T right)
+      {
+    	  this.left = left;
+    	  this.right = right;
+    	  this.linenum=0;
+      }
 
       @Override
       public void accept(ast.Visitor v)
@@ -484,6 +601,10 @@ public class Ast
       {
     	  this.linenum=linenum;
       }
+      public True()
+      {
+    	  this.linenum=0;
+      }
 
       @Override
       public void accept(ast.Visitor v)
@@ -492,6 +613,7 @@ public class Ast
         return;
       }
     }
+
 
   }// end of expression
 
@@ -510,15 +632,39 @@ public class Ast
     {
       public String id;
       public Exp.T exp;
-      public Type.T type; // type of the id
-    
-      public Assign(String id, Exp.T exp,int linenum)
+      public Type.T type; // type of the id,在elab时会赋值
+      public boolean isField;//在elab时会赋值
+      
+      
+    //在opt中会用
+      public Assign(String id, ast.Ast.Exp.T exp, ast.Ast.Type.T type,
+			boolean isField,int linenum) {
+		this.id = id;
+		this.exp = exp;
+		this.type = type;
+		this.isField = isField;
+		this.linenum=linenum;
+	}
+	public Assign(String id, Exp.T exp,int linenum)
       {
         this.id = id;
         this.exp = exp;
         this.type = null;
+        isField=false;
         this.linenum=linenum;
       }
+      public Assign(String id, Exp.T exp)
+      {
+        this.id = id;
+        this.exp = exp;
+        this.type = null;
+        isField=false;
+        this.linenum=0;
+      }
+//      public Assign(Type.T type)
+//      {
+//    	  this.type=type;
+//      }
 
       @Override
       public void accept(ast.Visitor v)
@@ -527,20 +673,42 @@ public class Ast
       }
     }
 
-    // assign-array
+    // assign-array   number[10]=exp;
     public static class AssignArray extends T
     {
       public String id;
       public Exp.T index;
       public Exp.T exp;
+      public Type.T tyep;//type of the id
+      public boolean isField;
       
-
-      public AssignArray(String id, Exp.T index, Exp.T exp,int linenum)
+      
+      
+//在opt中会用
+      public AssignArray(String id, ast.Ast.Exp.T index, ast.Ast.Exp.T exp,
+			ast.Ast.Type.T tyep, boolean isField,int linenum) {
+		this.id = id;
+		this.index = index;
+		this.exp = exp;
+		this.tyep = tyep;
+		this.isField = isField;
+		this.linenum=linenum;
+	}
+	public AssignArray(String id, Exp.T index, Exp.T exp,int linenum)
       {
         this.id = id;
         this.index = index;
         this.exp = exp;
+        this.isField=false;
         this.linenum=linenum;
+      }
+      public AssignArray(String id, Exp.T index, Exp.T exp)
+      {
+        this.id = id;
+        this.index = index;
+        this.exp = exp;
+        this.isField=false;
+        this.linenum=0;
       }
 
       @Override
@@ -560,6 +728,11 @@ public class Ast
       {
         this.stms = stms;
         this.linenum=linenum;
+      }
+      public Block(java.util.LinkedList<T> stms)
+      {
+        this.stms = stms;
+        this.linenum=0;
       }
 
       @Override
@@ -584,6 +757,13 @@ public class Ast
         this.elsee = elsee;
         this.linenum=linenum;
       }
+      public If(Exp.T condition, T thenn, T elsee)
+      {
+        this.condition = condition;
+        this.thenn = thenn;
+        this.elsee = elsee;
+        this.linenum=0;
+      }
 
       @Override
       public void accept(ast.Visitor v)
@@ -602,6 +782,11 @@ public class Ast
       {
         this.exp = exp;
         this.linenum=linenum;
+      }
+      public Print(Exp.T exp)
+      {
+        this.exp = exp;
+        this.linenum=0;
       }
 
       @Override
@@ -622,6 +807,12 @@ public class Ast
         this.condition = condition;
         this.body = body;
         this.linenum=linenum;
+      }
+      public While(Exp.T condition, T body)
+      {
+        this.condition = condition;
+        this.body = body;
+        this.linenum=0;
       }
 
       @Override
@@ -689,7 +880,7 @@ public class Ast
           java.util.LinkedList<ast.Ast.Method.T> methods)
       {
         this.id = id;
-        this.extendss = extendss;
+        this.extendss = extendss;//何时添加？？在Parse中已经添加了
         this.decs = decs;
         this.methods = methods;
       }
@@ -713,9 +904,9 @@ public class Ast
     {
       public String id;//Sum
       public String arg;//a
-      public LinkedList<Stm.T>  stm;//system.out.println
+      public  Stm.T  stm;//system.out.println
 
-      public MainClassSingle(String id, String arg, LinkedList<Stm.T>  stm)
+      public MainClassSingle(String id, String arg,  Stm.T  stm)
       {
         this.id = id;
         this.arg = arg;

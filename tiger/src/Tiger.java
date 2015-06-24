@@ -1,8 +1,12 @@
+import static control.Control.ConAst.dumpAst;
+import static control.Control.ConAst.testFac;
+
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 
+import ast.Ast.Program;
 import lexer.Lexer;
 import lexer.Token;
 import parser.Parser;
@@ -22,27 +26,20 @@ public class Tiger
     CommandLine cmd = new CommandLine();
     String fname = cmd.scan(args);
 
-    // /////////////////////////////////////////////
-    // the straight-line interpreter (and compiler)    
-//    switch (Control.ConSlp.action){
-//    case NONE:
-//      System.exit(0);
-//      break;
-//    default:
-//      slp.Main slpmain = new slp.Main();
-//      if (Control.ConSlp.div) {
-//        slpmain.doit(slp.Samples.dividebyzero);
-//        System.exit(0);
-//      }
-//      slpmain.doit(slp.Samples.prog);
-//      System.exit(0);
-//    }
-//
-//    
-//    if (fname == null) {
-//      cmd.usage();
-//      return;
-//    }
+    // /////////////////////////////////////////////////////
+    // to test the pretty printer on the "test/Fac.java" program
+    if (testFac) {
+      System.out.println("Testing the Tiger compiler on Fac.java starting:");
+      ast.PrettyPrintVisitor pp = new ast.PrettyPrintVisitor();
+      ast.Fac.prog2.accept(pp);
+      System.out.println("Testing the Tiger compiler on Fac.java finished.");
+      System.exit(1);
+    }
+
+    if (fname == null) {
+      cmd.usage();
+      return;
+    }
 
     // /////////////////////////////////////////////////////
     // it would be helpful to be able to test the lexer
@@ -54,6 +51,7 @@ public class Tiger
         f=new PushbackInputStream(fstream);
         Lexer lexer = new Lexer(fname, f);
         Token token = lexer.nextToken();
+
         while (token.kind != Token.Kind.TOKEN_EOF) {
           System.out.println(token.toString());
           token = lexer.nextToken();
@@ -62,25 +60,39 @@ public class Tiger
       } catch (Exception e) {
         e.printStackTrace();
       }
-     // System.exit(1);
+      System.exit(1);
     }
 
     // /////////////////////////////////////////////////////////
     // normal compilation phases.
+    Program.T theAst = null;
+
+    // parsing the file, get an AST.
     try {
       fstream = new BufferedInputStream(new FileInputStream(fname));
       f=new PushbackInputStream(fstream);
       parser = new Parser(fname, f);
 
-      parser.parse();
-      
-      System.out.println("\nParser well down\n");
+      theAst = parser.parse();
+     
 
       fstream.close();
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);
     }
+    
+    // pretty printing the AST, if necessary
+    if (dumpAst) {
+      ast.PrettyPrintVisitor pp = new ast.PrettyPrintVisitor();
+      theAst.accept(pp);
+    }
+    
+    // elaborate the AST, report all possible errors.
+    elaborator.ElaboratorVisitor elab = new elaborator.ElaboratorVisitor();
+    theAst.accept(elab);
+    System.out.println("lab3 finished...to be continue");
+    
     return;
   }
 }
