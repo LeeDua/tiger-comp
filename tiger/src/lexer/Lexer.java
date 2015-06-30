@@ -114,14 +114,14 @@ public class Lexer
 			return false;
 		}
 
-		this.fstream.mark(1);
-		int next = this.fstream.read();
-		this.fstream.reset();
-		if ((next == '_') || (next > 'a' && next < 'z')
-				|| (next > 'A' && next < 'Z') || (next > '0' && next < '9'))
-			return false;
-		else
-			return true;
+		//		this.fstream.mark(1);
+		//		int next = this.fstream.read();
+		//		this.fstream.reset();
+		//		if ((next == '_') || (next > 'a' && next < 'z')
+		//				|| (next > 'A' && next < 'Z') || (next > '0' && next < '9'))
+		//			return false;
+		//		else
+		return true;
 	}
 
 	// When called, return the next token (refer to the code "Token.java")
@@ -153,11 +153,14 @@ public class Lexer
 		switch (c)
 		{
 		case '&':
-			if (expectKeyword("&"))
-				return new Token(Kind.TOKEN_AND, linenum, "&&");
-			else
-				new util.Bug();
-			break;
+			if (this.s == "")
+			{
+				if (expectKeyword("&"))
+					return new Token(Kind.TOKEN_AND, linenum, "&&");
+				else
+					new util.Bug();
+				break;
+			}
 		case ' ':
 		case '+':
 		case '=':
