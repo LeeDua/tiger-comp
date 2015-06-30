@@ -33,7 +33,7 @@ public class Ast
 			// int[]: 1
 			// class: 2
 			// Such that one can easily tell who is who
-			public abstract int getNum();// ���󷽷���ֻ�ܶ����ڳ����൱�У���
+			public abstract int getNum();//
 		}
 
 		// boolean
@@ -184,7 +184,6 @@ public class Ast
 		public static abstract class T implements ast.Acceptable
 		{
 			public int linenum;
-
 		}
 
 		// +

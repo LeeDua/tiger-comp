@@ -337,7 +337,8 @@ public class PrettyPrintVisitor implements Visitor
 			if (i != m.formals.size())
 			{
 				this.say(" " + dec.id + ", ");
-			} else
+			}
+			else
 				this.say(" " + dec.id);
 		}
 		this.sayln(")");

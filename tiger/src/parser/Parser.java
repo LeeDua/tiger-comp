@@ -78,7 +78,8 @@ public class Parser
 		if (kind == current.kind)
 		{
 			advance();
-		} else
+		}
+		else
 		{
 			System.err.println("Expects: " + kind.toString());
 			System.err.println("But got: " + current.kind.toString());
@@ -142,7 +143,8 @@ public class Parser
 				i = -j;
 				advance();
 				return new Exp.Num(i, linenum);
-			} else
+			}
+			else
 				error();
 		case TOKEN_LPAREN:
 			advance();
@@ -222,7 +224,8 @@ public class Parser
 				LinkedList<T> args = parseExpList();
 				eatToken(Kind.TOKEN_RPAREN);
 				return new Call(exp, s, args, linenum);
-			} else
+			}
+			else
 			{
 				// [exp]
 				Exp.T t = (Exp.Id) exp;
@@ -284,7 +287,8 @@ public class Parser
 				advance();
 				right = parseAddSubExp();
 				return new Exp.Add(left, right, linenum);
-			} else
+			}
+			else
 			{
 				advance();
 				right = parseAddSubExp();
@@ -422,7 +426,8 @@ public class Parser
 
 				}
 
-			} else
+			}
+			else
 			{
 				eatToken(Kind.TOKEN_ID);
 				switch (current.kind)
@@ -529,7 +534,8 @@ public class Parser
 			eatToken(Kind.TOKEN_ID);
 			eatToken(Kind.TOKEN_SEMI);
 			return dec;
-		} else
+		}
+		else
 		{
 			Type.T type = new Type.ClassType(current.lexeme);
 			current = currentNext;
@@ -558,7 +564,8 @@ public class Parser
 			if (current.kind != Kind.TOKEN_ID)
 			{
 				decs.add(parseVarDecl());
-			} else
+			}
+			else
 			{// the current must be TOKEN_ID
 				String id = current.lexeme;
 				int linenum = current.lineNum;
