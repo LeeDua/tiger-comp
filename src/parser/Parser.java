@@ -50,7 +50,7 @@ public class Parser
 	Token currentNext;// in order to deal with the margin between VarDecls and
 						// Statements
 	boolean isSpecial = false;// when current.kind=Kind.TOKEN_ID,it may special
-	boolean isField = true;// Ϊ�˽��������࣬����class��method����������bytecode�л��õ�
+	boolean isField = true;
 	int linenum = 1;
 	Type.T currentType = null;
 

@@ -14,6 +14,7 @@ class Doit {
         int i;
 
         int[] j;
+        sum&&i;
         
 
      Doit d1;
