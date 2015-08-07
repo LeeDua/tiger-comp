@@ -53,16 +53,20 @@ public class CommandLine
 							if (s.equals("bytecode"))
 							{
 								control.Control.ConCodeGen.codegen = control.Control.ConCodeGen.Kind_t.Bytecode;
-							} else if (s.equals("C"))
+							}
+							else if (s.equals("C"))
 							{
 								control.Control.ConCodeGen.codegen = control.Control.ConCodeGen.Kind_t.C;
-							} else if (s.equals("dalvik"))
+							}
+							else if (s.equals("dalvik"))
 							{
 								control.Control.ConCodeGen.codegen = control.Control.ConCodeGen.Kind_t.Dalvik;
-							} else if (s.equals("x86"))
+							}
+							else if (s.equals("x86"))
 							{
 								control.Control.ConCodeGen.codegen = control.Control.ConCodeGen.Kind_t.X86;
-							} else
+							}
+							else
 							{
 								System.out.println("bad argument: " + s);
 								output();
@@ -78,7 +82,8 @@ public class CommandLine
 									if (s.equals("ast"))
 									{
 										control.Control.ConAst.dumpAst = true;
-									} else
+									}
+									else
 									{
 										System.out
 												.println("bad argument: " + s);
@@ -98,7 +103,8 @@ public class CommandLine
 									if (s.equals("classTable"))
 									{
 										control.Control.ConAst.elabClassTable = true;
-									} else if (s.equals("methodTable"))
+									}
+									else if (s.equals("methodTable"))
 										Control.ConAst.elabMethodTable = true;
 									else
 									{
@@ -132,7 +138,8 @@ public class CommandLine
 									if (s.equals("args"))
 									{
 										ConSlp.action = ConSlp.T.ARGS;
-									} else if (s.equals("interp"))
+									}
+									else if (s.equals("interp"))
 										ConSlp.action = ConSlp.T.INTERP;
 									else if (s.equals("compile"))
 										ConSlp.action = ConSlp.T.COMPILE;
@@ -186,13 +193,15 @@ public class CommandLine
 				{
 					filename = cargs[i];
 					continue;
-				} else
+				}
+				else
 				{
 					System.out
 							.println("Error: can only compile one Java file a time");
 					System.exit(1);
 				}
-			} else
+			}
+			else
 			{
 			}
 
@@ -307,7 +316,8 @@ public class CommandLine
 			{
 				current += a.option.length();
 				System.out.print(a.option);
-			} else
+			}
+			else
 				;
 			outputSpace(max - current + 1);
 			System.out.println(a.desription);
