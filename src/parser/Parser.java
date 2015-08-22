@@ -1,20 +1,3 @@
-/*------------------------------------------------------------------*/
-/* Copyright (C) SSE-USTC, 2014-2015                                */
-/*                                                                  */
-/*  FILE NAME             :  Parser.java                            */
-/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
-/*  LANGUAGE              :  Java                                   */
-/*  TARGET ENVIRONMENT    :  ANY                                    */
-/*  DATE OF FIRST RELEASE :  2014/10/05                             */
-/*  DESCRIPTION           :  the tiger compiler                     */
-/*------------------------------------------------------------------*/
-
-/*
- * Revision log:
- *
- * 
- *
- */
 package parser;
 
 import java.io.InputStream;
@@ -67,8 +50,6 @@ public class Parser
 
 	private void advance() // advance() can get the nextToken
 	{
-		System.out.println(current.kind.toString() + "  " + current.lexeme
-				+ "   " + current.lineNum);
 		linenum = current.lineNum;
 		current = lexer.nextToken();
 	}

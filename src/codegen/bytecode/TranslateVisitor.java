@@ -1,20 +1,3 @@
-/*------------------------------------------------------------------*/
-/* Copyright (C) SSE-USTC, 2014-2015                                */
-/*                                                                  */
-/*  FILE NAME             :  TranslateVisitor.java                  */
-/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
-/*  LANGUAGE              :  Java                                   */
-/*  TARGET ENVIRONMENT    :  ANY                                    */
-/*  DATE OF FIRST RELEASE :  2014/10/05                             */
-/*  DESCRIPTION           :  the tiger compiler                     */
-/*------------------------------------------------------------------*/
-
-/*
- * Revision log:
- *
- * 
- *
- */
 package codegen.bytecode;
 
 import java.util.Hashtable;
@@ -399,7 +382,7 @@ public class TranslateVisitor implements ast.Visitor
 	@Override
 	public void visit(ast.Ast.Dec.DecSingle d)
 	{
-		d.type.accept(this);
+		d.type.accept(this);//will modify this.type
 		this.dec = new DecSingle(this.type, d.id);
 		// 将所有声明都放到indexTable当中,除了Class里面的声明
 		if (d.isField)
@@ -466,7 +449,7 @@ public class TranslateVisitor implements ast.Visitor
 		for (ast.Ast.Dec.T dec : c.decs)
 		{
 			dec.accept(this);// 不会将id放入HashTable！典型的为了副作用而调用。class不需要HashTable
-			newDecs.add(this.dec);
+			newDecs.add(this.dec);//after dec.accept, this.dec already modified.
 		}
 		// 遍历methodList
 		LinkedList<Method.T> newMethods = new LinkedList<Method.T>();

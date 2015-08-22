@@ -42,12 +42,8 @@ public class CommandLine
 	public CommandLine()
 	{
 		this.args = new util.Flist<Arg<Object>>()
-				.list(new Arg<Object>(
-						"codegen",
-						"{bytecode|C|dalvik|x86}",
-						"which code generator to use",
-						Kind.String,
-						(ss) ->
+				.list(new Arg<Object>("codegen", "{bytecode|C|dalvik|x86}",
+						"which code generator to use", Kind.String, (ss) ->
 						{
 							String s = (String) ss;
 							if (s.equals("bytecode"))
@@ -92,12 +88,9 @@ public class CommandLine
 									}
 									return;
 								}),
-						new Arg<Object>(
-								"elab",
-								"<arg>",
+						new Arg<Object>("elab", "<arg>",
 								"dump information about elaboration",
-								Kind.String,
-								(ss) ->
+								Kind.String, (ss) ->
 								{
 									String s = (String) ss;
 									if (s.equals("classTable"))
@@ -116,8 +109,7 @@ public class CommandLine
 									return;
 								}),
 						new Arg<Object>("help", null,
-								"show this help information", Kind.Empty,
-								(s) ->
+								"show this help information", Kind.Empty, (s) ->
 								{
 									usage();
 									System.exit(1);
@@ -162,19 +154,24 @@ public class CommandLine
 									Control.ConCodeGen.outputName = (String) s;
 									return;
 								}),
-						new Arg<Object>(
-								"testFac",
-								null,
+						new Arg<Object>("testFac", null,
 								"whether or not to test the Tiger compiler on Fac.java",
 								Kind.Empty, (s) ->
 								{
 									Control.ConAst.testFac = true;
 									return;
-								}), new Arg<Object>("testlexer", null,
+								}),
+						new Arg<Object>("testlexer", null,
 								"whether or not to test the lexer", Kind.Empty,
 								(s) ->
 								{
 									Control.ConLexer.test = true;
+									return;
+								}),
+						new Arg<Object>("verbose", null, "verbose", Kind.Int,
+								(s) ->
+								{
+									Verbose.level = (int) s;
 									return;
 								}));
 	}
@@ -196,8 +193,8 @@ public class CommandLine
 				}
 				else
 				{
-					System.out
-							.println("Error: can only compile one Java file a time");
+					System.out.println(
+							"Error: can only compile one Java file a time");
 					System.exit(1);
 				}
 			}
@@ -240,8 +237,8 @@ public class CommandLine
 						arg.action.f(new Boolean(false));
 					else
 					{
-						System.out.println("Error: " + arg.name
-								+ ": requires a boolean");
+						System.out.println(
+								"Error: " + arg.name + ": requires a boolean");
 						this.output();
 						System.exit(1);
 					}
@@ -253,8 +250,8 @@ public class CommandLine
 						num = Integer.parseInt(theArg);
 					} catch (java.lang.NumberFormatException e)
 					{
-						System.out.println("Error: " + arg.name
-								+ ": requires an integer");
+						System.out.println(
+								"Error: " + arg.name + ": requires an integer");
 						this.output();
 						System.exit(1);
 					}
@@ -327,8 +324,8 @@ public class CommandLine
 
 	public void usage()
 	{
-		System.out
-				.println("The Tiger compiler. Copyright (C) 2013-, SSE of USTC.\n"
+		System.out.println(
+				"The Tiger compiler. Copyright (C) 2013-2015, SSE of USTC.\n"
 						+ "Usage: java Tiger [options] <filename>\n");
 		output();
 		return;

@@ -1,20 +1,3 @@
-/*------------------------------------------------------------------*/
-/* Copyright (C) SSE-USTC, 2014-2015                                */
-/*                                                                  */
-/*  FILE NAME             :  Ast.java                               */
-/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
-/*  LANGUAGE              :  Java                                   */
-/*  TARGET ENVIRONMENT    :  ANY                                    */
-/*  DATE OF FIRST RELEASE :  2014/10/05                             */
-/*  DESCRIPTION           :  the tiger compiler                     */
-/*------------------------------------------------------------------*/
-
-/*
- * Revision log:
- *
- * 
- *
- */
 package ast;
 
 import java.util.LinkedList;
@@ -76,7 +59,8 @@ public class Ast
 			public String toString()
 			{
 				// since Type.beelen toString() is "@boolean"
-				return "@" + this.id;
+				//return "@" + this.id;
+				return this.id;
 			}
 
 			@Override
@@ -667,10 +651,9 @@ public class Ast
 		{
 			public String id;
 			public Exp.T exp;
-			public Type.T type; // type of the id,��elabʱ�ḳֵ
-			public boolean isField;// ��elabʱ�ḳֵ
+			public Type.T type; // type of the id.
+			public boolean isField;// weather it's a classfield
 
-			// ��opt�л���
 			public Assign(String id, ast.Ast.Exp.T exp, ast.Ast.Type.T type,
 					boolean isField, int linenum)
 			{

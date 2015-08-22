@@ -1,20 +1,3 @@
-/*------------------------------------------------------------------*/
-/* Copyright (C) SSE-USTC, 2014-2015                                */
-/*                                                                  */
-/*  FILE NAME             :  ElaboratorVisitor.java                 */
-/*  PRINCIPAL AUTHOR      :  qcLiu                                  */
-/*  LANGUAGE              :  Java                                   */
-/*  TARGET ENVIRONMENT    :  ANY                                    */
-/*  DATE OF FIRST RELEASE :  2014/10/05                             */
-/*  DESCRIPTION           :  the tiger compiler                     */
-/*------------------------------------------------------------------*/
-
-/*
- * Revision log:
- *
- * 
- *
- */
 package elaborator;
 
 import java.util.LinkedList;
@@ -143,7 +126,6 @@ public class ElaboratorVisitor implements ast.Visitor
 
 		//
 		this.type = new ast.Ast.Type.Int();
-		// System.out.println(this.type.toString());
 
 		return;
 	}
@@ -379,16 +361,10 @@ public class ElaboratorVisitor implements ast.Visitor
 		if (type == null)
 			error(Error.UNDECL, s.linenum);
 		s.tyep = type;
-		//
-		// System.out.println(type.toString());//
-		// ---------------------------------------
 		s.index.accept(this);
 		if (!this.type.toString().equals("@int"))
 			error(Error.UNDECL, s.linenum);
-		// System.out.println("index finished.................");
-		//
 		s.exp.accept(this);
-		// System.out.println(s.exp.getClass().getName());
 		if (!s.exp.getClass().getName().equals("ast.Ast$Exp$ArraySelect"))
 		{
 			if (!this.type.toString().equals("@int"))
@@ -398,9 +374,7 @@ public class ElaboratorVisitor implements ast.Visitor
 		{
 			if (!type.toString().equals("@int[]"))
 				error(Error.MISTYPE, s.linenum);
-
 		}
-
 	}
 
 	@Override
@@ -492,8 +466,6 @@ public class ElaboratorVisitor implements ast.Visitor
 
 		for (Stm.T s : m.stms)
 		{
-			System.out.println("This is the Stm:" + s.linenum + " is "
-					+ s.toString());
 			s.accept(this);
 			linenum = s.linenum;
 		}
@@ -503,7 +475,7 @@ public class ElaboratorVisitor implements ast.Visitor
 		m.retExp.accept(this);
 		String rett = methodtype.retType.toString();
 		String rettt = this.type.toString();
-		if (!methodtype.retType.toString().equals(this.type.toString()))// Why??
+		if (!methodtype.retType.toString().equals(this.type.toString())) // Why??
 		// methodtype.retType==this.type
 		{
 			// test
@@ -526,7 +498,6 @@ public class ElaboratorVisitor implements ast.Visitor
 		for (Method.T m : c.methods)
 		{
 			MethodSingle mm = (MethodSingle) m;
-			System.out.println("This is the method:  " + mm.id);
 			m.accept(this);
 		}
 		return;
@@ -598,11 +569,9 @@ public class ElaboratorVisitor implements ast.Visitor
 		// ////////////////////////////////////////////////
 		// step 2: elaborate each class in turn, under the class table
 		// built above.
-		System.out.println("mainClass....................");
 		p.mainClass.accept(this);
 		for (Class.T c : p.classes)
 		{
-			System.out.println("normalClass....................");
 			c.accept(this);
 		}
 

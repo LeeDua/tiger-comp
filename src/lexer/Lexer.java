@@ -140,7 +140,7 @@ public class Lexer
 			return new Token(Kind.TOKEN_EOF, linenum);
 
 		// skip all kinds of "blanks"
-		while ('\t' == c || '\n' == c)
+		while ('\t' == c || '\n' == c || '\r'==c)
 		{
 			this.fstream.mark(1);
 			if ('\n' == c)
