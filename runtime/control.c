@@ -1,3 +1,3 @@
 #include "control.h"
 
-int Control_heapSize =256;
+int Control_heapSize =2048;
