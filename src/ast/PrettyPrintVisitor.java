@@ -77,9 +77,6 @@ public class PrettyPrintVisitor implements Visitor
 	@Override
 	public void visit(Add e)
 	{
-		// Lab2, exercise4: filling in missing code.
-		// Similar for other methods with empty bodies.
-		// Your code here:
 		e.left.accept(this);
 		this.say(" + ");
 		e.right.accept(this);
