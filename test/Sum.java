@@ -1,65 +1,47 @@
-class Sum {
+class GC {
 	public static void main(String[] a) {
         System.out.println(new Doit().doit(101));
     }
 }
 
+class Garbage {
+	GC g1;
+	GC g2;
+}
+
 class Doit {
-	int k;
-	int p;
-	int j;
-	int y;
     public int doit(int n) {
-        int sum;
         int i;
-
-        int[] j;
-        sum&&i;
-        
-
+        int j;
      Doit d1;
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-     d1 =new Doit();
-
-        
-        i = 0;
-        sum = 0;
-        j=new int[10];
-        i=j.length;
-        j[1]=1;
-        System.out.println(j[1]);
+//     Garbage g1;
+//     Garbage g2;
+//     Garbage g3;
+     
+//      g1 = new Garbage();
+// 		g2 = new Garbage();
+// 	g3 = new Garbage();
+        i=0;
         while (i<n){
-        	sum = sum + i;
+        	System.out.println(i);
+        	d1 =new Doit();
+        	//j = d1.doit2(g1, g2, g3);
         	i = i+1;
         }
-        return sum;
+        return i;
     }
+    
+//    public int doit2(Garbage g1, Garbage g2, Garbage g3) {
+//    	int i;
+//    	
+//    	g1 = new Garbage();
+//    	g2 = new Garbage();
+//    	g3 = new Garbage();
+//    	
+//    	i=10;
+//    	return i;
+//    	
+//    }
 }
 
 

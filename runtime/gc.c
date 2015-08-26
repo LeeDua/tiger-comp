@@ -1,4 +1,4 @@
-/*------------------------------------------------------------------*/
+/*^_^*--------------------------------------------------------------*//*{{{*/
 /* Copyright (C) SSE-USTC, 2014-2015                                */
 /*                                                                  */
 /*  FILE NAME             :  gc.c                                   */
@@ -22,18 +22,81 @@
  *
  *
  */
+/*}}}*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "assert.h"
+#include "error.h"
+
+#define O Object_t
+#define F Frame_t
+
+#define __CLANG__
+
+#ifdef __CLANG__
+#define GET_STACK_ARG_ADDRESS(base, index) (((char*)base)-(index)*sizeof(void*))
+#else
+#define GET_STACK_ARG_ADDRESS(base, index) (((char*)base)+(index)*sizeof(void*))
+#endif
+
+#define CAST_ADDR(p)        ((int*)(p))
+#define GET_ARG_MAP(frame)      ((char*)*((int*)((char*)frame+WORLD)))
+#define GET_BASE_ADDR(frame)    CAST_ADDR((*(int*)((char*)frame+WORLD*2)))
+#define GET_LOCAL_MAP(frame)    (*(int*)((char*)frame+WORLD*3))
+#define GET_LOCAL_BASE_ADDR(frame)  CAST_ADDR(((int*)((char*)frame+WORLD*4)))
+#define GET_LOCAL_ADDRESS(base, index)  CAST_ADDR((((char*)base)+(index)*WORLD))
+
+#define GET_OBJECT_BASE_FIELD(obj)  CAST_ADDR(obj+1)
+#define GET_OBJECT_FIELD(obj, index)    CAST_ADDR(((char*)(obj+1)+index*(sizeof(int))))
+
+#define GET_ARG(arg_addr)   CAST_ADDR((*(int*)arg_addr))
+#define GET_OBJECT(addr)    (*(int*)addr)
+#define GET_PREV_FRAME(frame)   (frame = (char*)GET_ARG(frame))
+
+
+typedef enum
+{
+    TYPE_OBJECT,
+    TYPE_ARRAY
+}OBJECT_TYPE;
+
+typedef struct O *O;
+typedef struct F *F;
+
+struct O
+{
+    void* vptr;
+    OBJECT_TYPE isArray;
+    int length;
+    void* forwarding;
+};
+
+struct F
+{
+    F prev;
+    char* arguments_gc_map;
+    int* arguments_base_address;
+    int locals_gc_map;
+};
+
+
+
 
 void Tiger_gc ();
-int copyCount=0;//用于记录copy了几个对象
 extern int Log;
+static int copyCount=0;//用于记录copy了几个对象
 static int gcNum;
 clock_t start,end;
 float sec;
 extern char* logname;
+
+static const int WORLD = sizeof(int);
+
+static const int OBJECT_HEADER_SIZE = sizeof(struct O);
+
+static const int FRAME_HEADER_SIZE = sizeof(struct F);
 
 
 // The Gimple Garbage Collector.
@@ -87,12 +150,6 @@ void Tiger_heap_init (int heapSize)
     // #7: initialize the "toNext" field with NULL;
     heap.toStart=(char*)heap.to+1;
 
-    //printf("Java Initial finished...\n");
-    //printf("Heap size:%d\n",heap.size);
-    //printf("Heap from:0x%d\n",(int)heap.from);
-    //printf("Heap to:0x%d\n",heap.to);
-    //printf("Heap toStart:0x%d\n",heap.toStart);
-    //printf("Heap toNext:0x%d\n",heap.toNext);
     return;
 }
 
@@ -141,6 +198,40 @@ void *previous = 0;//Sum。java.c extern void* previous;
 //           an error message ("OutOfMemory") and exit.
 //           (However, a production compiler will try to expand
 //           the Java heap.)
+static void* newObject(void* vtable, int size)
+{
+    O obj;
+
+    obj  = (O)heap.fromFree;
+    memset(obj, 0,  size);
+    obj->vptr = vtable;
+    obj->isArray = TYPE_OBJECT;
+    obj->length = size;
+    obj->forwarding = 0;
+
+    heap.fromFree+=size;
+    printf("new object: %d\n", size);
+    return obj;
+}
+
+static void* newArray(int length)
+{
+    O obj;
+
+    obj = (O)heap.fromFree;
+    memset(obj ,0,length*sizeof(int));
+    heap.fromFree+=(length*sizeof(int));
+    obj->vptr = NULL;
+    obj->isArray = TYPE_ARRAY;
+    obj->length = length;
+    obj->forwarding = 0;
+    heap.fromFree += (length*sizeof(int));
+
+    printf("new array: %d\n", length*sizeof(int));
+
+    return obj;
+}
+
 void *Tiger_new (void *vtable, int size)
 {
     if(heap.to-heap.fromFree<size)
@@ -179,19 +270,13 @@ void *Tiger_new (void *vtable, int size)
     }
     //printf("\nthis is Tiger_new--------------\n");
     //printf("malloc size:%d\n",size);
-    char* temp=heap.fromFree;
-    memset(temp,0,size);
-    *(temp+4)=0;
-    *(temp+8)=size;
-    *(temp+12)=0;
-    heap.fromFree+=size;
-    *((int*)temp)=(int*)vtable;
+    O obj = newObject(vtable, size);
     //printf("vtable is=%d\n",*(int*)(temp));
     //printf("isObj=%d,address=:%d\n",*(temp+4),temp+4);
     //printf("length=%d,address=:%d\n",*(temp+8),(temp+8));
     //printf("forward=%d,address=:%d\n",*(temp+12),(temp+12));
     //printf("malloc finished....------------------\n");
-    return temp;
+    return obj;
 }
 
 // "new" an array of size "length", do necessary
@@ -230,12 +315,6 @@ void *Tiger_new (void *vtable, int size)
 //           the Java heap.)
 void *Tiger_new_array (int length)
 {
-    // Your code here:
-
-    /*	int *i=(int *)malloc(length*sizeof(int));
-        i[0]=length;
-        return i+1;
-        */
     if(heap.to-heap.fromFree<(length*sizeof(int))+16)
     {
         //printf("There is %d byte remained,but you need:%d\n",
@@ -270,28 +349,16 @@ void *Tiger_new_array (int length)
             //(int*)(heap.to-heap.fromFree),length*(sizeof(int))+16);
             exit(1);
         }
-
-
     }
-
-
-
-
     //printf("\nthis is Tiger_new_array-----------------------\n");
     //printf("malloc size:%d\n",length*(sizeof(int))+16);
-    char* temp=heap.fromFree;
-    memset(temp,0,length*sizeof(int));
-    *temp=NULL;
-    *(temp+4)=1;
-    *((int*)(temp+8))=length;
-    *(temp+12)=0;
-    heap.fromFree+=(length*sizeof(int));
+    O array = newArray(length);
 
     //printf("isObj=%d,address=:%d\n",*(temp+4),temp+4);
     //printf("length=%d,address=:%d\n",*(temp+8),(temp+8));
     //printf("forward=%d,address=:%d\n",*(temp+12),(temp+12));
     //printf("malloc finished....-------------------------\n");
-    return (temp+16);
+    return (array+1);
 }
 
 
@@ -321,11 +388,29 @@ void Exchange()
     //printf("heap.toStart is:0x%d\n",(int*)heap.toStart);
     //printf("heap.toNext is:0x%d\n",(int*)heap.toNext);
     //printf("\n");
-
 }
 
 
+static int objectSize(O obj)
+{
+    int size;
 
+    switch (obj->isArray)
+    {
+        case TYPE_OBJECT:
+            size = obj->length+OBJECT_HEADER_SIZE;
+            break;
+        case TYPE_ARRAY:
+            size = obj->length*sizeof(int)+OBJECT_HEADER_SIZE;
+            break;
+        default:
+            ERROR("wrong type");
+    }
+
+    return size;
+}
+
+/*
 int calculateSize(void* temp)
 {
     int size=0;
@@ -356,40 +441,34 @@ int calculateSize(void* temp)
     return size;
 }
 
+*/
 
 
-
-void* Copy(void *temp)
+void* Copy(void *obj_addr)
 {
-    //temp所指向的才是对象的位置,temp在frame里面
-    //objAdd才是对象的位置
-    int* objAdd=*(int*)temp;
-    void* newAdd=temp;
+
+    O old_obj;
+    O new_obj;
+
+    old_obj = (O)GET_OBJECT(obj_addr);
+    new_obj = obj_addr;
     //printf("copy start---------------\n");
     //printf("heap to:%d\n",heap.from+heap.size);
     //printf("heap from:%d\n",heap.from);
 
 
-    if(((objAdd)<(heap.from+heap.size))&&(((objAdd)>=heap.from)))
+    if(((old_obj)<(heap.from+heap.size))&&(((old_obj)>=heap.from)))
     {//当目的地址在from区间里
-        char* test=objAdd;
-        //printf("this is copy()-----------------------------\n");
-        //printf("objAdd is 0x%d\n",test);
-        //printf("-----------------------------------\n");
-        //printf("isObj=%d,address=:\n",*(test+4));
-        //printf("length=%d,address=:\n",*(test+8));
-        //printf("forward=%d,address=:\n",*(test+12));
-        //printf("-----------------------------------\n");
-        void *forwarding =  ((char *)objAdd + 12);
+        void* forwarding = old_obj->forwarding;
         //printf("forwarding is:%d\n",*(int*)forwarding);
-        if((*((int*)forwarding)<(heap.to+heap.size))&&((*((int*)forwarding)>=heap.to)))
+        if((((int*)forwarding)<(heap.to+heap.size))&&((((int*)forwarding)>=heap.to)))
         {//forwarding在to区间里。说明已经copy。
             //printf("forwarding is already in tospace!!!!!!!!!!!!!!!!:%d\n",*(int*)forwarding);
             return forwarding;
 
         }
-        else if(((*((int*)forwarding)<(heap.from+heap.size))&&((*((int*)forwarding)>=heap.from)))
-                    ||*((int*)forwarding)==0)
+        else if(((((int*)forwarding)<(heap.from+heap.size))&&((((int*)forwarding)>=heap.from)))
+                    ||((int*)forwarding)==0)
         {//forwarding在from区间里面或者forwarding为0
 
             //在这里才是真正的copy！！！
@@ -399,27 +478,19 @@ void* Copy(void *temp)
             //因为没有给forwarding赋值，所以先用char*好输出0，不然是一大长串数。
             //printf("heap.from+heap.size=0x%d ",heap.from+heap.size);
             //printf("heap.from=0x%d   \n",heap.from);
-            newAdd=heap.toNext;
-            *(int*)forwarding=(int*)newAdd;
-            //printf("heap.toNext=0x%d\n",(int*)heap.toNext);
-            //printf("objAdd+12 = 0x%d\n",*(int*)((char *)objAdd + 12));
-            //printf("new forwarding is :0x%d\n",*(int*)forwarding);
+            new_obj = (O)heap.toNext;
+            old_obj->forwarding = new_obj;
 
             //printf("Copy!!!!\n");
             //得到size。有obj的size与array的size两种情况。
-            int size=calculateSize(temp);
+            int size = objectSize(old_obj);
+            //int size=calculateSize(temp);
             //开始copy
             //按字节copy
-            int i=0;
-            for(i=0;i<size;i++)
-            {
-                // printf("heap.toNext is:0x%d\n",heap.toNext);
-                *((char*)heap.toNext)=*((char*)objAdd+i);
-                // printf("from>>>>>%d   ",*((char*)objAdd+i));
-                // printf("to>>>>>%d\n",*((char*)heap.toNext));
-                heap.toNext=(char*)heap.toNext+1;
-            }
-            return newAdd;
+            memcpy(new_obj, old_obj, size);
+            heap.toNext+=size;
+
+            return new_obj;
         }
         //copy finished...
         else
@@ -432,18 +503,31 @@ void* Copy(void *temp)
     {
         //printf("no need copy!!!!!!!!!!!!!!!\n");
     }
-    return temp;
+    return obj_addr;
 }
 
-void RewriteObj()
+static void RewriteObj()
 {
-    char* toStart_temp=heap.toStart;
+    char* toStart_temp = heap.toStart;
+    O obj = (O)heap.toStart;
     while(copyCount>0)
     {
-        int* obj=(int*)toStart_temp;
+        //int* obj=(int*)toStart_temp;
+        O obj = (O)toStart_temp;
         //判断对象是什么类型。
-        int isObj=(int)*((char*)obj+4);
-        int size=(int)*((char*)obj+8);
+        //int isObj=(int)*((char*)obj+4);
+        OBJECT_TYPE isObj = obj->isArray;
+        int size = obj->length;
+
+        switch (obj->isArray)
+        {
+            case TYPE_OBJECT:
+                break;
+            case TYPE_ARRAY:
+                break;
+            default:
+                ERROR("impossible");
+        }
 
 
         if(isObj==1)//is Array
@@ -462,122 +546,103 @@ void RewriteObj()
             int classLocalCount=strlen(class_gcMap);
             if(classLocalCount>0)
             {
-                int* localAddress=(int*)((char*)toStart_temp+16);
+                //int* localAddress=(int*)((char*)toStart_temp+OBJECT_HEADER_SIZE);
+                //int* localAddress = GET_LOCAL_ADDRESS(toStart_temp);
                 int i=0;
                 for(i=0;i<classLocalCount;i++)
                 {
                     if(class_gcMap[i]=='1')
                     {
-                        Copy(localAddress);
+                        int* class_field = GET_OBJECT_FIELD(obj, i);
+                        Copy(class_field);
                     }
-                    localAddress=(char*)localAddress+4;
+                    //localAddress=(char*)localAddress+4;
                 }
             }
-
-
-            toStart_temp=(char*)toStart_temp+size;
+            toStart_temp=(char*)toStart_temp+objectSize(obj);
             copyCount--;
-
-
         }
-
-
     }
-
 }
+
+static void doArg(void* frame, char* arg_map, int* arg_base_addr)
+{
+    if (arg_map == NULL)
+      return;
+
+    int len;
+
+    len = strlen(arg_map);
+    int i = 0;
+    for (i=0; i<len; i++)
+    {
+        if (arg_map[i] == '0')
+          continue;
+
+        int* arg_addr = GET_STACK_ARG_ADDRESS(arg_base_addr, i);
+        void* collected_arg = GET_ARG(arg_addr);
+        Copy(collected_arg);
+    }
+}
+
+static void doLocals(void* frame, int locals_map)
+{
+    Assert_ASSERT(locals_map>=0);
+
+    int* local_base_addr;
+
+    if (locals_map == 0)
+      return;
+
+    local_base_addr = GET_LOCAL_BASE_ADDR(frame);
+    int i=0;
+    for (i=0; i<locals_map; i++)
+    {
+        int* local_addr = GET_LOCAL_ADDRESS(local_base_addr, i);
+        Copy(local_addr);
+    }
+}
+
+static void frameSingle(F frame)
+{
+    if (frame == NULL)
+      return;
+
+    char* arg_map;
+    int* arg_base_addr;
+    int locals_map;
+
+    arg_map = GET_ARG_MAP(frame);
+    //arg_map = frame->arguments_gc_map;
+    arg_base_addr = GET_BASE_ADDR(frame);
+    //arg_base_addr = frame->arguments_base_address;
+    locals_map = GET_LOCAL_MAP(frame);
+    //locals_map = frame->locals_gc_map;
+
+    doArg(frame, arg_map, arg_base_addr);
+
+    doLocals(frame, locals_map);
+
+    GET_PREV_FRAME(frame);
+
+    frameSingle(frame);
+}
+
 
 void Tiger_gc ()
 {
     printf("Tiger_gc start!\n");
-    // printf("heap.toStart=%d\n",(int*)heap.toStart);
-    //printf("heap.toNext=%d\n",(int*)heap.toNext);
-    while(previous!=0)
-    {
-        //printf("\n-------------------this is a frame----------------------\n");
-        char* arguments_gc_map = *((int*)((char *)previous + 4));
-        /*
-         * 此处的指针使用
-         * (int*)修饰是因为要对这个指针进行取地址操作。具体如何操作就是由(int*)说明。
-         * 此处的意思是取地址操作以4byte进行。所以，这个位置替换成(long*),(int**),(char**)都不影响结果。
-         */
-        int* arguments_address=(int*)((char*)previous+8);
-        int locals_gc_map=*((char*)previous+12);
 
-        //printf("arguments_gc_map is:\"%s\"\n",arguments_gc_map);
-        //printf("arguments_gc_map address is:0x%d\n",*arguments_address);
-        //printf("locals_gc_map :%d local value\n",locals_gc_map);
+    copyCount = 0;
 
-
-
-        void* temp=0;
-        //arguments
-        if(arguments_gc_map!=0)
-        {
-            //printf("\n this is a argument_gc_map---------\n");
-            int* addr=arguments_address;
-            int len=strlen(arguments_gc_map);
-            int i=0;
-
-            //printf("arguments_gc_map length is %d\n",len);
-
-            for(i=0;i<len;i++)
-            {
-                if(arguments_gc_map[i]=='1')
-                {//字符用''
-                    temp=*((int*)addr);
-                    //printf("\nin arguments obj address is:0x%d\n",*(int*)temp);
-                    //Copy
-                    temp=Copy(temp);
-                    //printf("copy finished...\n");
-                    addr=(char*)addr+4;
-                }
-            }
-        }
-
-
-        //locals
-        if(locals_gc_map!=0)
-        {
-            //printf("\n this is a locals_gc_map----------------------\n");
-            int j=0;
-            int* localStart=(int*)((char*)previous+16);
-            int* localTemp=localStart;
-            for(j=0;j<locals_gc_map;j++)
-            {
-                temp=localTemp;
-                //printf("\nlocals_obj address is:%d\n",*(int*)temp);
-
-                //Copy
-                temp=Copy(temp);
-                //printf("copy finished...\n");
-
-                //每次向下移动一次
-                localTemp=(char*)localTemp+4;
-
-            }
-        }
-
-        previous = (*(int*)previous);
-        /*
-         *此处指针的用法(同上)!!!(*(long*)previous)也是可以的。
-         */
-        //printf("-------------------------frame finished-----------------------\n");
-    }
-    //previous遍历结束
-
-
-
-
-    //修改对象内部的指针
+    frameSingle(previous);
+    
     RewriteObj();
-    //交换heap和Free
+
     Exchange();
 
-
-
     return;
-
-
 }
 
 
+#undef O

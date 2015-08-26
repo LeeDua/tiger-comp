@@ -1,4 +1,4 @@
-Tiger
+TIGER
 =====
 [![Build Status](https://drone.io/github.com/qc1iu/tiger-comp/status.png)](https://drone.io/github.com/qc1iu/tiger-comp/latest)
 

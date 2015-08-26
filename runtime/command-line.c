@@ -68,15 +68,12 @@ struct Arg_t
 };
 
 /* all available arguments */
-static struct Arg_t allArgs[] = {
+static struct Arg_t allArgs[] = 
+{
     {"heapSize","<n>","set the Java heap size (in kilobytes)",ARGTYPE_INT,Arg_setHeapSize},
     {"gcLog", 0, "generate GClog", ARGTYPE_EMPTY, Arg_GCLog},
     {"help",0,"help",ARGTYPE_EMPTY,Arg_help},
-    {0,
-        0,
-        0,
-        ARGTYPE_EMPTY,
-        0}
+    {0, 0, 0, ARGTYPE_EMPTY, 0}
 };
 
 
