@@ -20,6 +20,9 @@
  * 2014/12/08
  * 1>add the copyCount
  *
+ * 2015/08/26
+ *  refactor by qc1iu
+ *
  *
  */
 /*}}}*/
@@ -27,31 +30,48 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "assert.h"
-#include "error.h"
+#include "control.h"
+#include "verbose.h"
+#include "lib/assert.h"
+#include "lib/error.h"
 
 #define O Object_t
 #define F Frame_t
 #define V Vtable_t
 
-#define __CLANG__
-
+/**
+ * If use clang, should add the option -D__CLANG__
+ */
 #ifdef __CLANG__
-#define GET_STACK_ARG_ADDRESS(base, index) (((char*)base)-(index)*sizeof(void*))
+#define GET_STACK_ARG_ADDRESS(base, index)  \
+    (((char*)base)-(index)*sizeof(void*))
 #else
-#define GET_STACK_ARG_ADDRESS(base, index) (((char*)base)+(index)*sizeof(void*))
+#define GET_STACK_ARG_ADDRESS(base, index)  \
+    (((char*)base)+(index)*sizeof(void*))
 #endif
 
 #define CAST_ADDR(p)        ((int*)(p))
-#define GET_LOCAL_BASE_ADDR(frame)  (frame+1)
-#define GET_LOCAL_ADDRESS(base, index)  (((char*)base)+(index)*WORLD)
+#define GET_LOCAL_ADDRESS(frame, index)     \
+    (((char*)(frame+1))+index*(sizeof(int)))
 
-#define GET_OBJECT_BASE_FIELD(obj)  (obj+1)
-#define GET_OBJECT_FIELD_ADDR(obj, index)    ((char*)(obj+1)+index*(sizeof(int)))
+#define GET_OBJECT_FIELD_ADDR(obj, index)   \
+    (((char*)(obj+1))+index*(sizeof(int)))
 
 #define GET_OBJECT(addr)    (*(O*)addr)
 
-#define ADDRESS_COMPARE(add1, op, add2)     ((int*)(add1)op(int*)(add2))
+#define NO_ENOUGH_SPACE(remains, need)      \
+    ((remains)<(need))
+
+#define ADDRESS_COMPARE(add1, op, add2)     \
+    ((int*)(add1)op(int*)(add2))
+
+#define IN_TO_SPACE(addr)                             \
+    (ADDRESS_COMPARE(addr, <, heap.toStart+heap.size)&&    \
+     ADDRESS_COMPARE(addr, >=, heap.toStart))
+
+#define IN_FROM_SPACE(addr)                           \
+    (ADDRESS_COMPARE(addr, <, heap.from+heap.size)&&  \
+     ADDRESS_COMPARE(addr, >=, heap.from))
 
 typedef enum
 {
@@ -69,6 +89,23 @@ struct V
     char* class_map;
 };
 
+/*    
+      ----------------
+      | vptr         | (this field should be empty for an array)
+      |--------------|
+      | isObjOrArray | (1: for array)
+      |--------------|
+      | length       |
+      |--------------|
+      | forwarding   |
+      |--------------|\
+      p---->| e_0          | \
+      |--------------|  s
+      | ...          |  i
+      |--------------|  z
+      | e_{length-1} | /e
+      ----------------/
+      */
 struct O
 {
     V vptr;
@@ -88,14 +125,18 @@ struct F
 
 
 
-
-void Tiger_gc ();
 extern int Log;
-static int copyCount=0;//用于记录copy了几个对象
-static int gcNum;
-clock_t start,end;
-float sec;
+
 extern char* logname;
+
+/**
+ * The "prev" pointer, pointing to the top frame on the GC stack.
+ */
+void *previous = 0;
+
+static int copyCount;
+
+static int gcNum;
 
 static const int WORLD = sizeof(int);
 
@@ -112,7 +153,7 @@ static const int FRAME_HEADER_SIZE = sizeof(struct F);
 
 /*
    ----------------------------------------------------
-   |                        |                         |
+   |From Space              |To Space                 |
    ----------------------------------------------------
    ^\                      /^
    | \<~~~~~~~ size ~~~~~>/ |
@@ -128,12 +169,16 @@ struct JavaHeap
     char *toNext;     // "next" free space pointer in the to space
 };
 
-// The Java heap, which is initialized by the following
-// "heap_init" function.
+/**
+ * The Java heap, which is initialized by the following
+ * "heap_init" function.
+ */
 struct JavaHeap heap;
 
-// Given the heap size (in bytes), allocate a Java heap
-// in the C heap, initialize the relevant fields.
+/**
+ * Given the heap size (in bytes), allocate a Java heap
+ * in the C heap, initialize the relevant fields.
+ */
 void Tiger_heap_init (int heapSize)
 {
     // #1: allocate a chunk of memory of size "heapSize"
@@ -156,11 +201,277 @@ void Tiger_heap_init (int heapSize)
     return;
 }
 
-// The "prev" pointer, pointing to the top frame on the GC stack.
-// (see part A of Lab 4)
-void *previous = 0;//Sum。java.c extern void* previous;
+static void dumpObject(O obj)
+{
+    fprintf(stdout, "-----------------\n");
+    fprintf(stdout, "obj->vptr %x\n", (unsigned int)obj->vptr);
+    fprintf(stdout, "obj->isArray %x\n", obj->isArray);
+    fprintf(stdout, "obj->length %x\n", obj->length);
+    fprintf(stdout, "obj->forwarding %x\n", (unsigned int)obj->forwarding);
+    fprintf(stdout, "-----------------\n\n");
+
+}
+
+//===============================================================//
+// The Gimple Garbage Collector
+// A copying collector based-on Cheney's algorithm.
 
 
+static int swapAndCleanUp()
+{
+    char* swap;
+
+    swap = heap.from;
+    heap.from = heap.toStart;
+    heap.to = (char*)heap.from+heap.size;
+
+    heap.fromFree = heap.toNext;
+    heap.toStart = swap;
+    heap.toNext = swap;
+
+    memset(heap.toStart, 0, heap.size);
+
+    return 0;
+}
+
+
+static int objectSize(O obj)
+{
+    int size;
+
+    size = 0;
+    switch (obj->isArray)
+    {
+        case TYPE_OBJECT:
+            size = obj->length;
+            break;
+        case TYPE_ARRAY:
+            size = obj->length*sizeof(int)+OBJECT_HEADER_SIZE;
+            break;
+        default:
+            ERROR("wrong type");
+    }
+
+    Assert_ASSERT(size != 0);
+    return size;
+}
+
+
+static int copyCollection(int** addr_addr)
+{
+    O old_obj;
+    O new_obj;
+
+    old_obj = (O)*addr_addr;
+
+
+    if (!IN_FROM_SPACE(old_obj))
+    {
+        return 0;
+    }
+
+    void* forwarding = old_obj->forwarding;
+    if (IN_TO_SPACE(forwarding))
+    {
+        *addr_addr = (int*)forwarding;
+        return 0;
+    }
+    else if (IN_FROM_SPACE(forwarding)||ADDRESS_COMPARE(forwarding, ==, 0))
+    {
+
+        copyCount++;
+        new_obj = (O)heap.toNext;
+
+        int size = objectSize(old_obj);
+        memcpy(new_obj, old_obj, size);
+        old_obj->forwarding = new_obj;
+
+        //XXX copy finished, also need to change original address
+        *addr_addr = (int*)forwarding;
+        heap.toNext+=size;
+
+
+        return 0;
+    }
+    else
+    {
+        ERROR("impossible!");
+    }
+
+    return 0;
+}
+
+static void collectedObjectField(O obj)
+{
+    Assert_ASSERT(obj->isArray == TYPE_OBJECT);
+
+    V vtable;
+    char* class_map;
+    int field_count;
+
+    vtable = obj->vptr;
+    class_map = vtable->class_map;
+    Assert_ASSERT(class_map);
+    field_count = strlen(class_map);
+
+    if (field_count <= 0)
+      return;
+
+    int i=0;
+    for (i=0; i<field_count; i++)
+    {
+        if (class_map[i] == '0')
+          continue;
+
+        int r;
+        Verbose_TRACE("copyCollection", copyCollection, 
+                    ((int**)GET_OBJECT_FIELD_ADDR(obj, i)), r, VERBOSE_SUBPASS);
+    }
+}
+
+static int collectedField()
+{
+    char* to_ptr;
+    O obj;
+
+    for(to_ptr = heap.toStart; copyCount > 0; copyCount--)
+    {
+        obj = (O)to_ptr;
+        Assert_ASSERT(obj->vptr);
+
+        switch (obj->isArray)
+        {
+            case TYPE_OBJECT:
+                collectedObjectField(obj);
+                break;
+            case TYPE_ARRAY:
+                break;
+            default:
+                ERROR("impossible");
+        }
+
+        to_ptr = (char*)to_ptr + objectSize(obj);
+    }
+
+    return 0;
+}
+
+static int doArg(F frame)
+{
+    int len;
+    char* arg_map;
+
+    arg_map = frame->arguments_gc_map;
+
+    if (arg_map == NULL)
+      return 0;
+
+    len = strlen(arg_map);
+    int i = 0;
+    for (i=0; i<len; i++)
+    {
+        if (arg_map[i] == '0')
+          continue;
+
+        int* arg_addr = CAST_ADDR(
+                    GET_STACK_ARG_ADDRESS(
+                        frame->arguments_base_address, i));
+        int r;
+        Verbose_TRACE("copyCollection", copyCollection, 
+                    ((int**)arg_addr), r, VERBOSE_SUBPASS);
+    }
+
+    return 0;
+}
+
+static int doLocals(F frame)
+{
+    int locals_map = frame->locals_gc_map;
+    Assert_ASSERT(locals_map>=0);
+
+    int* local_base_addr;
+
+    if (locals_map == 0)
+      return 0;
+
+    int i=0;
+    for (i=0; i<locals_map; i++)
+    {
+        int r;
+        Verbose_TRACE("copyCollection", copyCollection,
+                    ((int**)GET_LOCAL_ADDRESS(frame, i)), r, VERBOSE_SUBPASS);
+    }
+
+    return 0;
+}
+
+static int frameSingle(F frame)
+{
+    if (frame == NULL)
+      return 0;
+
+    int r;
+    Verbose_TRACE("doArg", doArg, (frame), r, VERBOSE_SUBPASS);
+
+    Verbose_TRACE("doLocals", doLocals, (frame), r, VERBOSE_SUBPASS);
+
+    Verbose_TRACE("frameSingle", frameSingle, (frame->prev), r, VERBOSE_SUBPASS);
+
+    return 0;
+}
+
+static int Verbose_Tiger_gc()
+{
+    //printf("Tiger_gc start!\n");
+
+    Assert_ASSERT(copyCount == 0);
+
+    int r;
+    Verbose_TRACE("frameSingle", frameSingle, (previous), r, VERBOSE_SUBPASS);
+
+    Verbose_TRACE("collectedfield", collectedField, (), r, VERBOSE_SUBPASS);
+
+    Verbose_TRACE("swapAndCleanUp", swapAndCleanUp, (), r, VERBOSE_SUBPASS);
+
+
+    return 0;
+}
+
+void Tiger_gc ()
+{
+    int before_gc;
+    clock_t start;
+    clock_t end;
+    int gcByte;
+    double sec;
+
+    before_gc = heap.to-heap.fromFree;
+
+    start = clock();
+
+    int r;
+    Verbose_TRACE("Tiger_gc", Verbose_Tiger_gc, (), r, VERBOSE_PASS);
+
+    end = clock();
+    gcByte = heap.to-heap.fromFree-before_gc;
+    sec =  (double)(end-start)/CLOCKS_PER_SEC;
+    gcNum++;
+
+    if(Log)
+    {
+        FILE *fp;
+        fp = fopen(logname, "at");
+        if (!fp)
+        {
+            printf("File cannot be opened");
+            exit(1);
+        }
+        fprintf(fp,"%d round of gc :%fs.%d byte reclaim\n",
+                    gcNum, sec, gcByte);
+        fclose(fp);
+    }
+    return;
+}
 
 
 //===============================================================//
@@ -185,21 +496,23 @@ void *previous = 0;//Sum。java.c extern void* previous;
       | v_{size-1}   | /e
       ----------------/
       */
-// Try to allocate an object in the "from" space of the Java
-// heap. Read Tiger book chapter 13.3 for details on the
-// allocation.
-// There are two cases to consider:
-//   1. If the "from" space has enough space to hold this object, then
-//      allocation succeeds, return the apropriate address (look at
-//      the above figure, be careful);
-//   2. if there is no enough space left in the "from" space, then
-//      you should call the function "Tiger_gc()" to collect garbages.
-//      and after the collection, there are still two sub-cases:
-//        a: if there is enough space, you can do allocations just as case 1;
-//        b: if there is still no enough space, you can just issue
-//           an error message ("OutOfMemory") and exit.
-//           (However, a production compiler will try to expand
-//           the Java heap.)
+/**
+ * Try to allocate an object in the "from" space of the Java
+ * heap. Read Tiger book chapter 13.3 for details on the
+ * allocation.
+ * There are two cases to consider:
+ *   1. If the "from" space has enough space to hold this object, then
+ *      allocation succeeds, return the apropriate address (look at
+ *      the above figure, be careful);
+ *   2. if there is no enough space left in the "from" space, then
+ *      you should call the function "Tiger_gc()" to collect garbages.
+ *      and after the collection, there are still two sub-cases:
+ *        a: if there is enough space, you can do allocations just as case 1;
+ *        b: if there is still no enough space, you can just issue
+ *           an error message ("OutOfMemory") and exit.
+ *           (However, a production compiler will try to expand
+ *           the Java heap.)
+ */
 static void* newObject(void* vtable, int size)
 {
     O obj;
@@ -212,7 +525,7 @@ static void* newObject(void* vtable, int size)
     obj->forwarding = 0;
 
     heap.fromFree+=size;
-    printf("new object: %d\n", size);
+
     return obj;
 }
 
@@ -221,51 +534,29 @@ static void* newArray(int length)
     O obj;
 
     obj = (O)heap.fromFree;
-    memset(obj ,0,length*sizeof(int));
-    heap.fromFree+=(length*sizeof(int));
+    memset(obj ,0,length*sizeof(int)+OBJECT_HEADER_SIZE);
     obj->vptr = NULL;
     obj->isArray = TYPE_ARRAY;
     obj->length = length;
     obj->forwarding = 0;
-    heap.fromFree += (length*sizeof(int));
+    heap.fromFree += (length*sizeof(int))+OBJECT_HEADER_SIZE;
 
-    printf("new array: %d\n", length*sizeof(int));
 
     return obj;
 }
 
 void *Tiger_new (void *vtable, int size)
 {
-    if(heap.to-heap.fromFree<size)
+    if(NO_ENOUGH_SPACE(heap.to-heap.fromFree, size))
     {
-        int before_gc = heap.to-heap.fromFree;
-        start = clock();
         Tiger_gc();
-        end = clock();
-        sec =  (double)(end-start)/CLOCKS_PER_SEC;
-        int gcByte = heap.to-heap.fromFree-before_gc;
-        gcNum++;
 
-        if(Log)
-        {
-            FILE *fp;
-
-            fp = fopen(logname, "at");
-            if (!fp)
-            {
-                printf("File cannot be opened");
-                exit(1);
-            }
-            fprintf(fp, "%d round of gc:%fs.%d byte reclaim\n",gcNum,sec,gcByte);
-            fclose(fp);
-        }
-
-        if(heap.to-heap.fromFree<size)
+        if(NO_ENOUGH_SPACE(heap.to-heap.fromFree, size))
         {
             printf("Tiger_gc can not collecte enough space...\n");
             printf("There is %d byte remained,but you need:%d\n", 
                         (int)(heap.to-heap.fromFree),size);
-            exit(1);
+            ERROR("OutOfMemory");
         }
     }
 
@@ -293,259 +584,40 @@ void *Tiger_new (void *vtable, int size)
       | e_{length-1} | /e
       ----------------/
       */
-// Try to allocate an array object in the "from" space of the Java
-// heap. Read Tiger book chapter 13.3 for details on the
-// allocation.
-// There are two cases to consider:
-//   1. If the "from" space has enough space to hold this array object, then
-//      allocation succeeds, return the apropriate address (look at
-//      the above figure, be careful);
-//   2. if there is no enough space left in the "from" space, then
-//      you should call the function "Tiger_gc()" to collect garbages.
-//      and after the collection, there are still two sub-cases:
-//        a: if there is enough space, you can do allocations just as case 1;
-//        b: if there is still no enough space, you can just issue
-//           an error message ("OutOfMemory") and exit.
-//           (However, a production compiler will try to expand
-//           the Java heap.)
+
+/**
+ * Try to allocate an array object in the "from" space of the Java
+ * heap. Read Tiger book chapter 13.3 for details on the
+ * allocation.
+ * There are two cases to consider:
+ *  1. If the "from" space has enough space to hold this array object, then
+ *     allocation succeeds, return the apropriate address (look at
+ *     the above figure, be careful);
+ *  2. if there is no enough space left in the "from" space, then
+ *     call the function "Tiger_gc()" to collect garbages.
+ *     and after the collection, there are still two sub-cases:
+ *       a: if there is enough space, do allocations just as case 1;
+ *       b: if there is still no enough space, just issue
+ *          an error message ("OutOfMemory") and exit.
+ *          (However, a production compiler will try to expand
+ *          the Java heap.)
+ */
 void *Tiger_new_array (int length)
 {
-    if(heap.to-heap.fromFree<(length*sizeof(int))+16)
+    if(NO_ENOUGH_SPACE(heap.to-heap.fromFree,(
+                        length*sizeof(int))+OBJECT_HEADER_SIZE))
     {
-        int before_gc =heap.to-heap.fromFree;
-        start = clock();
         Tiger_gc();
-        end = clock();
-        int gcByte = heap.to-heap.fromFree-before_gc;
-        sec =  (double)(end-start)/CLOCKS_PER_SEC;
-        gcNum++;
 
-        if(Log)
+        if(NO_ENOUGH_SPACE(heap.to-heap.fromFree, 
+                        (length*sizeof(int))+OBJECT_HEADER_SIZE))
         {
-            FILE *fp;
-            fp = fopen(logname, "at");
-            if (!fp)
-            {
-                printf("File cannot be opened");
-                exit(1);
-            }
-            fprintf(fp,"%d round of gc :%fs.%d byte reclaim\n",gcNum,sec,gcByte);
-            fclose(fp);
-        }
-
-
-        if(heap.to-heap.fromFree<(length*sizeof(int))+16)
-        {
-            exit(1);
+            ERROR("OutOfMemory");
         }
     }
     O array = newArray(length);
 
     return (array+1);
-}
-
-
-
-//===============================================================//
-// The Gimple Garbage Collector
-
-// A copying collector based-on Cheney's algorithm.
-void Exchange()
-{
-    char* swap=heap.from;
-    heap.from = heap.toStart;
-    heap.to = (char*)heap.from+heap.size;
-
-    heap.fromFree = heap.toNext;
-    heap.toStart=swap;
-    heap.toNext=swap;
-}
-
-
-static int objectSize(O obj)
-{
-    int size;
-
-    switch (obj->isArray)
-    {
-        case TYPE_OBJECT:
-            size = obj->length+OBJECT_HEADER_SIZE;
-            break;
-        case TYPE_ARRAY:
-            size = obj->length*sizeof(int)+OBJECT_HEADER_SIZE;
-            break;
-        default:
-            ERROR("wrong type");
-    }
-
-    return size;
-}
-
-
-static void copyCollection(int** addr_addr)
-{
-    O old_obj;
-    O new_obj;
-    int* obj_addr;
-
-    obj_addr = *addr_addr;
-    old_obj = GET_OBJECT(obj_addr);
-
-
-
-    if (ADDRESS_COMPARE(old_obj, <, heap.from+heap.size) && 
-                ADDRESS_COMPARE(old_obj, >=, heap.from))
-    {
-        void* forwarding = old_obj->forwarding;
-        if (ADDRESS_COMPARE(forwarding, <, heap.to+heap.size) && 
-                    ADDRESS_COMPARE(forwarding, >=, heap.to))
-        {
-            *addr_addr =(int*)forwarding;
-
-            return;
-        }
-        else if ((ADDRESS_COMPARE(forwarding, <, heap.from+heap.size)&&
-                        ADDRESS_COMPARE(forwarding, >=, heap.from))||
-                    ADDRESS_COMPARE(forwarding, ==, 0))
-        {
-
-            copyCount++;
-            new_obj = (O)heap.toNext;
-            old_obj->forwarding = new_obj;
-
-            int size = objectSize(old_obj);
-            memcpy(new_obj, old_obj, size);
-            heap.toNext+=size;
-
-            return;
-        }
-        else
-        {
-            return;
-        }
-    }
-    else
-    {
-        ;
-    }
-    return;
-}
-
-static void collectedField()
-{
-    char* toStart_temp;
-
-    toStart_temp = heap.toStart;
-    while(copyCount > 0)
-    {
-        O obj = (O)toStart_temp;
-
-        switch (obj->isArray)
-        {
-            case TYPE_OBJECT:
-                {
-                    V vtable;
-                    char* class_map;
-                    int field_count;
-
-                    vtable = obj->vptr;
-                    class_map = vtable->class_map;
-                    Assert_ASSERT(class_map);
-                    field_count = strlen(class_map);
-                    if (field_count > 0)
-                    {
-                        int i=0;
-                        for (i=0; i<field_count; i++)
-                        {
-                            if (class_map[i] == '0')
-                              continue;
-
-                            int* class_field_addr = CAST_ADDR(GET_OBJECT_FIELD_ADDR(obj, i));
-                            copyCollection((int**)GET_OBJECT_FIELD_ADDR(obj, i));
-                        }
-                    }
-                    break;
-                }
-            case TYPE_ARRAY:
-                {
-                    break;
-                }
-            default:
-                ERROR("impossible");
-        }
-
-        toStart_temp=(char*)toStart_temp+objectSize(obj);
-        copyCount--;
-    }
-}
-
-static void doArg(F frame)
-{
-    int len;
-    char* arg_map;
-
-    arg_map = frame->arguments_gc_map;
-
-    if (arg_map == NULL)
-      return;
-
-    len = strlen(arg_map);
-    int i = 0;
-    for (i=0; i<len; i++)
-    {
-        if (arg_map[i] == '0')
-          continue;
-
-        int* arg_addr = GET_STACK_ARG_ADDRESS(frame->arguments_base_address, i);
-        copyCollection((int**)arg_addr);
-    }
-}
-
-static void doLocals(F frame)
-{
-    int locals_map = frame->locals_gc_map;
-    Assert_ASSERT(locals_map>=0);
-
-    int* local_base_addr;
-
-    if (locals_map == 0)
-      return;
-
-    local_base_addr = CAST_ADDR(GET_LOCAL_BASE_ADDR(frame));
-    int i=0;
-    for (i=0; i<locals_map; i++)
-    {
-        int* local_addr = CAST_ADDR(GET_LOCAL_ADDRESS(local_base_addr, i));
-        copyCollection((int**)GET_LOCAL_ADDRESS(local_base_addr, i));
-    }
-}
-
-static void frameSingle(F frame)
-{
-    if (frame == NULL)
-      return;
-
-    doArg(frame);
-
-    doLocals(frame);
-
-    frameSingle(frame->prev);
-}
-
-
-void Tiger_gc ()
-{
-    printf("Tiger_gc start!\n");
-
-    Assert_ASSERT(copyCount == 0);
-
-    frameSingle(previous);
-
-    collectedField();
-
-    Exchange();
-
-    return;
 }
 
 

@@ -432,7 +432,7 @@ public class PrettyPrintVisitor implements Visitor
 	    this.sayln("frame.arguments_gc_map = "+m.classId
 	    		+"_"+m.id+"_arguments_gc_map;");
 	    this.printSpaces();
-	    this.sayln("frame.arguments_base_address = &this;");
+	    this.sayln("frame.arguments_base_address = (int*)&this;");
 	    this.printSpaces();
 	    this.sayln("frame.locals_gc_map = "+m.classId
 	    		+"_"+m.id+"_locals_gc_map;");
@@ -521,7 +521,7 @@ public class PrettyPrintVisitor implements Visitor
     this.indent();
     m.stm.accept(this);
     
-    this.sayln("}\n");
+    this.sayln("return 0;\n}\n");
     return;
   }
 
@@ -744,6 +744,11 @@ public class PrettyPrintVisitor implements Visitor
     this.sayln("// Do NOT modify!\n");
     
     this.sayln("extern void *previous;");
+    this.sayln("extern void *Tiger_new_array (int);");
+    this.sayln("extern void *Tiger_new (void *, int);");
+    this.sayln("extern int System_out_println (int);");
+    
+    
   
 
     //

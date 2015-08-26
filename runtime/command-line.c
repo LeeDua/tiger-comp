@@ -3,6 +3,7 @@
 #include <string.h>
 #include "control.h"
 #include "command-line.h"
+#include "lib/error.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -38,6 +39,27 @@ static void Arg_setHeapSize(int heapSize)
     return;
 }
 
+static void arg_setVerbose(int i)
+{
+    switch (i)
+    {
+        case 0:
+            Control_verbose = VERBOSE_SILENT;
+            break;
+        case 1:
+            Control_verbose = VERBOSE_PASS;
+            break;
+        case 2:
+            Control_verbose = VERBOSE_SUBPASS;
+            break;
+        case 3:
+            Control_verbose = VERBOSE_DETAIL;
+            break;
+        default:
+            ERROR("-verbose {0|1|2|3}");
+    }
+}
+
 static void Arg_GCLog()
 {
     FILE *fp;
@@ -68,9 +90,10 @@ struct Arg_t
 };
 
 /* all available arguments */
-static struct Arg_t allArgs[] = 
+static struct Arg_t allArgs[] =
 {
     {"heapSize","<n>","set the Java heap size (in kilobytes)",ARGTYPE_INT,Arg_setHeapSize},
+    {"verbose", "{0|1|2|3}", "trace method execuated", ARGTYPE_INT, arg_setVerbose},
     {"gcLog", 0, "generate GClog", ARGTYPE_EMPTY, Arg_GCLog},
     {"help",0,"help",ARGTYPE_EMPTY,Arg_help},
     {0, 0, 0, ARGTYPE_EMPTY, 0}
@@ -106,7 +129,7 @@ static void Arg_print ()
             printf ("\n");
             printSpaces (LEFT_SIZE);
         }
-        else 
+        else
           printSpaces (LEFT_SIZE-left);
         printf (" %s\n", allArgs[i].desc);
     }

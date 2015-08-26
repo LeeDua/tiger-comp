@@ -2,6 +2,9 @@
 // Do NOT modify!
 
 extern void *previous;
+extern void *Tiger_new_array (int);
+extern void *Tiger_new (void *, int);
+extern int System_out_println (int);
 // structures
 struct GC
 {
@@ -114,7 +117,7 @@ int Doit_doit(struct Doit * this, int n)
   frame.prev_=previous;
   previous=&frame;
   frame.arguments_gc_map = Doit_doit_arguments_gc_map;
-  frame.arguments_base_address = &this;
+  frame.arguments_base_address = (int*)&this;
   frame.locals_gc_map = Doit_doit_locals_gc_map;
   int i;
   int j;
@@ -145,7 +148,7 @@ int Doit_doit2(struct Doit * this, struct Garbage * g1, struct Garbage * g2, str
   frame.prev_=previous;
   previous=&frame;
   frame.arguments_gc_map = Doit_doit2_arguments_gc_map;
-  frame.arguments_base_address = &this;
+  frame.arguments_base_address = (int*)&this;
   frame.locals_gc_map = Doit_doit2_locals_gc_map;
   int i;
 
@@ -169,6 +172,7 @@ int Tiger_main ()
     frame.locals_gc_map = Tiger_main_locals_gc_map;
     frame.x_0=0;
     System_out_println ((frame.x_0=((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit)))), frame.x_0->vptr->doit(frame.x_0, 101)));
+return 0;
 }
 
 
