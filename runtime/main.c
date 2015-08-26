@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern void Tiger_main();
 extern void Tiger_heap_init (int);
 extern void CommandLine_doarg (int argc, char **argv);
 int main (int argc, char **argv)
