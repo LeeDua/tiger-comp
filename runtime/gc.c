@@ -224,11 +224,9 @@ static int swapAndCleanUp()
     swap = heap.from;
     heap.from = heap.toStart;
     heap.to = (char*)heap.from+heap.size;
-
     heap.fromFree = heap.toNext;
     heap.toStart = swap;
     heap.toNext = swap;
-
     memset(heap.toStart, 0, heap.size);
 
     return 0;
@@ -264,11 +262,8 @@ static int copyCollection(int** addr_addr)
 
     old_obj = (O)*addr_addr;
 
-
     if (!IN_FROM_SPACE(old_obj))
-    {
-        return 0;
-    }
+      return 0;
 
     void* forwarding = old_obj->forwarding;
     if (IN_TO_SPACE(forwarding))
@@ -278,7 +273,6 @@ static int copyCollection(int** addr_addr)
     }
     else if (IN_FROM_SPACE(forwarding)||ADDRESS_COMPARE(forwarding, ==, 0))
     {
-
         copyCount++;
         new_obj = (O)heap.toNext;
 
@@ -289,7 +283,6 @@ static int copyCollection(int** addr_addr)
         //XXX copy finished, also need to change original address
         *addr_addr = (int*)forwarding;
         heap.toNext+=size;
-
 
         return 0;
     }
@@ -337,11 +330,10 @@ static int collectedField()
     for(to_ptr = heap.toStart; copyCount > 0; copyCount--)
     {
         obj = (O)to_ptr;
-        Assert_ASSERT(obj->vptr);
-
         switch (obj->isArray)
         {
             case TYPE_OBJECT:
+                Assert_ASSERT(obj->vptr);
                 collectedObjectField(obj);
                 break;
             case TYPE_ARRAY:
@@ -349,7 +341,6 @@ static int collectedField()
             default:
                 ERROR("impossible");
         }
-
         to_ptr = (char*)to_ptr + objectSize(obj);
     }
 
@@ -362,7 +353,6 @@ static int doArg(F frame)
     char* arg_map;
 
     arg_map = frame->arguments_gc_map;
-
     if (arg_map == NULL)
       return 0;
 
@@ -386,11 +376,10 @@ static int doArg(F frame)
 
 static int doLocals(F frame)
 {
-    int locals_map = frame->locals_gc_map;
+    int locals_map;
+
+    locals_map = frame->locals_gc_map;
     Assert_ASSERT(locals_map>=0);
-
-    int* local_base_addr;
-
     if (locals_map == 0)
       return 0;
 
@@ -412,9 +401,7 @@ static int frameSingle(F frame)
 
     int r;
     Verbose_TRACE("doArg", doArg, (frame), r, VERBOSE_SUBPASS);
-
     Verbose_TRACE("doLocals", doLocals, (frame), r, VERBOSE_SUBPASS);
-
     Verbose_TRACE("frameSingle", frameSingle, (frame->prev), r, VERBOSE_SUBPASS);
 
     return 0;
@@ -422,22 +409,17 @@ static int frameSingle(F frame)
 
 static int Verbose_Tiger_gc()
 {
-    //printf("Tiger_gc start!\n");
-
     Assert_ASSERT(copyCount == 0);
 
     int r;
     Verbose_TRACE("frameSingle", frameSingle, (previous), r, VERBOSE_SUBPASS);
-
     Verbose_TRACE("collectedfield", collectedField, (), r, VERBOSE_SUBPASS);
-
     Verbose_TRACE("swapAndCleanUp", swapAndCleanUp, (), r, VERBOSE_SUBPASS);
-
 
     return 0;
 }
 
-void Tiger_gc ()
+static void Tiger_gc ()
 {
     int before_gc;
     clock_t start;
@@ -446,17 +428,13 @@ void Tiger_gc ()
     double sec;
 
     before_gc = heap.to-heap.fromFree;
-
     start = clock();
-
     int r;
     Verbose_TRACE("Tiger_gc", Verbose_Tiger_gc, (), r, VERBOSE_PASS);
-
     end = clock();
     gcByte = heap.to-heap.fromFree-before_gc;
     sec =  (double)(end-start)/CLOCKS_PER_SEC;
     gcNum++;
-
     if(Log)
     {
         FILE *fp;
@@ -489,7 +467,7 @@ void Tiger_gc ()
       |--------------|
       | forwarding   |
       |--------------|\
-      p---->| v_0          | \
+p---->| v_0          | \
       |--------------|  s
       | ...          |  i
       |--------------|  z
@@ -577,7 +555,7 @@ void *Tiger_new (void *vtable, int size)
       |--------------|
       | forwarding   |
       |--------------|\
-      p---->| e_0          | \
+p---->| e_0          | \
       |--------------|  s
       | ...          |  i
       |--------------|  z
@@ -593,6 +571,11 @@ void *Tiger_new (void *vtable, int size)
  *  1. If the "from" space has enough space to hold this array object, then
  *     allocation succeeds, return the apropriate address (look at
  *     the above figure, be careful);
+ *
+ * //XXX Return the base address. And in codegenC,
+ *       array[0] translate to array[0+4].
+ *       array.length translate to array[2].
+ *
  *  2. if there is no enough space left in the "from" space, then
  *     call the function "Tiger_gc()" to collect garbages.
  *     and after the collection, there are still two sub-cases:
@@ -608,7 +591,6 @@ void *Tiger_new_array (int length)
                         length*sizeof(int))+OBJECT_HEADER_SIZE))
     {
         Tiger_gc();
-
         if(NO_ENOUGH_SPACE(heap.to-heap.fromFree, 
                         (length*sizeof(int))+OBJECT_HEADER_SIZE))
         {
@@ -617,7 +599,7 @@ void *Tiger_new_array (int length)
     }
     O array = newArray(length);
 
-    return (array+1);
+    return (array);
 }
 
 

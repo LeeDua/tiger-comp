@@ -141,7 +141,7 @@ public class PrettyPrintVisitor implements Visitor
 	  e.array.accept(this);
 	  this.say("[");
 	  e.index.accept(this);
-	  this.say("]");
+	  this.say("+4]");
   }
 
   @Override
@@ -194,7 +194,7 @@ public class PrettyPrintVisitor implements Visitor
   public void visit(Length e)
   {
 	  e.array.accept(this);
-	  this.say("[-2]");
+	  this.say("[2]");
   }
 
   @Override
@@ -307,7 +307,7 @@ public class PrettyPrintVisitor implements Visitor
 		  this.say("this->"+s.id+"[");
 	  }
 	  s.index.accept(this);
-	  this.say("]");
+	  this.say("+4]");
 	  this.say(" = ");
 	  s.exp.accept(this);
 	  this.sayln(";");

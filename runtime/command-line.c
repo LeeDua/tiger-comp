@@ -10,6 +10,8 @@
 
 static void errorNoName (char *);
 static void errorWrongArg (char *, char *, char *);
+static void Arg_help();
+
 int Log = FALSE;
 char* filename;
 char* logname;
@@ -22,16 +24,14 @@ typedef enum
     ARGTYPE_STRING,
 } ArgType_t;
 
+static char* const VERSION = "Gimple v0.0.3";
+
+static char* const WEBSITE = "https://github.com/qc1iu/tiger-comp";
+
 //////////////////////////////////////////////////////
 /*        all functions */
 
 
-static void Arg_help()
-{
-    printf("-gcLog\tgenertate GClog\n");
-    printf("-heapSize <n>\tset the Java heap size (in kilobytes)\n");
-    exit(0);
-}
 
 static void Arg_setHeapSize(int heapSize)
 {
@@ -90,13 +90,13 @@ struct Arg_t
 };
 
 /* all available arguments */
-static struct Arg_t allArgs[] =
+static const struct Arg_t allArgs[] =
 {
-    {"heapSize","<n>","set the Java heap size (in kilobytes)",ARGTYPE_INT,Arg_setHeapSize},
+    {"heapSize","<n>","set the Java heap size (in bytes)",ARGTYPE_INT,Arg_setHeapSize},
     {"verbose", "{0|1|2|3}", "trace method execuated", ARGTYPE_INT, arg_setVerbose},
-    {"gcLog", 0, "generate GClog", ARGTYPE_EMPTY, Arg_GCLog},
-    {"help",0,"help",ARGTYPE_EMPTY,Arg_help},
-    {0, 0, 0, ARGTYPE_EMPTY, 0}
+    {"gcLog", "", "generate GClog", ARGTYPE_EMPTY, Arg_GCLog},
+    {"help","","help",ARGTYPE_EMPTY,Arg_help},
+    {0, 0, 0, 0, 0}
 };
 
 
@@ -139,7 +139,7 @@ static void Arg_print ()
 static void errorNoName (char *s)
 {
     printf ("unknown switch: %s\n", s);
-    //Arg_print ();
+    Arg_print ();
     exit (0);
 }
 
@@ -162,6 +162,28 @@ static void errorWrongArg (char *name,
     Arg_print ();
     exit (0);
 }
+
+
+static int printUsage()
+{
+    fprintf(stdout, "Runtime for tiger-comp\n\n");
+    fprintf(stdout, "Usage:\n\n");
+    fprintf(stdout, "\tcommand [arguments]\n\n");
+    fprintf(stdout, "The commands are:\n\n");
+    Arg_print();
+    fprintf(stdout, "\n");
+    fprintf(stdout, "%s\n", VERSION);
+    fprintf(stdout, "See %s for more details.\n", WEBSITE);
+    fflush(stdout);
+    return 0;
+}
+
+static void Arg_help()
+{
+    printUsage();
+    exit(0);
+}
+
 
 void CommandLine_doarg (int argc, char **argv)
 {

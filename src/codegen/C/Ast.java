@@ -414,6 +414,7 @@ public class Ast
 			}
 		}
 
+		
 		public static class AssignArray extends T
 		{
 			public String id;

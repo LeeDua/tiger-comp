@@ -72,6 +72,17 @@ There are two different forms of objects in MiniJava: normal objects and (intege
       	  | e_{length-1} | /e
       	  ----------------/
 
+###Play In Runtime
+
+Since the evaluation order of the argument list, when using `clang`, need add the compile options **`__CLANG__`**
+	
+	tiger-comp/runtime$ clang test/Test_GC3.java.c runtime.c -D__CLANG__
+
+###command-line
+
+	-gcLog	genertate GClog
+	-heapSize <n>	set the Java heap size (in kilobytes)
+
 ##Caveats & Limitations
 
 Too many...
