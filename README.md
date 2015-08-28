@@ -4,7 +4,8 @@ TIGER
 
 The Tiger compiler. Copyright (C) 2013-2015, SSE of USTC.
 
-`Tiger` is a MiniJava lanuage compile. Just for fun, it has a garbage collector using copy collection algorithm.
+`Tiger` is a **MiniJava lanuage**(see [Tiger book](www.cs.princeton.edu/~appel/modern/java/) Appendix MiniJava Language
+Reference Manual) compile. Just for fun, it has a garbage collector using copy collection algorithm.
 
 
 ##Getting Start
@@ -80,8 +81,11 @@ Since the evaluation order of the argument list, when using `clang`, need add th
 
 ###command-line
 
-	-gcLog	genertate GClog
-	-heapSize <n>	set the Java heap size (in kilobytes)
+	-heapSize <n>            set the Java heap size (in bytes)
+	-verbose {0|1|2|3}       trace method execuated
+   	-gcLog                   generate GClog
+   	-help                    help
+
 
 ##Caveats & Limitations
 
