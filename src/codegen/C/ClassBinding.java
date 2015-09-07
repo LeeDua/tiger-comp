@@ -39,7 +39,8 @@ public class ClassBinding {
 	this.methods = ms;
     }
 
-    public void putm(String c, Type.T ret, java.util.LinkedList<Dec.T> args, String mthd) {
+    public void putm(String c, Type.T ret, java.util.LinkedList<Dec.T> args,
+	    String mthd) {
 	Ftuple t = new Ftuple(c, ret, args, mthd);
 	this.methods.add(t);
 	return;

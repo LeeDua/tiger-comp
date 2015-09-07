@@ -18,7 +18,8 @@ public class MethodTable {
 	for (Dec.T dec : formals) {
 	    Dec.DecSingle decc = (Dec.DecSingle) dec;
 	    if (this.table.get(decc.id) != null) {
-		System.out.println("duplicated parameter: " + decc.id + "at line:" + "");
+		System.out.println(
+			"duplicated parameter: " + decc.id + "at line:" + "");
 		System.exit(1);
 	    }
 	    this.table.put(decc.id, decc.type);

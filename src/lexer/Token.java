@@ -78,7 +78,8 @@ public class Token {
 	if (this.lineNum == null)
 	    new util.Todo();
 
-	s = ": " + ((this.lexeme == null) ? "<NONE>" : this.lexeme) + " : at line " + this.lineNum.toString();
+	s = ": " + ((this.lexeme == null) ? "<NONE>" : this.lexeme)
+		+ " : at line " + this.lineNum.toString();
 	return this.kind.toString() + s;
     }
 }

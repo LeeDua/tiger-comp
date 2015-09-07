@@ -1,9 +1,7 @@
 package codegen.C;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
-import ast.Ast.Type.T;
 import codegen.C.Ast.Class;
 import codegen.C.Ast.Class.ClassSingle;
 import codegen.C.Ast.Dec;
@@ -333,7 +331,8 @@ public class TranslateVisitor implements ast.Visitor {
 	for (Dec.T dec : this.tmpVars) {// 在声明的最后，补上需要的声明，比如call调用产生的类名。
 	    locals.add(dec);
 	}
-	this.method = new MethodSingle(newRetType, this.classId, m.id, newFormals, locals, newStm, retExp);
+	this.method = new MethodSingle(newRetType, this.classId, m.id,
+		newFormals, locals, newStm, retExp);
 	return;
     }
 
@@ -446,7 +445,8 @@ public class TranslateVisitor implements ast.Visitor {
 	for (ast.Ast.Class.T classs : p.classes) {
 	    classs.accept(this);
 	}
-	this.program = new ProgramSingle(this.classes, this.vtables, this.methods, this.mainMethod);
+	this.program = new ProgramSingle(this.classes, this.vtables,
+		this.methods, this.mainMethod);
 	return;
     }
 }

@@ -43,7 +43,10 @@ public class Tiger {
 	System.exit(1);
     }
 
-    private Object Verbose_parser() {
+    /**
+     * parsing the file, get an AST.
+     */
+    private Object parser() {
 	InputStream fstream;
 	Parser parser;
 	try {
@@ -62,37 +65,23 @@ public class Tiger {
     }
 
     /**
-     * parsing the file, get an AST.
+     * elaborate the AST, report all possible errors.
      */
-    private void parser() {
-	Verbose.trace("parser", () -> {
-	    return Verbose_parser();
-	} , Verbose.PASS);
-    }
-
-    private Object Verbose_elaborator() {
+    private Object elaborator() {
 	elaborator.ElaboratorVisitor elab = new elaborator.ElaboratorVisitor();
 	this.theAst.accept(elab);
 	return null;
     }
 
-    /**
-     * elaborate the AST, report all possible errors.
-     */
-    private void elaborator() {
-	Verbose.trace("elaborator", () -> {
-	    return Verbose_elaborator();
-	} , Verbose.PASS);
-    }
-
-    private Object Verbose_compileBytecode() {
+    private Object compileBytecode() {
 	BufferedReader br = null;
 	codegen.bytecode.Ast.MainClass.MainClassSingle mainClass = (codegen.bytecode.Ast.MainClass.MainClassSingle) this.tbytecodeAst.mainClass;
 	String command2 = "java -jar jasmin.jar test/" + mainClass.id + ".j";
 	String err2 = null;
 	try {
 	    Process pro2 = Runtime.getRuntime().exec(command2);
-	    BufferedReader br2 = new BufferedReader(new InputStreamReader(pro2.getErrorStream()));
+	    BufferedReader br2 = new BufferedReader(
+		    new InputStreamReader(pro2.getErrorStream()));
 	    while ((err2 = br2.readLine()) != null) {
 		System.out.println(err2);
 	    }
@@ -100,7 +89,8 @@ public class Tiger {
 		codegen.bytecode.Ast.Class.ClassSingle cs = (codegen.bytecode.Ast.Class.ClassSingle) c;
 		command2 = "java -jar jasmin.jar test\\" + cs.id + ".j";
 		pro2 = Runtime.getRuntime().exec(command2);
-		br = new BufferedReader(new InputStreamReader(pro2.getErrorStream()));
+		br = new BufferedReader(
+			new InputStreamReader(pro2.getErrorStream()));
 		while ((err2 = br.readLine()) != null) {
 		    System.out.println(err2);
 		}
@@ -110,11 +100,13 @@ public class Tiger {
 
 	    System.out.println("Run " + mainClass.id + ".class");
 	    pro2 = Runtime.getRuntime().exec(command2);
-	    br = new BufferedReader(new InputStreamReader(pro2.getInputStream()));
+	    br = new BufferedReader(
+		    new InputStreamReader(pro2.getInputStream()));
 	    while ((err2 = br.readLine()) != null) {
 		System.out.println(err2);
 	    }
-	    br = new BufferedReader(new InputStreamReader(pro2.getErrorStream()));
+	    br = new BufferedReader(
+		    new InputStreamReader(pro2.getErrorStream()));
 	    while ((err2 = br.readLine()) != null) {
 		System.err.println(err2);
 	    }
@@ -126,13 +118,7 @@ public class Tiger {
 	return null;
     }
 
-    private void compileBytecode() {
-	Verbose.trace("compileBytecode", () -> {
-	    return Verbose_compileBytecode();
-	} , Verbose.PASS);
-    }
-
-    private Object Verbose_codegenBytecode() {
+    private Object codegenBytecode() {
 	codegen.bytecode.TranslateVisitor trans = new codegen.bytecode.TranslateVisitor();
 	this.theAst.accept(trans);
 	codegen.bytecode.Ast.Program.T bytecodeAst = trans.program;
@@ -143,13 +129,7 @@ public class Tiger {
 	return null;
     }
 
-    private void codegenBytecode() {
-	Verbose.trace("codegenBytecode", () -> {
-	    return Verbose_codegenBytecode();
-	} , Verbose.PASS);
-    }
-
-    private Object Verbose_codegenC() {
+    private Object codegenC() {
 	codegen.C.TranslateVisitor transC = new codegen.C.TranslateVisitor();
 	this.theAst.accept(transC);
 	codegen.C.Ast.Program.T cAst = transC.program;
@@ -158,19 +138,17 @@ public class Tiger {
 	return null;
     }
 
-    private void codegenC() {
-	Verbose.trace("codegenC", () -> {
-	    return Verbose_codegenC();
-	} , Verbose.PASS);
-    }
-
     private void codegen() {
 	switch (control.Control.ConCodeGen.codegen) {
 	case Bytecode:
-	    codegenBytecode();
+	    Verbose.trace("condegenBytecode", () -> {
+		return codegenBytecode();
+	    } , Verbose.PASS);
 	    break;
 	case C:
-	    codegenC();
+	    Verbose.trace("condegenBytecode", () -> {
+		return codegenC();
+	    } , Verbose.PASS);
 	    break;
 	case Dalvik:
 	    new util.Todo();
@@ -183,22 +161,25 @@ public class Tiger {
 	}
     }
 
-    private Object Verbose_compileC() {
+    private Object compileC() {
 	BufferedReader br = null;
 	System.out.println("start....");
-	String command = "gcc " + this.fname + ".c" + " runtime/runtime.c -o " + this.fname + ".out";
+	String command = "gcc " + this.fname + ".c" + " runtime/runtime.c -o "
+		+ this.fname + ".out";
 	System.out.println(command);
 	br = null;
 	String err = null;
 	try {
 	    Process proC = Runtime.getRuntime().exec(command);
-	    br = new BufferedReader(new InputStreamReader(proC.getErrorStream()));
+	    br = new BufferedReader(
+		    new InputStreamReader(proC.getErrorStream()));
 	    while ((err = br.readLine()) != null) {
 		System.out.println(err);
 	    }
 	    command = "./" + this.fname + ".out";
 	    Process proC2 = Runtime.getRuntime().exec(command);
-	    br = new BufferedReader(new InputStreamReader(proC2.getInputStream()));
+	    br = new BufferedReader(
+		    new InputStreamReader(proC2.getInputStream()));
 	    while ((err = br.readLine()) != null) {
 		System.out.println(err);
 	    }
@@ -209,34 +190,25 @@ public class Tiger {
 	return null;
     }
 
-    private void compileC() {
-	Verbose.trace("compileC", () -> {
-	    return Verbose_compileC();
-	} , Verbose.PASS);
-    }
-
-    private Object Verbose_compile() {
-	switch (control.Control.ConCodeGen.codegen) {
-	case Bytecode:
-	    this.compileBytecode();
-	    break;
-	case C:
-	    this.compileC();
-	    break;
-	default:
-	    System.exit(0);
-	}
-	return null;
-    }
-
     /**
      * some glue code to call gcc to compile the generated C or x86 file, or
      * call java to run the bytecode file, or dalvik to run the dalvik bytecode.
      */
     private void compile() {
-	Verbose.trace("compile", () -> {
-	    return Verbose_compile();
-	} , Verbose.PASS);
+	switch (control.Control.ConCodeGen.codegen) {
+	case Bytecode:
+	    Verbose.trace("execuate", () -> {
+		return compileBytecode();
+	    } , Verbose.PASS);
+	    break;
+	case C:
+	    Verbose.trace("execuate", () -> {
+		return this.compileC();
+	    } , Verbose.PASS);
+	    break;
+	default:
+	    System.exit(0);
+	}
     }
 
     public static void main(String[] args) {
@@ -255,7 +227,9 @@ public class Tiger {
 	}
 
 	// normal compilation phases.
-	tiger.parser();
+	Verbose.trace("parser", () -> {
+	    return tiger.parser();
+	} , Verbose.PASS);
 
 	// pretty printing the AST, if necessary
 	if (dumpAst) {
@@ -263,7 +237,9 @@ public class Tiger {
 	    tiger.theAst.accept(pp);
 	}
 
-	tiger.elaborator();
+	Verbose.trace("elaborator", () -> {
+	    return tiger.elaborator();
+	} , Verbose.PASS);
 	// code generation
 	tiger.codegen();
 

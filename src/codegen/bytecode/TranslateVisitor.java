@@ -35,10 +35,8 @@ public class TranslateVisitor implements ast.Visitor {
     private Dec.T dec;
     private LinkedList<Stm.T> stms;
     private Method.T method;// 一个method拥有一个Stm链
-
     private Class.T classs;
     private MainClass.T mainClass;
-
     public Program.T program;
 
     public TranslateVisitor() {
@@ -65,7 +63,6 @@ public class TranslateVisitor implements ast.Visitor {
 	e.right.accept(this);
 	emit(new Iadd());
 	return;
-
     }
 
     @Override
@@ -74,7 +71,6 @@ public class TranslateVisitor implements ast.Visitor {
 	e.right.accept(this);
 	emit(new Iand());
 	return;
-
     }
 
     @Override
@@ -128,7 +124,8 @@ public class TranslateVisitor implements ast.Visitor {
 	    emit(new Aload(0));// 当前类的引用会在0号位置
 	    // 这一步是为了在栈里给Getfield创造需要的数据
 	    e.type.accept(this);
-	    emit(new codegen.bytecode.Ast.Stm.Getfield(this.classId, e.id, this.type));
+	    emit(new codegen.bytecode.Ast.Stm.Getfield(this.classId, e.id,
+		    this.type));
 	}
     }
 
@@ -391,7 +388,8 @@ public class TranslateVisitor implements ast.Visitor {
 	else
 	    emit(new Ireturn());// return from method with integer result
 
-	this.method = new MethodSingle(newRetType, m.id, this.classId, newFormals, locals, this.stms, 0, this.index);
+	this.method = new MethodSingle(newRetType, m.id, this.classId,
+		newFormals, locals, this.stms, 0, this.index);
 
 	return;
     }

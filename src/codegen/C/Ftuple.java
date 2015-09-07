@@ -11,7 +11,8 @@ public class Ftuple {
     public LinkedList<Dec.T> args; // type of args
     public String id; // name of the field or method
 
-    public Ftuple(String classs, Type.T ret, java.util.LinkedList<Dec.T> args, String id) {
+    public Ftuple(String classs, Type.T ret, java.util.LinkedList<Dec.T> args,
+	    String id) {
 	this.classs = classs;
 	this.ret = ret;
 	this.args = args;

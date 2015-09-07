@@ -15,7 +15,8 @@ public class ClassBinding {
 	this.methods = new Hashtable<String, MethodType>();
     }
 
-    public ClassBinding(String extendss, java.util.Hashtable<String, Type.T> fields,
+    public ClassBinding(String extendss,
+	    java.util.Hashtable<String, Type.T> fields,
 	    java.util.Hashtable<String, MethodType> methods) {
 	this.extendss = extendss;
 	this.fields = fields;

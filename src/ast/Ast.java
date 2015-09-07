@@ -224,10 +224,8 @@ public class Ast {
 	    public java.util.LinkedList<Type.T> at; // arg's type
 	    public Type.T rt;
 
-	    public Call(
-		    // ����Ҫ�У���optʱ���õ�
-		    T exp, String id, java.util.LinkedList<T> args, String type, java.util.LinkedList<Type.T> at,
-		    Type.T rt) {
+	    public Call(T exp, String id, java.util.LinkedList<T> args,
+		    String type, java.util.LinkedList<Type.T> at, Type.T rt) {
 		this.exp = exp;
 		this.id = id;
 		this.args = args;
@@ -237,7 +235,8 @@ public class Ast {
 
 	    }
 
-	    public Call(T exp, String id, java.util.LinkedList<T> args, int linenum) {
+	    public Call(T exp, String id, java.util.LinkedList<T> args,
+		    int linenum) {
 		this.exp = exp;
 		this.id = id;
 		this.args = args;
@@ -554,7 +553,8 @@ public class Ast {
 	    public Type.T type; // type of the id.
 	    public boolean isField;// weather it's a classfield
 
-	    public Assign(String id, ast.Ast.Exp.T exp, ast.Ast.Type.T type, boolean isField, int linenum) {
+	    public Assign(String id, ast.Ast.Exp.T exp, ast.Ast.Type.T type,
+		    boolean isField, int linenum) {
 		this.id = id;
 		this.exp = exp;
 		this.type = type;
@@ -597,8 +597,8 @@ public class Ast {
 	    public Type.T tyep;// type of the id
 	    public boolean isField;
 
-	    // ��opt�л���
-	    public AssignArray(String id, ast.Ast.Exp.T index, ast.Ast.Exp.T exp, ast.Ast.Type.T tyep, boolean isField,
+	    public AssignArray(String id, ast.Ast.Exp.T index,
+		    ast.Ast.Exp.T exp, ast.Ast.Type.T tyep, boolean isField,
 		    int linenum) {
 		this.id = id;
 		this.index = index;
@@ -735,7 +735,8 @@ public class Ast {
 	    public LinkedList<Stm.T> stms;
 	    public Exp.T retExp;
 
-	    public MethodSingle(Type.T retType, String id, LinkedList<Dec.T> formals, LinkedList<Dec.T> locals,
+	    public MethodSingle(Type.T retType, String id,
+		    LinkedList<Dec.T> formals, LinkedList<Dec.T> locals,
 		    LinkedList<Stm.T> stms, Exp.T retExp) {
 		this.retType = retType;
 		this.id = id;
@@ -763,10 +764,11 @@ public class Ast {
 	    public java.util.LinkedList<Dec.T> decs;
 	    public java.util.LinkedList<ast.Ast.Method.T> methods;
 
-	    public ClassSingle(String id, String extendss, java.util.LinkedList<Dec.T> decs,
+	    public ClassSingle(String id, String extendss,
+		    java.util.LinkedList<Dec.T> decs,
 		    java.util.LinkedList<ast.Ast.Method.T> methods) {
 		this.id = id;
-		this.extendss = extendss;// ��ʱ��ӣ�����Parse���Ѿ������
+		this.extendss = extendss;
 		this.decs = decs;
 		this.methods = methods;
 	    }
@@ -812,7 +814,8 @@ public class Ast {
 	    public MainClass.T mainClass;
 	    public LinkedList<Class.T> classes;
 
-	    public ProgramSingle(MainClass.T mainClass, LinkedList<Class.T> classes) {
+	    public ProgramSingle(MainClass.T mainClass,
+		    LinkedList<Class.T> classes) {
 		this.mainClass = mainClass;
 		this.classes = classes;
 	    }

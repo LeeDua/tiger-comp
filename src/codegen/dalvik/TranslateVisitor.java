@@ -321,7 +321,8 @@ public class TranslateVisitor implements ast.Visitor {
 	// Your code here:
 
 	// cook the final method.
-	this.method = new MethodSingle(newRetType, m.id, this.classId, newFormals, locals, this.stms, 0, 0);
+	this.method = new MethodSingle(newRetType, m.id, this.classId,
+		newFormals, locals, this.stms, 0, 0);
 	return;
     }
 

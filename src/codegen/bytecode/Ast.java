@@ -298,7 +298,8 @@ public class Ast {
 	    public LinkedList<Type.T> at;// 参数列表，这个列表里面应该放父类的类型
 	    public Type.T rt;// 返回类型
 
-	    public Invokevirtual(String f, String c, LinkedList<Type.T> at, Type.T rt) {
+	    public Invokevirtual(String f, String c, LinkedList<Type.T> at,
+		    Type.T rt) {
 		this.f = f;
 		this.c = c;
 		this.at = at;
@@ -475,8 +476,9 @@ public class Ast {
 	    public int index; // number of index
 	    public int retExp;
 
-	    public MethodSingle(Type.T retType, String id, String classId, LinkedList<Dec.T> formals,
-		    LinkedList<Dec.T> locals, LinkedList<Stm.T> stms, int retExp, int index) {
+	    public MethodSingle(Type.T retType, String id, String classId,
+		    LinkedList<Dec.T> formals, LinkedList<Dec.T> locals,
+		    LinkedList<Stm.T> stms, int retExp, int index) {
 		this.retType = retType;
 		this.id = id;
 		this.classId = classId;
@@ -507,7 +509,8 @@ public class Ast {
 	    public LinkedList<Dec.T> decs;
 	    public LinkedList<Method.T> methods;
 
-	    public ClassSingle(String id, String extendss, LinkedList<Dec.T> decs, LinkedList<Method.T> methods) {
+	    public ClassSingle(String id, String extendss,
+		    LinkedList<Dec.T> decs, LinkedList<Method.T> methods) {
 		this.id = id;
 		this.extendss = extendss;
 		this.decs = decs;
@@ -533,7 +536,8 @@ public class Ast {
 	    public String arg;
 	    public LinkedList<Stm.T> stms;
 
-	    public MainClassSingle(String id, String arg, LinkedList<Stm.T> stms) {
+	    public MainClassSingle(String id, String arg,
+		    LinkedList<Stm.T> stms) {
 		this.id = id;
 		this.arg = arg;
 		this.stms = stms;
@@ -559,7 +563,8 @@ public class Ast {
 	    public MainClass.T mainClass;
 	    public LinkedList<Class.T> classes;
 
-	    public ProgramSingle(MainClass.T mainClass, java.util.LinkedList<Class.T> classes) {
+	    public ProgramSingle(MainClass.T mainClass,
+		    java.util.LinkedList<Class.T> classes) {
 		this.mainClass = mainClass;
 		this.classes = classes;
 	    }

@@ -146,7 +146,8 @@ public class Ast {
 	    public String id;
 	    public LinkedList<T> args;
 
-	    public Call(String assign, T exp, String id, java.util.LinkedList<T> args) {
+	    public Call(String assign, T exp, String id,
+		    java.util.LinkedList<T> args) {
 		this.assign = assign;
 		this.exp = exp;
 		this.id = id;
@@ -349,7 +350,8 @@ public class Ast {
 	    public Exp.T exp;
 	    public boolean isField;
 
-	    public AssignArray(String id, Exp.T index, Exp.T exp, boolean isField) {
+	    public AssignArray(String id, Exp.T index, Exp.T exp,
+		    boolean isField) {
 		this.id = id;
 		this.index = index;
 		this.exp = exp;
@@ -484,8 +486,9 @@ public class Ast {
 	    public LinkedList<Stm.T> stms;// 语句
 	    public Exp.T retExp;// return的返回类型
 
-	    public MethodSingle(Type.T retType, String classId, String id, LinkedList<Dec.T> formals,
-		    LinkedList<Dec.T> locals, LinkedList<Stm.T> stms, Exp.T retExp) {
+	    public MethodSingle(Type.T retType, String classId, String id,
+		    LinkedList<Dec.T> formals, LinkedList<Dec.T> locals,
+		    LinkedList<Stm.T> stms, Exp.T retExp) {
 		this.retType = retType;
 		this.classId = classId;
 		this.id = id;
@@ -538,8 +541,9 @@ public class Ast {
 	    public LinkedList<Method.T> methods;
 	    public MainMethod.T mainMethod;
 
-	    public ProgramSingle(LinkedList<Class.T> classes, LinkedList<Vtable.T> vtables,
-		    LinkedList<Method.T> methods, MainMethod.T mainMethod) {
+	    public ProgramSingle(LinkedList<Class.T> classes,
+		    LinkedList<Vtable.T> vtables, LinkedList<Method.T> methods,
+		    MainMethod.T mainMethod) {
 		this.classes = classes;
 		this.vtables = vtables;
 		this.methods = methods;

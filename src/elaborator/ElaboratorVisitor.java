@@ -140,9 +140,11 @@ public class ElaboratorVisitor implements ast.Visitor {
 		} else
 		    Error.MISTYPE.error(this, e.linenum);
 
-		if (dec.type instanceof ClassType && argsty.get(i) instanceof ClassType) {
+		if (dec.type instanceof ClassType
+			&& argsty.get(i) instanceof ClassType) {
 		    for (int j = 0; j < argsty.size(); j++) {
-			Dec.DecSingle decc = (Dec.DecSingle) mty.argsType.get(j);
+			Dec.DecSingle decc = (Dec.DecSingle) mty.argsType
+				.get(j);
 			Type.ClassType tcc = (Type.ClassType) decc.type;
 			argsty.set(j, tcc);
 		    }
@@ -442,7 +444,8 @@ public class ElaboratorVisitor implements ast.Visitor {
 	// Method
 	for (Method.T method : c.methods) {
 	    MethodSingle m = (MethodSingle) method;
-	    this.classTable.put(c.id, m.id, new MethodType(m.retType, m.formals));
+	    this.classTable.put(c.id, m.id,
+		    new MethodType(m.retType, m.formals));
 	}
     }
 

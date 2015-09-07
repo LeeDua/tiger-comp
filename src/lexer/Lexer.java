@@ -1,7 +1,5 @@
 package lexer;
 
-import static control.Control.ConLexer.dump;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -40,7 +38,8 @@ public class Lexer {
 		continue;
 	    }
 	    // 999aa is not legal
-	    if ((next == '_') || (next >= 'a' && next <= 'z') || (next >= 'A' && next <= 'Z'))
+	    if ((next == '_') || (next >= 'a' && next <= 'z')
+		    || (next >= 'A' && next <= 'Z'))
 		Error.ILLEGAL_NUMBER.error(linenum);
 
 	    break;
@@ -67,7 +66,8 @@ public class Lexer {
 	{
 	    if (c != ' ') {
 		Kind keyword_kind = tmap.getKind(String.valueOf((char) c));
-		Token tk = new Token(keyword_kind, linenum, String.valueOf((char) c));
+		Token tk = new Token(keyword_kind, linenum,
+			String.valueOf((char) c));
 		return tk;
 	    } else
 		return null;
@@ -225,8 +225,8 @@ public class Lexer {
 	    e.printStackTrace();
 	    System.exit(1);
 	}
-	if (dump)
-	    System.out.println(t.toString());
+	// if (dump)
+	// System.out.println(t.toString());
 	return t;
     }
 

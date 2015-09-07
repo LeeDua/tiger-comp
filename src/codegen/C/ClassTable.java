@@ -26,7 +26,8 @@ public class ClassTable {
 	// 是否注释掉对产生的C文件没有影响。
     }
 
-    public void initMethod(String current, Type.T ret, java.util.LinkedList<Dec.T> args, String mid) {
+    public void initMethod(String current, Type.T ret,
+	    java.util.LinkedList<Dec.T> args, String mid) {
 	ClassBinding cb = this.table.get(current);// 根据类名找到对应的classBunding
 	cb.putm(current, ret, args, mid);
 	// 显然，在这里没有this.table.put(current, cb);

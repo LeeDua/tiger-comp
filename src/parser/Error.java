@@ -20,7 +20,8 @@ public enum Error {
 	}
     };
 
-    public abstract void error(Token.Kind expect, Token.Kind current, int linenum);
+    public abstract void error(Token.Kind expect, Token.Kind current,
+	    int linenum);
 
     public abstract void error(String info, int linenum);
 

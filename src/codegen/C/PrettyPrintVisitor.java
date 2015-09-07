@@ -147,7 +147,8 @@ public class PrettyPrintVisitor implements Visitor {
 	if (!this.redec.contains(e.assign))
 	    this.say(e.assign + "->vptr->" + e.id + "(" + e.assign);
 	else
-	    this.say("frame." + e.assign + "->vptr->" + e.id + "(frame." + e.assign);
+	    this.say("frame." + e.assign + "->vptr->" + e.id + "(frame."
+		    + e.assign);
 	int size = e.args.size();
 	if (size == 0) {
 	    this.say("))");
@@ -205,7 +206,8 @@ public class PrettyPrintVisitor implements Visitor {
     public void visit(NewObject e) {
 	// 重点！！
 	// new Object()----->(struct e.id *)malloc(sizeof(struct e.id))
-	this.say("((struct " + e.id + "*)(Tiger_new (&" + e.id + "_vtable_, sizeof(struct " + e.id + "))))");
+	this.say("((struct " + e.id + "*)(Tiger_new (&" + e.id
+		+ "_vtable_, sizeof(struct " + e.id + "))))");
 	return;
     }
 
@@ -385,15 +387,18 @@ public class PrettyPrintVisitor implements Visitor {
 	this.printSpaces();
 	this.sayln("previous=&frame;");
 	this.printSpaces();
-	this.sayln("frame.arguments_gc_map = " + m.classId + "_" + m.id + "_arguments_gc_map;");
+	this.sayln("frame.arguments_gc_map = " + m.classId + "_" + m.id
+		+ "_arguments_gc_map;");
 	this.printSpaces();
 	this.sayln("frame.arguments_base_address = (int*)&this;");
 	this.printSpaces();
-	this.sayln("frame.locals_gc_map = " + m.classId + "_" + m.id + "_locals_gc_map;");
+	this.sayln("frame.locals_gc_map = " + m.classId + "_" + m.id
+		+ "_locals_gc_map;");
 
 	for (Dec.T d : m.locals) {
 	    DecSingle dec = (DecSingle) d;
-	    if (!(dec.type instanceof Type.ClassType || dec.type instanceof Type.IntArray)) {
+	    if (!(dec.type instanceof Type.ClassType
+		    || dec.type instanceof Type.IntArray)) {
 		this.say("  ");
 		dec.type.accept(this);// 类型
 		this.say(" " + dec.id + ";\n");// id
@@ -449,7 +454,8 @@ public class PrettyPrintVisitor implements Visitor {
 	for (Dec.T dec : m.locals) {
 	    this.say("  ");
 	    DecSingle d = (DecSingle) dec;
-	    if (!(d.type instanceof Type.ClassType || d.type instanceof Type.IntArray)) {// 当不是Class也不是IntArray时才打印
+	    if (!(d.type instanceof Type.ClassType
+		    || d.type instanceof Type.IntArray)) {// 当不是Class也不是IntArray时才打印
 		d.type.accept(this);
 		this.say(" ");
 		this.sayln(d.id + ";");
@@ -507,7 +513,8 @@ public class PrettyPrintVisitor implements Visitor {
 	this.printSpaces();
 	this.say("\"");
 	for (Tuple t : locals) {
-	    if (t.type instanceof Type.ClassType || t.type instanceof Type.IntArray) {
+	    if (t.type instanceof Type.ClassType
+		    || t.type instanceof Type.IntArray) {
 		this.say("1");
 	    } else
 		this.say("0");
@@ -523,7 +530,8 @@ public class PrettyPrintVisitor implements Visitor {
     }
 
     // outputGCstack
-    private void outputGCstack(codegen.C.Ast.MainMethod.MainMethodSingle mainMethod) {
+    private void outputGCstack(
+	    codegen.C.Ast.MainMethod.MainMethodSingle mainMethod) {
 	this.sayln("struct Tiger_main_gc_frame");
 	this.sayln("{");
 	this.indent();
@@ -592,7 +600,8 @@ public class PrettyPrintVisitor implements Visitor {
 	this.say("\"");
 	for (codegen.C.Ast.Dec.T d : m.formals) {
 	    DecSingle dd = (DecSingle) d;
-	    if (dd.type instanceof Type.ClassType || dd.type instanceof Type.IntArray) {
+	    if (dd.type instanceof Type.ClassType
+		    || dd.type instanceof Type.IntArray) {
 		this.say("1");
 	    } else
 		this.say("0");
@@ -601,11 +610,13 @@ public class PrettyPrintVisitor implements Visitor {
 	// locals_gc_map
 	for (codegen.C.Ast.Dec.T d : m.locals) {
 	    DecSingle dd = (DecSingle) d;
-	    if (dd.type instanceof Type.ClassType || dd.type instanceof Type.IntArray) {
+	    if (dd.type instanceof Type.ClassType
+		    || dd.type instanceof Type.IntArray) {
 		i++;
 	    }
 	}
-	this.sayln("int " + m.classId + "_" + m.id + "_locals_gc_map=" + i + ";");
+	this.sayln(
+		"int " + m.classId + "_" + m.id + "_locals_gc_map=" + i + ";");
 	this.sayln("");
     }
 
@@ -653,7 +664,8 @@ public class PrettyPrintVisitor implements Visitor {
 		outputName = "a.c";
 
 	    this.writer = new java.io.BufferedWriter(
-		    new java.io.OutputStreamWriter(new java.io.FileOutputStream(outputName)));
+		    new java.io.OutputStreamWriter(
+			    new java.io.FileOutputStream(outputName)));
 	} catch (Exception e) {
 	    e.printStackTrace();
 	    System.exit(1);

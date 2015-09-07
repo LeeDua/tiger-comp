@@ -54,6 +54,8 @@ public class Parser {
 
     private void advance() // advance() can get the nextToken
     {
+	if (control.Control.ConLexer.dump)
+	    System.out.println(current.toString());
 	linenum = current.lineNum;
 	current = lexer.nextToken();
     }
@@ -169,7 +171,8 @@ public class Parser {
 	Exp.T exp;
 
 	exp = parseAtomExp();
-	while (current.kind == Kind.TOKEN_DOT || current.kind == Kind.TOKEN_LBRACK) {
+	while (current.kind == Kind.TOKEN_DOT
+		|| current.kind == Kind.TOKEN_LBRACK) {
 	    if (current.kind == Kind.TOKEN_DOT) {
 		advance();
 		if (current.kind == Kind.TOKEN_LENGTH) {
@@ -232,7 +235,8 @@ public class Parser {
     private Exp.T parseLtExp() {
 	Exp.T left, right = null;
 	left = parseAddSubExp();
-	while (current.kind == Kind.TOKEN_ADD || current.kind == Kind.TOKEN_SUB) {
+	while (current.kind == Kind.TOKEN_ADD
+		|| current.kind == Kind.TOKEN_SUB) {
 	    if (current.kind == Kind.TOKEN_ADD) {
 		advance();
 		right = parseAddSubExp();
@@ -288,9 +292,10 @@ public class Parser {
 	case TOKEN_LBRACE:
 	    LinkedList<Stm.T> block = new LinkedList<Stm.T>();
 	    eatToken(Kind.TOKEN_LBRACE);
-	    block = (LinkedList<ast.Ast.Stm.T>) Verbose.trace("parseStatements", () -> {
-		return Verbose_parseStatements();
-	    } , Verbose.DETAIL);
+	    block = (LinkedList<ast.Ast.Stm.T>) Verbose.trace("parseStatements",
+		    () -> {
+			return parseStatements();
+		    } , Verbose.DETAIL);
 	    eatToken(Kind.TOKEN_RBRACE);
 	    return new Stm.Block(block, linenum);
 
@@ -361,7 +366,8 @@ public class Parser {
 		    isSpecial = false;
 		    return new Stm.AssignArray(id, index, exp, linenum);
 		default:
-		    Error.SYNTAX_ERROR.error("expect TOKEN_ASSIGN or TOKEN_LBRACK", linenum);
+		    Error.SYNTAX_ERROR.error(
+			    "expect TOKEN_ASSIGN or TOKEN_LBRACK", linenum);
 		    return null;
 
 		}
@@ -383,7 +389,8 @@ public class Parser {
 		    eatToken(Kind.TOKEN_SEMI);
 		    return new Stm.AssignArray(id, index, exp, linenum);
 		default:
-		    Error.SYNTAX_ERROR.error("expect TOKEN_ASSIGN or TOKEN_LBRACK", linenum);
+		    Error.SYNTAX_ERROR.error(
+			    "expect TOKEN_ASSIGN or TOKEN_LBRACK", linenum);
 		    return null;
 
 		}
@@ -403,11 +410,13 @@ public class Parser {
 
     // Statements -> Statement Statements
     // ->
-    private LinkedList<Stm.T> Verbose_parseStatements() {
+    private LinkedList<Stm.T> parseStatements() {
 	LinkedList<Stm.T> stm = new LinkedList<Stm.T>();
-	while (current.kind == Kind.TOKEN_LBRACE || current.kind == Kind.TOKEN_IF
-	// || current.kind ==Kind.TOKEN_ELSE
-		|| current.kind == Kind.TOKEN_WHILE || current.kind == Kind.TOKEN_SYSTEM
+	while (current.kind == Kind.TOKEN_LBRACE
+		|| current.kind == Kind.TOKEN_IF
+		// || current.kind ==Kind.TOKEN_ELSE
+		|| current.kind == Kind.TOKEN_WHILE
+		|| current.kind == Kind.TOKEN_SYSTEM
 		|| current.kind == Kind.TOKEN_ID) {// make return as the
 						   // terminal of the
 						   // statement
@@ -480,11 +489,13 @@ public class Parser {
     // ->
     private LinkedList<Dec.T> parseVarDecls() {
 	LinkedList<Dec.T> decs = new LinkedList<ast.Ast.Dec.T>();
-	while (current.kind == Kind.TOKEN_INT || current.kind == Kind.TOKEN_BOOLEAN || current.kind == Kind.TOKEN_ID) { // through
-															// the
-															// while(),ensure
-															// muti
-															// VarDecls
+	while (current.kind == Kind.TOKEN_INT
+		|| current.kind == Kind.TOKEN_BOOLEAN
+		|| current.kind == Kind.TOKEN_ID) { // through
+						    // the
+						    // while(),ensure
+						    // muti
+						    // VarDecls
 	    if (current.kind != Kind.TOKEN_ID) {
 		decs.add(parseVarDecl());
 	    } else {// the current must be TOKEN_ID
@@ -526,7 +537,8 @@ public class Parser {
 	LinkedList<Dec.T> formals = new LinkedList<Dec.T>();
 	Type.T type;
 	String id;
-	if (current.kind == Kind.TOKEN_INT || current.kind == Kind.TOKEN_BOOLEAN || current.kind == Kind.TOKEN_ID) {
+	if (current.kind == Kind.TOKEN_INT || current.kind == Kind.TOKEN_BOOLEAN
+		|| current.kind == Kind.TOKEN_ID) {
 	    type = parseType();
 	    id = current.lexeme;
 	    eatToken(Kind.TOKEN_ID);
@@ -544,7 +556,7 @@ public class Parser {
 
     // Method -> public Type id ( FormalList )
     // { VarDecl* Statement* return Exp ;}
-    private MethodSingle Verbose_parseMethod() {
+    private MethodSingle parseMethod() {
 	Type.T reType;
 	String id;
 	LinkedList<Dec.T> formals;
@@ -562,9 +574,10 @@ public class Parser {
 	eatToken(Kind.TOKEN_LBRACE);
 
 	locals = parseVarDecls();
-	stms = (LinkedList<ast.Ast.Stm.T>) Verbose.trace("parseStatements", () -> {
-	    return Verbose_parseStatements();
-	} , Verbose.DETAIL);
+	stms = (LinkedList<ast.Ast.Stm.T>) Verbose.trace("parseStatements",
+		() -> {
+		    return parseStatements();
+		} , Verbose.DETAIL);
 	eatToken(Kind.TOKEN_RETURN);
 	retExp = parseExp();
 	eatToken(Kind.TOKEN_SEMI);
@@ -576,13 +589,14 @@ public class Parser {
 
     // MethodDecls -> MethodDecl MethodDecls
     // ->
-    private LinkedList<Method.T> Verbose_parseMethodDecls() {
+    private LinkedList<Method.T> parseMethodDecls() {
 	LinkedList<Method.T> methods = new LinkedList<ast.Ast.Method.T>();
 	while (current.kind == Kind.TOKEN_PUBLIC) {
 	    isField = false;
-	    MethodSingle ms = (MethodSingle) Verbose.trace("parseMethod", () -> {
-		return Verbose_parseMethod();
-	    } , Verbose.DETAIL);
+	    MethodSingle ms = (MethodSingle) Verbose.trace("parseMethod",
+		    () -> {
+			return parseMethod();
+		    } , Verbose.DETAIL);
 	    methods.add(ms);
 	}
 	isField = true;
@@ -591,7 +605,7 @@ public class Parser {
 
     // ClassDecl -> class id { VarDecl* MethodDecl* }
     // -> class id extends id { VarDecl* MethodDecl* }
-    private ClassSingle Verbose_parseClassDecl() {
+    private ClassSingle parseClassDecl() {
 	String id;
 	String extendss = null;
 	LinkedList<Dec.T> decs = new LinkedList<ast.Ast.Dec.T>();
@@ -607,21 +621,23 @@ public class Parser {
 	}
 	eatToken(Kind.TOKEN_LBRACE);
 	decs = parseVarDecls();
-	methods = (LinkedList<ast.Ast.Method.T>) Verbose.trace("parsemethodDecls", () -> {
-	    return Verbose_parseMethodDecls();
-	} , Verbose.SUBPASS);
+	methods = (LinkedList<ast.Ast.Method.T>) Verbose
+		.trace("parsemethodDecls", () -> {
+		    return parseMethodDecls();
+		} , Verbose.SUBPASS);
 	eatToken(Kind.TOKEN_RBRACE);
 	return new ClassSingle(id, extendss, decs, methods);
     }
 
     // ClassDecls -> ClassDecl ClassDecls
     // ->
-    private LinkedList<Class.T> Verbose_parseClassDecls() {
+    private LinkedList<Class.T> parseClassDecls() {
 	LinkedList<Class.T> classed = new LinkedList<Class.T>();
 	while (current.kind == Kind.TOKEN_CLASS) {
-	    ClassSingle sc = (ClassSingle) Verbose.trace("parseClassDecl", () -> {
-		return Verbose_parseClassDecl();
-	    } , Verbose.DETAIL);
+	    ClassSingle sc = (ClassSingle) Verbose.trace("parseClassDecl",
+		    () -> {
+			return parseClassDecl();
+		    } , Verbose.DETAIL);
 	    classed.add(sc);
 	}
 	return classed;
@@ -634,7 +650,7 @@ public class Parser {
     // Statement
     // }
     // }
-    private MainClassSingle Verbose_parseMainClass() {
+    private MainClassSingle parseMainClass() {
 	// Parse a main class as described by the
 	// grammar above.
 
@@ -675,14 +691,15 @@ public class Parser {
 	LinkedList<Class.T> classed;
 
 	mainClass = (MainClassSingle) Verbose.trace("parseMainClass", () -> {
-	    return Verbose_parseMainClass();
+	    return parseMainClass();
 	} , Verbose.SUBPASS);
 
 	eatToken(Kind.TOKEN_RBRACE);
 
-	classed = (LinkedList<ast.Ast.Class.T>) Verbose.trace("parseClassDecls", () -> {
-	    return Verbose_parseClassDecls();
-	} , Verbose.SUBPASS);
+	classed = (LinkedList<ast.Ast.Class.T>) Verbose.trace("parseClassDecls",
+		() -> {
+		    return parseClassDecls();
+		} , Verbose.SUBPASS);
 
 	eatToken(Kind.TOKEN_EOF);
 	return new ProgramSingle(mainClass, classed);
