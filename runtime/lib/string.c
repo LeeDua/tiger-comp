@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdarg.h>
 #include "string.h"
 #include "assert.h"
 #include "mem.h"

@@ -216,8 +216,7 @@ public class Ast {
 
 	public static class NewIntArray extends T {
 	    public T exp;
-	    // Lab4, exercise 1: this field
-	    // is used to name the allocation.
+	    // This field is used to name the allocation.
 	    public String name;
 
 	    public NewIntArray(T exp) {
@@ -233,8 +232,7 @@ public class Ast {
 
 	public static class NewObject extends T {
 	    public String id;
-	    // Lab4, exercise 1: this field
-	    // is used to name the allocation.
+	    // This field is used to name the allocation.
 	    public String name;
 
 	    public NewObject(String id) {

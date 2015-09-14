@@ -280,6 +280,8 @@ public class PrettyPrintVisitor implements Visitor {
     // dec
     @Override
     public void visit(Dec.DecSingle d) {
+	d.type.accept(this);
+	this.say(" " + d.id);
     }
 
     // method
@@ -293,11 +295,10 @@ public class PrettyPrintVisitor implements Visitor {
 	for (Dec.T d : m.formals) {
 	    Dec.DecSingle dec = (Dec.DecSingle) d;
 	    i++;
-	    dec.type.accept(this);
+	    dec.accept(this);
 	    if (i != m.formals.size()) {
-		this.say(" " + dec.id + ", ");
-	    } else
-		this.say(" " + dec.id);
+		this.say(", ");
+	    }
 	}
 	this.sayln(")");
 	this.sayln("  {");
@@ -305,8 +306,8 @@ public class PrettyPrintVisitor implements Visitor {
 	for (Dec.T d : m.locals) {
 	    Dec.DecSingle dec = (Dec.DecSingle) d;
 	    this.say("    ");
-	    dec.type.accept(this);
-	    this.say(" " + dec.id + ";\n");
+	    dec.accept(this);
+	    this.say(";\n");
 	}
 	this.sayln("");
 	for (Stm.T s : m.stms)

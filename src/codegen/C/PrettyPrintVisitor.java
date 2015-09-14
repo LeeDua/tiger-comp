@@ -377,7 +377,6 @@ public class PrettyPrintVisitor implements Visitor {
 	// 并不是所有的局部变量声明都需要打印
 	this.sayln("{");// 局部变量声明
 
-	// Lab4
 	this.printSpaces();
 	this.sayln("struct " + m.classId + "_" + m.id + "_gc_frame frame;");
 
@@ -433,7 +432,6 @@ public class PrettyPrintVisitor implements Visitor {
 	this.sayln("int Tiger_main ()");
 	this.sayln("{");
 
-	// Lab4:
 
 	this.indent();
 	this.printSpaces();

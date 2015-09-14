@@ -4,7 +4,7 @@ TIGER
 
 The Tiger compiler. Copyright (C) 2013-2015, SSE of USTC.
 
-`Tiger` is a **MiniJava lanuage**(see [Tiger book](www.cs.princeton.edu/~appel/modern/java/) Appendix MiniJava Language
+`Tiger` is a **MiniJava lanuage**(see [Tiger book](http://www.cs.princeton.edu/~appel/modern/java/) Appendix MiniJava Language
 Reference Manual) compile. Just for fun, it has a garbage collector using copy collection algorithm.
 
 

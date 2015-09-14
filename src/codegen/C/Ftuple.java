@@ -14,7 +14,7 @@ public class Ftuple {
     public Ftuple(String classs, Type.T ret, java.util.LinkedList<Dec.T> args,
 	    String id) {
 	this.classs = classs;
-	this.ret = ret;
+	this.ret = ret;  
 	this.args = args;
 	this.id = id;
     }

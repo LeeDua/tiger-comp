@@ -430,10 +430,6 @@ public class Parser {
     // -> int
     // -> id
     private Type.T parseType() {
-	// Lab1. Exercise 4: Fill in the missing code
-	// to parse a type. what does this method do?
-	// new util.Todo();
-
 	switch (current.kind) {
 	case TOKEN_INT:
 	    eatToken(Kind.TOKEN_INT);
