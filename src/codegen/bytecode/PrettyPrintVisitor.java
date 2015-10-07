@@ -167,17 +167,6 @@ public class PrettyPrintVisitor implements Visitor {
 	this.isayln("new " + s.c);
 	this.isayln("dup");// duplicate top single-word item on the stack
 	this.isayln("invokespecial " + s.c + "/<init>()V");
-	/*
-	 * <method-spec> is a method specification. It is a single token made up
-	 * of three parts: a classname, a methodname and a descriptor. e.g.
-	 * java/lang/StringBuffer/<init>()V
-	 * 
-	 * invoke method belonging to a specific class /*----------------------
-	 * Before | After | --------------------- argN | result |
-	 * --------------------- ... | | --------------------- arg2 | |
-	 * --------------------- arg1 | | ---------------------- objref | |
-	 * --------------------- ... | | ---------------------
-	 */
 	return;
     }
 

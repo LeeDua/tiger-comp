@@ -34,20 +34,19 @@ import codegen.C.Ast.Vtable.VtableSingle;
 // Given a Java AST, translate it into a C AST and outputs it.
 
 public class TranslateVisitor implements ast.Visitor {
-    private ClassTable table;// 整个的trans过程用ClassTable做辅助
+    private ClassTable table;
     private String classId;
     private Type.T type; // type after translation
     private Dec.T dec;
     private Stm.T stm;
-    private Exp.T exp;// 每当XXX.XXX.accept(this)执行后，以上几个变量会改变(this.exp=new XX)
-    private Method.T method;// 临时存放生成的Method obj
-    private LinkedList<Dec.T> tmpVars;// !!!在Call中会用到。
-				      // 如果调用了方法，就要把对应的类先声明
+    private Exp.T exp;
+    private Method.T method;
+    private LinkedList<Dec.T> tmpVars;
 
-    private LinkedList<Class.T> classes;//
-    private LinkedList<Vtable.T> vtables;// 虚函数表，存放所有的方法
-    private LinkedList<Method.T> methods;//
-    private MainMethod.T mainMethod;// main对象
+    private LinkedList<Class.T> classes;
+    private LinkedList<Vtable.T> vtables;
+    private LinkedList<Method.T> methods;
+    private MainMethod.T mainMethod;
 
     public Program.T program;
 
@@ -109,7 +108,7 @@ public class TranslateVisitor implements ast.Visitor {
     @Override
     public void visit(ast.Ast.Exp.Call e) {
 	e.exp.accept(this);
-	String newid = this.genId();// 生成x_0等在mini java AST中不存在的id
+	String newid = this.genId();
 	this.tmpVars.add(new Dec.DecSingle(new Type.ClassType(e.type), newid));
 	Exp.T exp = this.exp;
 	LinkedList<Exp.T> args = new LinkedList<Exp.T>();
@@ -305,17 +304,16 @@ public class TranslateVisitor implements ast.Visitor {
     public void visit(ast.Ast.Method.MethodSingle m) {
 	this.tmpVars = new LinkedList<Dec.T>();
 	m.retType.accept(this);
-	Type.T newRetType = this.type;// 构造新的返回值对象
-	LinkedList<Dec.T> newFormals = new LinkedList<Dec.T>();// 构造新的参数列表声明
+	Type.T newRetType = this.type;
+	LinkedList<Dec.T> newFormals = new LinkedList<Dec.T>();
 
-	newFormals.add(new Dec.DecSingle(new ClassType(this.classId), "this")); // 先在参数列表加入一个指向自己类的指针
+	newFormals.add(new Dec.DecSingle(new ClassType(this.classId), "this"));
 
-	for (ast.Ast.Dec.T d : m.formals) {// 遍历java的ast的这个方法的参数列表，
-					   // 将翻译过后的对象添加到新的参数列表对象里
+	for (ast.Ast.Dec.T d : m.formals) {
 	    d.accept(this);
 	    newFormals.add(this.dec);
 	}
-	LinkedList<Dec.T> locals = new LinkedList<Dec.T>();// 构造新的局部变量声明列表
+	LinkedList<Dec.T> locals = new LinkedList<Dec.T>();
 	for (ast.Ast.Dec.T d : m.locals) {
 	    d.accept(this);
 	    locals.add(this.dec);
@@ -323,12 +321,12 @@ public class TranslateVisitor implements ast.Visitor {
 	LinkedList<Stm.T> newStm = new LinkedList<Stm.T>();
 
 	for (ast.Ast.Stm.T s : m.stms) {
-	    s.accept(this); // 重点！
+	    s.accept(this);
 	    newStm.add(this.stm);
 	}
 	m.retExp.accept(this);
 	Exp.T retExp = this.exp;
-	for (Dec.T dec : this.tmpVars) {// 在声明的最后，补上需要的声明，比如call调用产生的类名。
+	for (Dec.T dec : this.tmpVars) {
 	    locals.add(dec);
 	}
 	this.method = new MethodSingle(newRetType, this.classId, m.id,
@@ -339,10 +337,8 @@ public class TranslateVisitor implements ast.Visitor {
     // class
     @Override
     public void visit(ast.Ast.Class.ClassSingle c) {
-	ClassBinding cb = this.table.get(c.id);// 根据class表查询classbinding对象
-	// 得到对应classTable里面classbinding对象的LinkedList<Tuple> fields
+	ClassBinding cb = this.table.get(c.id);
 	this.classes.add(new ClassSingle(c.id, cb.fields));
-	// 得到ArrayList<Ftuple> methods
 	this.vtables.add(new VtableSingle(c.id, cb.methods));
 	this.classId = c.id;
 	for (ast.Ast.Method.T m : c.methods) {
@@ -362,7 +358,7 @@ public class TranslateVisitor implements ast.Visitor {
 
 	this.tmpVars = new LinkedList<Dec.T>();
 
-	c.stm.accept(this);// 在这里面可能会往tmpVars里面加Dec对象
+	c.stm.accept(this);
 	MainMethod.T mthd = new MainMethodSingle(this.tmpVars, this.stm);
 	this.mainMethod = mthd;
 	return;
@@ -379,41 +375,37 @@ public class TranslateVisitor implements ast.Visitor {
 
     public void scanClasses(java.util.LinkedList<ast.Ast.Class.T> cs) {
 	// put empty chuncks into the table-----
-	// 现初始化classTable，只填入extends信息。
 	for (ast.Ast.Class.T c : cs) {
 	    ast.Ast.Class.ClassSingle cc = (ast.Ast.Class.ClassSingle) c;
 	    this.table.init(cc.id, cc.extendss);
 	}
 
 	// put class fields and methods into the table-----
-	// 再次遍历java的class表
 	for (ast.Ast.Class.T c : cs) {
 	    ast.Ast.Class.ClassSingle cc = (ast.Ast.Class.ClassSingle) c;
-	    LinkedList<Dec.T> newDecs = new LinkedList<Dec.T>();// 声明一个新的声明链表
+	    LinkedList<Dec.T> newDecs = new LinkedList<Dec.T>();
 
 	    for (ast.Ast.Dec.T dec : cc.decs) {
 		dec.accept(this);
-		newDecs.add(this.dec);// 在dec.accept(this)执行后，this.dec变为了一个C类型的Dec
+		newDecs.add(this.dec);
 	    }
-	    this.table.initDecs(cc.id, newDecs);// 将新的声明放入ClassBinding对象中
+	    this.table.initDecs(cc.id, newDecs);
 
 	    // all methods
 	    java.util.LinkedList<ast.Ast.Method.T> methods = cc.methods;
 	    for (ast.Ast.Method.T mthd : methods) {
 		ast.Ast.Method.MethodSingle m = (ast.Ast.Method.MethodSingle) mthd;
-		LinkedList<Dec.T> newArgs = new LinkedList<Dec.T>();// 声明一个新的参数列表
+		LinkedList<Dec.T> newArgs = new LinkedList<Dec.T>();
 
-		newArgs.add(new Dec.DecSingle(new ClassType(cc.id), "this"));// 重点！！也是放了一个自己所在类的类型
-									     // 这样classTable中对应ClassBinding对象的
-		for (ast.Ast.Dec.T arg : m.formals) {// Ftuple的参数列表也会多一项
+		newArgs.add(new Dec.DecSingle(new ClassType(cc.id), "this"));
+		for (ast.Ast.Dec.T arg : m.formals) {
 		    arg.accept(this);
-		    newArgs.add(this.dec);// 同上
+		    newArgs.add(this.dec);
 		}
 		m.retType.accept(this);
 		Type.T newRet = this.type;
-		this.table.initMethod(cc.id, newRet, newArgs, m.id);// 将新的方法放入
-	    } // ClassBinding对象中
-	      // 通过上面的代码，整个的C的Class已经构造完成。ClassBinding对象里面的信息都已经填充。
+		this.table.initMethod(cc.id, newRet, newArgs, m.id);
+	    }
 	}
 
 	// calculate all inheritance information
@@ -438,7 +430,7 @@ public class TranslateVisitor implements ast.Visitor {
     public void visit(ast.Ast.Program.ProgramSingle p) {
 	// The first pass is to scan the whole program "p", and
 	// to collect all information of inheritance.
-	scanProgram(p);// 在scan的过程中，C的classTable已经建好了
+	scanProgram(p);
 
 	// do translations
 	p.mainClass.accept(this);

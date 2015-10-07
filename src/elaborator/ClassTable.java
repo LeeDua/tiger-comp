@@ -32,7 +32,7 @@ public class ClassTable {
     // Duplication is not allowed.
     // Also note that MiniJava does NOT allow overloading.
     public void put(String c, String id, MethodType type) {
-	ClassBinding cb = this.table.get(c);// 根据类名找对应的ClassBindling对象
+	ClassBinding cb = this.table.get(c);
 	cb.put(id, type);
 	return;
     }

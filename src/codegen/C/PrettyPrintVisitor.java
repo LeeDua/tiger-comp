@@ -64,13 +64,6 @@ public class PrettyPrintVisitor implements Visitor {
     private java.io.BufferedWriter writer;
     private HashSet<String> redec = new HashSet<String>();
     private HashMap<String, LinkedList<Tuple>> classLocal = new HashMap<String, LinkedList<Tuple>>();
-    /*
-     * 这个HashSet<String> redec每一个方法clear()一次。
-     * 里面记录的id是Array或ClassType，也就是frame里面声明过的id。
-     * 
-     * HashMap<String,LinkedList<Tuple>> classLocal的作用是记录每个类的id与
-     * 这个类里面出现的声明。用于构造class_gc_map。
-     */
 
     public PrettyPrintVisitor() {
 	this.indentLevel = 2;
@@ -431,7 +424,6 @@ public class PrettyPrintVisitor implements Visitor {
 	this.redec.clear();
 	this.sayln("int Tiger_main ()");
 	this.sayln("{");
-
 
 	this.indent();
 	this.printSpaces();
