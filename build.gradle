@@ -1,0 +1,14 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceSets { 
+  main { 
+    java.srcDir "$projectDir/src"
+  } 
+}
+
+jar {
+  manifest {
+    attributes 'Main-Class': 'Tiger'
+  }
+}
