@@ -1,6 +1,7 @@
 TIGER
 =====
-[![Build Status](https://drone.io/github.com/qc1iu/tiger-comp/status.png)](https://drone.io/github.com/qc1iu/tiger-comp/latest)
+
+[![Build Status](https://travis-ci.org/qc1iu/tiger-comp.svg?branch=master)](https://travis-ci.org/qc1iu/tiger-comp)
 
 The Tiger compiler. Copyright (C) 2013-2015, SSE of USTC.
 

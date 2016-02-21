@@ -1,0 +1,8 @@
+language: java
+jdk:
+  - openjdk7
+  - oraclejdk7
+  - oraclejdk8
+notification:
+  email:
+  - qc1iu@vip.qq.com
