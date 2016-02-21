@@ -6,4 +6,7 @@ tags
 *_test
 *~
 *.o
+/.idea
 /bin
+/.gradle
+/build
