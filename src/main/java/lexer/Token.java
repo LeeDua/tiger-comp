@@ -8,6 +8,7 @@ public class Token {
     TOKEN_BOOLEAN, // "boolean"
     TOKEN_CLASS, // "class"
     TOKEN_COMMER, // ","
+    TOKEN_COMMENT,
     TOKEN_DOT, // "."
     TOKEN_ELSE, // "else"
     TOKEN_EOF, // EOF
