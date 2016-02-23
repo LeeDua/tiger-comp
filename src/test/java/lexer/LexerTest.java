@@ -16,6 +16,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class LexerTest {
   Lexer l;
+  int tmp = 0;
 
 
   private Vector<Token> getTokens(Vector<Token> tokens, Token current)
@@ -23,6 +24,7 @@ public class LexerTest {
     if (current.kind == Token.Kind.TOKEN_EOF) {
       return tokens;
     } else {
+      System.out.println(tmp++ +" "+current.toString());
       tokens.add(current);
       return getTokens(tokens, l.nextToken());
     }

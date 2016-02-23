@@ -1,16 +1,16 @@
 package lexer;
 
+import lexer.Token.Kind;
+
 import java.io.IOException;
 import java.io.InputStream;
 
-import lexer.Token.Kind;
-
-public class Lexer {
+public class Lexer
+{
   private String fname; // the input file name to be compiled
   private InputStream fstream; // input stream for the above file
   private TokenMap tmap;
-
-  private String s = "";
+  private TerminalSet terminals;
   private int linenum = 1;
 
   public Lexer(String fname, InputStream fstream)
@@ -18,95 +18,17 @@ public class Lexer {
     this.fname = fname;
     this.fstream = fstream;
     this.tmap = new TokenMap();
+    this.terminals = new TerminalSet();
   }
 
-  /**
-   * @param c must be 0~9
-   * @return the corrected num
-   * @throws IOException
-   */
-  private String dealNum(int c) throws IOException
-  {
-    StringBuilder sb = new StringBuilder();
-    sb.append((char) c);
-
-    while (true) {
-      int next = carefulRead();
-      if (next >= '0' && next <= '9') {
-        sb.append((char) next);
-        continue;
-      }
-      // 999aa is not legal
-      if ((next == '_') || (next >= 'a' && next <= 'z')
-          || (next >= 'A' && next <= 'Z')) {
-        Error.ILLEGAL_NUMBER.error(linenum);
-      }
-
-      break;
-    }
-
-    this.fstream.reset();
-    return sb.toString();
-  }
-
-  /**
-   * @param c the char just read now
-   * @return Token if s is keyword or s is Id, null if c == ' '&&s==""
-   **/
-  private Token expectIdOrKey(int c) throws Exception
-  {
-    Kind k = tmap.getKind(s);
-    if (k != null) {
-      Token tk = new Token(k, linenum, s);
-      s = "";
-      this.fstream.reset();// need reset to push back char
-      return tk;
-    } else if (s.equals("")) {
-      if (c != ' ') {
-        Kind keyword_kind = tmap.getKind(String.valueOf((char) c));
-        return new Token(keyword_kind, linenum,
-            String.valueOf((char) c));
-      } else {
-        return null;
-      }
-    } else {
-      // s must be Id
-      Token tk = new Token(Kind.TOKEN_ID, linenum, s);
-      s = "";
-      this.fstream.reset();
-      return tk;
-    }
-  }
-
-  /**
-   * for the Binary Operator like &&, ||, ++, --
-   *
-   * @param expect expect keyword except the first alphabet e.g. &&'s expect is
-   *               '&'
-   * @return true if match the keyword, false if not
-   **/
-  private boolean expectKeyword(String expect) throws IOException
-  {
-    this.fstream.mark(expect.length());
-
-    for (int i = 0; i < expect.length(); i++) {
-      if (expect.charAt(i) == this.fstream.read()) {
-        continue;
-      }
-
-      this.fstream.reset();
-      return false;
-    }
-
-    return true;
-  }
 
   private int carefulRead() throws IOException
   {
     this.fstream.mark(1);
     int c = this.fstream.read();
-    if (c == '\n')
+    if (c == '\n') {
       linenum++;
+    }
     return c;
   }
 
@@ -116,79 +38,79 @@ public class Lexer {
   private Token nextTokenInternal() throws Exception
   {
     int c = carefulRead();
-    if (-1 == c)
-    {
-      // The value for "lineNum" is now "null",
-      // you should modify this to an appropriate
-      // line number for the "EOF" token.
-      return new Token(Kind.TOKEN_EOF, linenum);
-    }
     // skip all kinds of "blanks"
-    while ('\t' == c || '\n' == c || '\r' == c) {
+    while ('\t' == c || '\n' == c || '\r' == c || c == ' ') {
       c = carefulRead();
     }
     if (-1 == c) {
       return new Token(Kind.TOKEN_EOF, linenum);
     }
 
-    switch (c) {
-      case '&':
-        if (this.s.equals("")) {
-          if (expectKeyword("&")) {
-            return new Token(Kind.TOKEN_AND, linenum, "&&");
-          } else {
-            Error.LEXER.error(linenum);
-          }
-          break;
-        }
-      case -1:
-      case ' ':
-      case '+':
-      case '=':
-      case ',':
-      case '.':
-      case '{':
-      case '[':
-      case '(':
-      case '<':
-      case '!':
-      case '}':
-      case ']':
-      case ')':
-      case ';':
-      case '-':
-      case '*':
-        return expectIdOrKey(c);
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-        if (s == "") {
-          return new Token(Kind.TOKEN_NUM, linenum, dealNum(c));
-        }
-        s += (char) c;
-        break;
-      case '/':
-        return dealComments(c);
-      default:
-        s += (char) c;
-        break;
+    return expect(c, "");
+
+  }
+
+  private Token expectIdOrNum(String s) throws IOException
+  {
+    char[] buf = s.toCharArray();
+    for (char c : buf) {
+      if (c >= '0' && c <= '9') {
+        continue;
+      } else {
+        this.fstream.reset();
+        return new Token(Kind.TOKEN_ID, linenum, s);
+      }
     }
-    return null;
+    this.fstream.reset();
+    return new Token(Kind.TOKEN_NUM, linenum, s);
+
+  }
+
+
+  private Token expectIdOrNumOrKey(int c, String s) throws IOException
+  {
+    if (s.equals("") && this.tmap.getKind(String.valueOf((char) c)) != null) {
+      return new Token(tmap.getKind(String.valueOf((char) c)), linenum, s);
+    } else if (this.tmap.getKind(s) != null) {
+      fstream.reset();
+      return new Token(tmap.getKind(s), linenum, s);
+    }
+    return expectIdOrNum(s);
+  }
+
+  private Token expectIdOrKeyOrNumOrComment(int c, String s) throws Exception
+  {
+    if (s.equals("") && c == '&') {
+      if ('&' == carefulRead()) {
+        return new Token(Kind.TOKEN_AND, linenum, "&&");
+      } else {
+        Error.LEXER.error(linenum);
+      }
+    } else if (c == '/') {
+      return dealComments();
+    }
+
+    return expectIdOrNumOrKey(c, s);
+
+
+  }
+
+  private Token expect(int c, String s) throws Exception
+  {
+    if (terminals.isTerminal(c)) {
+      if (c == '\n') {
+        this.linenum--;
+      }
+      return expectIdOrKeyOrNumOrComment(c, s);
+    } else {
+      return expect(carefulRead(), s + (char) c);
+    }
   }
 
   /**
    * skip comments
-   *
-   * @param c must be '/'
    */
-  private Token dealComments(int c) throws Exception
+  private Token dealComments() throws Exception
   {
     int ex = this.fstream.read();
     switch (ex) {
@@ -202,7 +124,8 @@ public class Lexer {
     return null;
   }
 
-  private enum commKind {
+  private enum commKind
+  {
     IN_COMM,
     EXIT
   }
