@@ -1,21 +1,13 @@
+plugins {
+    id "ca.coglinc.javacc" version "2.3.1"
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
 sourceSets {
-    //main {
-    // java.srcDir "$projectDir/src"
-    //}
     main { java.srcDirs = ['src/main/java'] }
     test { java.srcDirs = ['src/test/java'] }
-
-//    main {
-//        java.srcDirs = ['src/main/java']
-//
-//    }
-//    robolectric {
-//        java.srcDir file('src/test/java/')
-//        resources.srcDir file('src/test/resources')
-//    }
 }
 
 jar {
@@ -30,4 +22,9 @@ repositories {
 
 dependencies {
     testCompile 'junit:junit:4.12'
+}
+
+compileJavacc {
+    inputDirectory = file('src/main/javacc')
+    outputDirectory = file('src/main/java/lexercc')
 }

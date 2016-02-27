@@ -1,0 +1,129 @@
+options{
+    STATIC=false;
+}
+
+PARSER_BEGIN(Lexercc)
+
+package  lexercc;
+import java.util.LinkedList;
+
+
+
+public class Lexercc
+{
+
+}
+
+PARSER_END(Lexercc)
+
+SKIP:
+{
+    " "
+    |"\r"
+    |"\n"
+    |"\t"
+}
+
+TOKEN:
+{
+    <ADD: "+">
+|   <AND: "&&">
+|   <ASSIGN: "=">
+|   <BOOLEAN: "boolean">
+|   <CLASS: "class">
+|   <COMMER: ",">
+|   <DOT: ".">
+|   <ELSE: "else">
+|   <EXTENDS: "extends">
+|   <FALSE: "false">
+|   <IF: "if">
+|   <INT: "int">
+|   <LBRACE: "{">
+|   <LBRACK: "[">
+|   <LENGTH: "length">
+|   <LPAREN: "(">
+|   <LT: "<">
+|   <MAIN: "main">
+|   <NEW: "new">
+|   <NOT: "!">
+|   <NUM: "0"|(["1"-"9"])(<DIGIT>)*>
+|   <OUT: "out">
+|   <PRINTLN: "println">
+|   <PUBLIC: "public">
+|   <RBRACE: "}">
+|   <RBRACK: "]">
+|   <RETURN: "return">
+|   <RPAREN: ")">
+|   <SEMI: ";">
+|   <STATIC: "static">
+|   <STRING: "String">
+|   <SUB: "-">
+|   <SYSTEM: "system">
+|   <THIS: "this">
+|   <TIMES: "*">
+|   <TRUE: "true">
+|   <VOID: "void">
+|   <WHILE: "while">
+|   <ID: (<LETTER>|"_")+(<LETTER>|<DIGIT>)*>
+|   <#LETTER: ["a"-"z", "A"-"Z"]>
+|   <#DIGIT:(["0"-"9"])*>
+}
+
+SPECIAL_TOKEN:
+{
+    <LINE_COMMENT: "//"(~["\r","\n"])*>
+|   <MULTILINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+}
+
+
+LinkedList<Token> lexerTest():
+{
+    Token t;
+    LinkedList<Token> tokens = new LinkedList<Token>();
+
+}
+{
+   (t = <ADD> {tokens.add(t);}
+    |t = <AND> {tokens.add(t);}
+    |t = <ASSIGN>{tokens.add(t);}
+    |t = <BOOLEAN>{tokens.add(t);}
+    |t = <CLASS>{tokens.add(t);}
+    |t = <COMMER>{tokens.add(t);}
+    |t = <DOT>{tokens.add(t);}
+    |t = <ELSE>{tokens.add(t);}
+    |t = <EXTENDS>{tokens.add(t);}
+    |t = <FALSE>{tokens.add(t);}
+    |t = <ID>{tokens.add(t);}
+    |t = <IF>{tokens.add(t);}
+    |t = <INT>{tokens.add(t);}
+    |t = <LBRACE>{tokens.add(t);}
+    |t = <LBRACK>{tokens.add(t);}
+    |t = <LPAREN>{tokens.add(t);}
+    |t = <LENGTH>{tokens.add(t);}
+    |t = <LT>{tokens.add(t);}
+    |t = <MAIN>{tokens.add(t);}
+    |t = <NEW>{tokens.add(t);}
+    |t = <NOT>{tokens.add(t);}
+    |t = <NUM>{tokens.add(t);}
+    |t = <OUT>{tokens.add(t);}
+    |t = <PRINTLN>{tokens.add(t);}
+    |t = <PUBLIC>{tokens.add(t);}
+    |t = <RBRACK>{tokens.add(t);}
+    |t = <RBRACE>{tokens.add(t);}
+    |t = <RPAREN>{tokens.add(t);}
+    |t = <RETURN>{tokens.add(t);}
+    |t = <SEMI>{tokens.add(t);}
+    |t = <STATIC>{tokens.add(t);}
+    |t = <STRING>{tokens.add(t);}
+    |t = <SUB>{tokens.add(t);}
+    |t = <SYSTEM>{tokens.add(t);}
+    |t = <THIS>{tokens.add(t);}
+    |t = <TIMES>{tokens.add(t);}
+    |t = <TRUE>{tokens.add(t);}
+    |t = <VOID>{tokens.add(t);}
+    |t = <WHILE>{tokens.add(t);}
+    )*
+    <EOF>
+    {return tokens;}
+}
+
