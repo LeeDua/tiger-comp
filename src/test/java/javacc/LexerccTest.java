@@ -1,4 +1,4 @@
-package lexercc;
+package javacc;
 
 import org.junit.Test;
 
@@ -24,8 +24,8 @@ public class LexerccTest
     } catch (FileNotFoundException e) {
       System.out.println("File not found");
     }
-    Lexercc lex = new Lexercc(fstream);
-    LinkedList<Token> tokens = lex.lexerTest();
+    Parser p = new Parser(fstream);
+    LinkedList<Token> tokens = p.lexerTest();
     assertEquals("class", tokens.get(0).image);
     assertEquals("LinkedList", tokens.get(1).image);
     assertEquals("{", tokens.get(2).image);
@@ -49,7 +49,7 @@ public class LexerccTest
   {
     InputStream in = new BufferedInputStream(new ByteArrayInputStream(
         "[]".getBytes()));
-    Lexercc lex = new Lexercc(in);
+    Parser lex = new Parser(in);
     LinkedList<Token> tokens = lex.lexerTest();
     assertEquals("[", tokens.get(0).image);
     assertEquals("]", tokens.get(1).image);
@@ -65,7 +65,7 @@ public class LexerccTest
             "//This is a LINE_COMMENT.\n" +
             "/***********MULTILINE_COMMENT************/\n" +
             "// In comment, we can input all charactors!@#$%^&*()(*&^%$##.\n").getBytes()));
-    Lexercc lex = new Lexercc(in);
+    Parser lex = new Parser(in);
     LinkedList<Token> tokens = lex.lexerTest();
     assertEquals(0, tokens.size());
   }

@@ -26,5 +26,5 @@ dependencies {
 
 compileJavacc {
     inputDirectory = file('src/main/javacc')
-    outputDirectory = file('src/main/java/lexercc')
+    outputDirectory = file('src/main/java/javacc')
 }
