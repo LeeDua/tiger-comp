@@ -41,7 +41,6 @@ public class LexerccTest
     assertEquals(258, tokens.get(1055).beginLine);
     assertEquals(278, tokens.getLast().beginLine);
     assertEquals("}", tokens.getLast().image);
-
   }
 
   @Test
