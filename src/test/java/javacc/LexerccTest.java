@@ -22,7 +22,8 @@ public class LexerccTest
       fstream = new BufferedInputStream(
           new FileInputStream("src/test/resources/LinkedList.java"));
     } catch (FileNotFoundException e) {
-      System.out.println("File not found");
+      System.out.println(e.getMessage());
+      System.exit(1);
     }
     Parser p = new Parser(fstream);
     LinkedList<Token> tokens = p.lexerTest();
@@ -46,6 +47,7 @@ public class LexerccTest
   @Test
   public void testBrace() throws ParseException
   {
+    System.out.println("test Brace");
     InputStream in = new BufferedInputStream(new ByteArrayInputStream(
         "[]".getBytes()));
     Parser lex = new Parser(in);
@@ -57,7 +59,7 @@ public class LexerccTest
   @Test
   public void testComment() throws ParseException
   {
-    System.out.println("test COMMENT.");
+    System.out.println("test Comment.");
     InputStream in = new BufferedInputStream(new ByteArrayInputStream(
         ("/*This is a MULTILINE_COMMENT\n" +
             "whitch has tow line.*/\n" +
