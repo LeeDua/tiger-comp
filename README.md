@@ -1,6 +1,8 @@
 TIGER
 =====
 
+[![Join the chat at https://gitter.im/qc1iu/tiger-comp](https://badges.gitter.im/qc1iu/tiger-comp.svg)](https://gitter.im/qc1iu/tiger-comp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/qc1iu/tiger-comp.svg?branch=master)](https://travis-ci.org/qc1iu/tiger-comp)
 
 The Tiger compiler. Copyright (C) 2013-2015, SSE of USTC.
