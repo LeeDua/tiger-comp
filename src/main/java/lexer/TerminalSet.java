@@ -5,6 +5,7 @@ import java.util.HashSet;
 /**
  * Created by qc1iu on 2/23/16.
  */
+@Deprecated
 public class TerminalSet
 {
   public HashSet<Character> terminals;
@@ -36,8 +37,9 @@ public class TerminalSet
 
   public boolean isTerminal(int c)
   {
-    if (c == -1)
+    if (c == -1) {
       return true;
-    return this.terminals.contains((char)c);
+    }
+    return this.terminals.contains((char) c);
   }
 }

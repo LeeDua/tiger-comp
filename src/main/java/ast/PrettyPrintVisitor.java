@@ -37,10 +37,13 @@ import ast.Ast.Type.IntArray;
 
 public class PrettyPrintVisitor implements Visitor
 {
+  private StringBuilder sb;
+
   private int indentLevel;
 
   public PrettyPrintVisitor()
   {
+    this.sb = new StringBuilder();
     this.indentLevel = 4;
   }
 
@@ -63,12 +66,13 @@ public class PrettyPrintVisitor implements Visitor
 
   private void sayln(String s)
   {
-    System.out.println(s);
+    sb.append(s);
+    sb.append("\n");
   }
 
   private void say(String s)
   {
-    System.out.print(s);
+    sb.append(s);
   }
 
   // /////////////////////////////////////////////////////
@@ -168,7 +172,7 @@ public class PrettyPrintVisitor implements Visitor
   @Override
   public void visit(Num e)
   {
-    System.out.print(e.num);
+    this.say(String.valueOf(e.num));
   }
 
   @Override
@@ -207,8 +211,6 @@ public class PrettyPrintVisitor implements Visitor
     this.say(s.id + " = ");
     s.exp.accept(this);
     this.say(";\n");
-    return;
-
   }
 
   @Override
@@ -258,7 +260,6 @@ public class PrettyPrintVisitor implements Visitor
     this.say("System.out.println (");
     s.exp.accept(this);
     this.sayln(");");
-    return;
   }
 
   @Override
@@ -338,7 +339,6 @@ public class PrettyPrintVisitor implements Visitor
     m.retExp.accept(this);
     this.sayln(";");
     this.sayln("  }");
-    return;
   }
 
   // class
@@ -362,7 +362,6 @@ public class PrettyPrintVisitor implements Visitor
     for (Method.T mthd : c.methods)
       mthd.accept(this);
     this.sayln("}");
-    return;
   }
 
   // main class
@@ -376,7 +375,6 @@ public class PrettyPrintVisitor implements Visitor
     c.stm.accept(this);
     this.sayln("  }");
     this.sayln("}");
-    return;
   }
 
   // program
@@ -388,6 +386,11 @@ public class PrettyPrintVisitor implements Visitor
     for (ast.Ast.Class.T classs : p.classes) {
       classs.accept(this);
     }
-    System.out.println("\n\n");
+    this.say("\n\n");
+  }
+
+  public String toString()
+  {
+    return this.sb.toString();
   }
 }

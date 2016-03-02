@@ -1,7 +1,10 @@
 package lexer;
 
-public class Token {
-  public enum Kind {
+@Deprecated
+public class Token
+{
+  public enum Kind
+  {
     TOKEN_ADD, // "+"
     TOKEN_AND, // "&&"
     TOKEN_ASSIGN, // "="
@@ -80,8 +83,9 @@ public class Token {
     String s;
 
     // to check that the "lineNum" field has been properly set.
-    if (this.lineNum == null)
+    if (this.lineNum == null) {
       new util.Todo();
+    }
 
     s = ": " + ((this.lexeme == null) ? "<NONE>" : this.lexeme)
         + " : at line " + this.lineNum.toString();
@@ -96,8 +100,9 @@ public class Token {
         this.lineNum == t.lineNum &&
         this.lexeme == t.lexeme) {
       return true;
-    } else
+    } else {
       return false;
+    }
   }
 
 }

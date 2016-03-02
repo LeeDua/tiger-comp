@@ -4,8 +4,9 @@ import java.util.HashMap;
 
 import lexer.Token.Kind;
 
-public class TokenMap {
-
+@Deprecated
+public class TokenMap
+{
   public HashMap<String, Kind> tokenMap;
 
   public TokenMap()

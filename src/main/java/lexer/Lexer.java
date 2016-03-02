@@ -5,6 +5,7 @@ import lexer.Token.Kind;
 import java.io.IOException;
 import java.io.InputStream;
 
+@Deprecated
 public class Lexer
 {
   private String fname; // the input file name to be compiled

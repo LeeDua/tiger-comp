@@ -8,12 +8,12 @@ import control.Control.ConSlp;
 @Deprecated
 public class CommandLine
 {
-  static interface F<X>
+  interface F<X>
   {
-    public void f(X x);
+    void f(X x);
   }
 
-  static enum Kind
+  enum Kind
   {
     Empty, Bool, Int, String, StringList,
   }
