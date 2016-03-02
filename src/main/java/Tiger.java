@@ -1,6 +1,8 @@
 import ast.Ast.Program;
 import control.CommandLine;
+import control.CommandLineParser;
 import control.Verbose;
+import org.apache.commons.cli.ParseException;
 import parser.Parser;
 
 import java.io.*;
@@ -194,11 +196,12 @@ public class Tiger
     Tiger tiger = new Tiger();
 
     // handle command line arguments
-    CommandLine cmd = new CommandLine();
-    tiger.fname = cmd.scan(args);
-    if (tiger.fname == null) {
-      cmd.usage();
-      return;
+    CommandLineParser cmd = new CommandLineParser(args);
+    try {
+      cmd.scan();
+    } catch (ParseException e) {
+      System.out.println("ArgError: "+e.getMessage());
+      System.exit(0);
     }
 
     // normal compilation phases.

@@ -56,7 +56,7 @@ public class CommandLineParser
     formatter.printHelp("tiger", HEADER, opts, FOOTER, true);
   }
 
-  protected void scan() throws ParseException
+  public void scan() throws ParseException
   {
       CommandLine cmd = parse(this.opts, this.args);
       if (cmd.hasOption("h")) {
