@@ -49,6 +49,28 @@ public class ParserTest
     prog.accept(pp);
   }
 
+  @Test
+  public void testParseType() throws ParseException
+  {
+    System.out.println("test parse type");
+    InputStream in = new BufferedInputStream(
+        new ByteArrayInputStream("int[]".getBytes()));
+    javacc.Parser p = new Parser(in);
+    p.parseType();
+    assertEquals(1 , p.currentType.getNum());
+  }
+
+  @Test
+  public void testParseDecl() throws ParseException
+  {
+    System.out.println("test parse type");
+    InputStream in = new BufferedInputStream(
+        new ByteArrayInputStream("int[] a1;".getBytes()));
+    Parser p = new Parser(in);
+    Ast.Dec.DecSingle dec = (Ast.Dec.DecSingle) p.parseVarDecl(false);
+    assertEquals(1, dec.type.getNum());
+  }
+
 }
 
 
