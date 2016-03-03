@@ -195,19 +195,19 @@ Exp.T parseAtomExp():
         {int value;}
         t = <NUM>
         {value = Integer.parseInt(t.image);}
-        {return new Exp.Num(value);}
+        {return new Exp.Num(value, t.beginLine);}
     |
-        <TRUE>
-        {return new Exp.True();}
+        t = <TRUE>
+        {return new Exp.True(t.beginLine);}
     |
-        <FALSE>
-        {return new Exp.False();}
+        t= <FALSE>
+        {return new Exp.False(t.beginLine);}
     |
-        <THIS>
-        {return new Exp.This();}
+        t = <THIS>
+        {return new Exp.This(t.beginLine);}
     |
         t = <ID>
-        {return new Exp.Id(t.image, currentType, false);}
+        {return new Exp.Id(t.image, currentType, false, t.beginLine);}
 
     |
         <NEW>
@@ -215,31 +215,16 @@ Exp.T parseAtomExp():
             <LPAREN>
             {Exp.T exp;}
             exp = parseExp()
-            <RPAREN>
-            {return new Exp.NewIntArray(exp);}
+            t = <RPAREN>
+            {return new Exp.NewIntArray(exp, t.beginLine);}
         |
             t = <ID>
             <LPAREN>
             <RPAREN>
-            {return new Exp.NewObject(t.image);}
+            {return new Exp.NewObject(t.image, t.beginLine);}
         )
 }
 
-
-Exp.T parseDotExp(Exp.T exp):
-{}
-{
-            <LENGTH>
-            {return new Exp.Length(exp);}
-        |
-            {Token t;}
-            t = <ID>
-            <LPAREN>
-            {LinkedList<Exp.T> args;}
-            args = parseExpList()
-            <RPAREN>
-            {return new Exp.Call(exp, t.image, args);}
-}
 
 // NotExp   -> AtomExp
 //          -> AtomExp .id (expList)
@@ -248,18 +233,30 @@ Exp.T parseDotExp(Exp.T exp):
 Exp.T parseNotExp():
 {
     Exp.T exp;
+    Token t;
 }
 {
     exp = parseAtomExp()
     (
             <DOT>
-            {return parseDotExp(exp);}
+            (
+                t = <LENGTH>
+                {return new Exp.Length(exp, t.beginLine);}
+            |
+                t = <ID>
+                <LPAREN>
+                {LinkedList<Exp.T> args;}
+                args = parseExpList()
+                <RPAREN>
+                {return new Exp.Call(exp, t.image, args, t.beginLine);}
+            )
+            //{return parseDotExp(exp);}
         |
             {Exp.T index;}
             <LBRACK>
             index = parseExp()
             <RBRACK>
-            {return new Exp.ArraySelect(exp, index);}
+            {return new Exp.ArraySelect(exp, index, index.linenum);}
 
     )?
     {return exp;}
@@ -275,7 +272,7 @@ Exp.T parseTimesExp():
     (
         <NOT>
         exp = parseTimesExp()
-        {return new Exp.Not(exp);}
+        {return new Exp.Not(exp, exp.linenum);}
     )?
     exp = parseNotExp()
     {return exp;}
@@ -293,7 +290,7 @@ Exp.T parseAddSubExp():
     (
         <TIMES>
         right = parseTimesExp()
-        {return new Exp.Times(left, right);}
+        {return new Exp.Times(left, right, right.linenum);}
     )?
     {return left;}
 }
@@ -312,11 +309,11 @@ Exp.T parseLtExp():
     (
         <ADD>
         right = parseAddSubExp()
-        {return new Exp.Add(left, right);}
+        {return new Exp.Add(left, right, right.linenum);}
     |
         <SUB>
         right = parseAddSubExp()
-        {return new Exp.Sub(left, right);}
+        {return new Exp.Sub(left, right, right.linenum);}
     )?
     {return left;}
 }
@@ -333,7 +330,7 @@ Exp.T parseAndExp():
     (
         <LT>
         right = parseLtExp()
-        {return new Exp.Lt(left, right);}
+        {return new Exp.Lt(left, right, right.linenum);}
     )?
     {return left;}
 }

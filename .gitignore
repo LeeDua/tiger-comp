@@ -6,6 +6,7 @@ tags
 *_test
 *~
 *.o
+*.iml
 /.idea
 /bin
 /.gradle
