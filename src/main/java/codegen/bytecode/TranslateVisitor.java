@@ -3,7 +3,6 @@ package codegen.bytecode;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
-import codegen.C.Ast.Exp;
 import codegen.bytecode.Ast.Class;
 import codegen.bytecode.Ast.Class.ClassSingle;
 import codegen.bytecode.Ast.Dec;
@@ -18,8 +17,6 @@ import codegen.bytecode.Ast.Stm;
 import codegen.bytecode.Ast.Type;
 import codegen.bytecode.Ast.Type.Int;
 import codegen.bytecode.Ast.Stm.*;
-import elaborator.ElaboratorVisitor;
-import elaborator.MethodType;
 import util.Label;
 
 // Given a Java ast, translate it into Java bytecode.
@@ -84,11 +81,11 @@ public class TranslateVisitor implements ast.Visitor {
 
     @Override
     public void visit(ast.Ast.Exp.Call e) {
-	e.exp.accept(this);
+	e.caller.accept(this);
 	for (ast.Ast.Exp.T x : e.args) {
 	    x.accept(this);
 	}
-	e.rt.accept(this);
+	e.retType.accept(this);
 	Type.T rt = this.type;
 	// 参数的类型列表
 	LinkedList<Type.T> at = new LinkedList<Type.T>();
@@ -112,7 +109,7 @@ public class TranslateVisitor implements ast.Visitor {
 	if (!e.isField) {
 	    int index = this.indexTable.get(e.id);
 	    ast.Ast.Type.T type = e.type;
-	    if (type.getNum() > 0) // a reference
+	    if (type.getType() > 0) // a reference
 		emit(new Aload(index));// retrieve object reference from local
 				       // variable
 	    else
@@ -232,7 +229,7 @@ public class TranslateVisitor implements ast.Visitor {
 	    s.exp.accept(this);
 	    int index = this.indexTable.get(s.id);
 	    ast.Ast.Type.T type = s.type;
-	    if (type.getNum() > 0)
+	    if (type.getType() > 0)
 		emit(new Astore(index));
 	    else
 		emit(new Istore(index));// //store in integer array
@@ -250,7 +247,7 @@ public class TranslateVisitor implements ast.Visitor {
     }
 
     @Override
-    // id[exp]=exp
+    // id[caller]=caller
     public void visit(ast.Ast.Stm.AssignArray s) {
 	// 需要特殊对待s.id
 	ast.Ast.Exp.Id id = new ast.Ast.Exp.Id(s.id, s.tyep, s.isField);
@@ -382,7 +379,7 @@ public class TranslateVisitor implements ast.Visitor {
 	// return statement is specially treated
 	m.retExp.accept(this);
 
-	if (m.retType.getNum() > 0) // is reference
+	if (m.retType.getType() > 0) // is reference
 	    emit(new Areturn());// return from method with object reference
 				// result
 	else

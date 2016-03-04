@@ -59,12 +59,12 @@
 // public static class Eseq extends T
 // {
 // public Stm.T stm;
-// public T exp;
+// public T caller;
 //
-// public Eseq(Stm.T stm, T exp)
+// public Eseq(Stm.T stm, T caller)
 // {
 // this.stm = stm;
-// this.exp = exp;
+// this.caller = caller;
 // }
 // }
 // }// end of expression
@@ -81,13 +81,13 @@
 // // pair
 // public static class Pair extends T
 // {
-// public Exp.T exp;
+// public Exp.T caller;
 // public ExpList.T list;
 //
-// public Pair(Exp.T exp, T list)
+// public Pair(Exp.T caller, T list)
 // {
 // super();
-// this.exp = exp;
+// this.caller = caller;
 // this.list = list;
 // }
 // }
@@ -95,12 +95,12 @@
 // // last
 // public static class Last extends T
 // {
-// public Exp.T exp;
+// public Exp.T caller;
 //
-// public Last(Exp.T exp)
+// public Last(Exp.T caller)
 // {
 // super();
-// this.exp = exp;
+// this.caller = caller;
 // }
 // }
 // }// end of explist
@@ -131,12 +131,12 @@
 // public static class Assign extends T
 // {
 // public String id;
-// public Exp.T exp;
+// public Exp.T caller;
 //
-// public Assign(String id, Exp.T exp)
+// public Assign(String id, Exp.T caller)
 // {
 // this.id = id;
-// this.exp = exp;
+// this.caller = caller;
 // }
 // }
 //

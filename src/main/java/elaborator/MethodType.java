@@ -5,23 +5,33 @@ import java.util.LinkedList;
 import ast.Ast.Dec;
 import ast.Ast.Type;
 
-public class MethodType {
-    public Type.T retType;
-    public LinkedList<Dec.T> argsType;
+public class MethodType
+{
+  /**
+   * Use return type and formals type to determin a unique method.
+   */
+  public Type.T retType;
+  public LinkedList<Dec.T> argsType;
 
-    public MethodType(Type.T retType, LinkedList<Dec.T> decs) {
-	this.retType = retType;
-	this.argsType = decs;
-    }
+  public MethodType(Type.T retType, LinkedList<Dec.T> decs)
+  {
+    this.retType = retType;
+    this.argsType = decs;
+  }
 
-    @Override
-    public String toString() {
-	String s = "";
-	for (Dec.T dec : this.argsType) {
-	    Dec.DecSingle decc = (Dec.DecSingle) dec;
-	    s = decc.type.toString() + "*" + s;
-	}
-	s = s + " -> " + this.retType.toString();
-	return s;
+  @Override
+  public String toString()
+  {
+    StringBuilder sb = new StringBuilder();
+    sb.append("(");
+    for (Dec.T d:argsType){
+     Type.T t = ((Dec.DecSingle)d).type;
+      sb.append(t.toString());
+      sb.append(" ");
     }
+    sb.append(")");
+    sb.append(" -> ");
+    sb.append(retType.toString());
+    return sb.toString();
+  }
 }

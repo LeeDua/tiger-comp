@@ -106,7 +106,7 @@ public class PrettyPrintVisitor implements Visitor
   @Override
   public void visit(Call e)
   {
-    e.exp.accept(this);
+    e.caller.accept(this);
     this.say("." + e.id + "(");
     int i = 0;
     for (Exp.T x : e.args) {

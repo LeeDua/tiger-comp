@@ -156,16 +156,16 @@ LinkedList<Token> lexerTest():
 LinkedList<Exp.T> parseExpList():
 {
     LinkedList<Exp.T> args = new LinkedList<Exp.T>();
-    Exp.T exp;
+    Exp.T caller;
 }
 {
   (
-    exp = parseExp()
-    {args.add(exp);}
+    caller = parseExp()
+    {args.add(caller);}
     (
         <COMMER>
-        exp = parseExp()
-        {args.add(exp);}
+        caller = parseExp()
+        {args.add(caller);}
 
     )*
   )?
@@ -173,24 +173,24 @@ LinkedList<Exp.T> parseExpList():
     {return args;}
 }
 
-// AtomExp  -> (exp)
+// AtomExp  -> (caller)
 //          -> INTEGER_LITERAL
 //          -> true
 //          -> false
 //          -> this
 //          -> id
-//          -> new int [exp]
+//          -> new int [caller]
 //          -> new id ()
 Exp.T parseAtomExp():
 {
     Token t;
 }
 {
-        {Exp.T exp;}
+        {Exp.T caller;}
         <LPAREN>
-        exp = parseExp()
+        caller = parseExp()
         <RPAREN>
-        {return exp;}
+        {return caller;}
     |
         {int value;}
         t = <NUM>
@@ -213,10 +213,10 @@ Exp.T parseAtomExp():
         <NEW>
         (
             <LPAREN>
-            {Exp.T exp;}
-            exp = parseExp()
+            {Exp.T caller;}
+            caller = parseExp()
             t = <RPAREN>
-            {return new Exp.NewIntArray(exp, t.beginLine);}
+            {return new Exp.NewIntArray(caller, t.beginLine);}
         |
             t = <ID>
             <LPAREN>
@@ -228,54 +228,54 @@ Exp.T parseAtomExp():
 
 // NotExp   -> AtomExp
 //          -> AtomExp .id (expList)
-//          -> AtomExp [exp]
+//          -> AtomExp [caller]
 //          -> AtomExp .length
 Exp.T parseNotExp():
 {
-    Exp.T exp;
+    Exp.T caller;
     Token t;
 }
 {
-    exp = parseAtomExp()
+    caller = parseAtomExp()
     (
             <DOT>
             (
                 t = <LENGTH>
-                {return new Exp.Length(exp, t.beginLine);}
+                {return new Exp.Length(caller, t.beginLine);}
             |
                 t = <ID>
                 <LPAREN>
                 {LinkedList<Exp.T> args;}
                 args = parseExpList()
                 <RPAREN>
-                {return new Exp.Call(exp, t.image, args, t.beginLine);}
+                {return new Exp.Call(caller, t.image, args, t.beginLine);}
             )
-            //{return parseDotExp(exp);}
+            //{return parseDotExp(caller);}
         |
             {Exp.T index;}
             <LBRACK>
             index = parseExp()
             <RBRACK>
-            {return new Exp.ArraySelect(exp, index, index.linenum);}
+            {return new Exp.ArraySelect(caller, index, index.linenum);}
 
     )?
-    {return exp;}
+    {return caller;}
 }
 
 // TimesExp -> ! TimesExp
 //          -> NotExp
 Exp.T parseTimesExp():
 {
-    Exp.T exp;
+    Exp.T caller;
 }
 {
     (
         <NOT>
-        exp = parseTimesExp()
-        {return new Exp.Not(exp, exp.linenum);}
+        caller = parseTimesExp()
+        {return new Exp.Not(caller, caller.linenum);}
     )?
-    exp = parseNotExp()
-    {return exp;}
+    caller = parseNotExp()
+    {return caller;}
 }
 
 // AddSubExp    -> TimesExp * TimesExp
@@ -384,10 +384,10 @@ Stm.T parseStatement():
         <LBRACE>
         {LinkedList<Stm.T> block;}
         block = parseStatements()
-        <RBRACE>
-        {return new Stm.Block(block);}
+        t = <RBRACE>
+        {return new Stm.Block(block, t.beginLine);}
     |
-        <IF>
+        t = <IF>
         {
             Exp.T condition;
             Stm.T thenn;
@@ -399,9 +399,9 @@ Stm.T parseStatement():
         thenn = parseStatement()
         <ELSE>
         elsee = parseStatement()
-        {return new Stm.If(condition, thenn, elsee);}
+        {return new Stm.If(condition, thenn, elsee, t.beginLine);}
     |
-        <WHILE>
+        t = <WHILE>
         {
             Exp.T condition;
             Stm.T body;
@@ -410,38 +410,38 @@ Stm.T parseStatement():
         condition = parseExp()
         <RPAREN>
         body = parseStatement()
-        {return new Stm.While(condition, body);}
+        {return new Stm.While(condition, body, t.beginLine);}
     |
-        <SYSTEM>
+        t = <SYSTEM>
         <DOT>
         <OUT>
         <DOT>
         <PRINTLN>
         <LPAREN>
-        {Exp.T exp;}
-        exp = parseExp()
+        {Exp.T caller;}
+        caller = parseExp()
         <RPAREN>
         <SEMI>
-        {return new Print(exp);}
+        {return new Print(caller, t.beginLine);}
     |
         t = <ID>
         (
             <ASSIGN>
-            {Exp.T exp;}
-            exp = parseExp()
+            {Exp.T caller;}
+            caller = parseExp()
             <SEMI>
-            {return new Stm.Assign(t.image, exp);}
+            {return new Stm.Assign(t.image, caller, t.beginLine);}
         |
-            <LBRACK>
+            t = <LBRACK>
             {
-                Exp.T exp;
+                Exp.T caller;
                 Exp.T index;
             }
             index = parseExp()
             <RBRACK>
             <ASSIGN>
-            exp = parseExp()
-            {return new Stm.AssignArray(t.image, index, exp);}
+            caller = parseExp()
+            {return new Stm.AssignArray(t.image, index, caller, t.beginLine);}
         )
     {return stm;}
 }

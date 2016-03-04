@@ -1,53 +1,73 @@
 package elaborator;
 
-import java.util.LinkedList;
-
 import ast.Ast.Dec;
 import ast.Ast.Type;
-import util.Todo;
 
-public class MethodTable {
-    private java.util.Hashtable<String, Type.T> table;
+import java.util.HashMap;
+import java.util.LinkedList;
 
-    public MethodTable() {
-	this.table = new java.util.Hashtable<String, Type.T>();
+public class MethodTable
+{
+  /**
+   * Map each locals name (a string), to the corresponding type.
+   * The method locals include formals and locals variable.
+   */
+  private HashMap<String, Type.T> locals;
+
+  public MethodTable()
+  {
+    this.locals = new HashMap<>();
+  }
+
+
+  /**
+   * Put all formals and locals into localsTable.
+   * Duplication is not allowed
+   *
+   * @param formals the formal arguments of the method
+   * @param locals  the local variables of the method
+   */
+  public void put(LinkedList<Dec.T> formals, LinkedList<Dec.T> locals) throws ElabExpection
+  {
+    for (Dec.T dec : formals) {
+      Dec.DecSingle decc = (Dec.DecSingle) dec;
+      if (this.locals.get(decc.id) != null) {
+        throw new ElabExpection("duplicated parameter: " + decc.id);
+      }
+      this.locals.put(decc.id, decc.type);
     }
 
-    // Duplication is not allowed
-    public void put(LinkedList<Dec.T> formals, LinkedList<Dec.T> locals) {
-	for (Dec.T dec : formals) {
-	    Dec.DecSingle decc = (Dec.DecSingle) dec;
-	    if (this.table.get(decc.id) != null) {
-		System.out.println(
-			"duplicated parameter: " + decc.id + "at line:" + "");
-		System.exit(1);
-	    }
-	    this.table.put(decc.id, decc.type);
-	}
-
-	for (Dec.T dec : locals) {
-	    Dec.DecSingle decc = (Dec.DecSingle) dec;
-	    if (this.table.get(decc.id) != null) {
-		System.out.println("duplicated variable: " + decc.id);
-		System.exit(1);
-	    }
-	    this.table.put(decc.id, decc.type);
-	}
-
+    for (Dec.T dec : locals) {
+      Dec.DecSingle decc = (Dec.DecSingle) dec;
+      if (this.locals.get(decc.id) != null) {
+        throw new ElabExpection("duplicated variable: " + decc.id);
+      }
+      this.locals.put(decc.id, decc.type);
     }
 
-    // return null for non-existing keys
-    public Type.T get(String id) {
-	return this.table.get(id);
-    }
+  }
 
-    public void dump() {
-	System.out.println("<id----Type>");
-	System.out.println(this.table);
-    }
 
-    @Override
-    public String toString() {
-	return this.table.toString();
-    }
+  /**
+   * return null for non-existing keys
+   *
+   * @param id the key for locals
+   * @return null if non-exeistiong
+   */
+  public Type.T get(String id)
+  {
+    return this.locals.get(id);
+  }
+
+  public void dump()
+  {
+    System.out.println("<id----Type>");
+    System.out.println(this.locals);
+  }
+
+  @Override
+  public String toString()
+  {
+    return this.locals.toString();
+  }
 }

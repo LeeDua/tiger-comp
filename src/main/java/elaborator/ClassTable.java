@@ -1,84 +1,119 @@
 package elaborator;
 
 import ast.Ast.Type;
-import util.Todo;
 
-public class ClassTable {
-    // map each class name (a string), to the class bindings.
-    private java.util.Hashtable<String, ClassBinding> table;
+import java.util.HashMap;
+import java.util.Map;
 
-    public ClassTable() {
-	this.table = new java.util.Hashtable<String, ClassBinding>();
+public class ClassTable
+{
+  // map each class name (a string), to the class bindings.
+  private HashMap<String, ClassBinding> table;
+
+  public ClassTable()
+  {
+    this.table = new HashMap<>();
+  }
+
+  /**
+   * Duplication is not allowed
+   *
+   * @param cname class name
+   * @param cb    the class bindings corresponding to the class
+   */
+  public void put(String cname, ClassBinding cb) throws ElabExpection
+  {
+    if (this.table.get(cname) != null) {
+      throw new ElabExpection("duplicated class: " + cname);
     }
+    this.table.put(cname, cb);
+  }
 
-    // Duplication is not allowed
-    public void put(String c, ClassBinding cb) {
-	if (this.table.get(c) != null) {
-	    System.out.println("duplicated class: " + c + "at line:");
-	    System.exit(1);
-	}
-	this.table.put(c, cb);
+  /**
+   * put a field into this table
+   * Duplication is not allowed
+   *
+   * @param cname class name
+   * @param fname field name
+   * @param type  field type
+   */
+  public void put(String cname, String fname, Type.T type) throws ElabExpection
+  {
+    ClassBinding cb = this.table.get(cname);
+    cb.put(fname, type);
+  }
+
+  /**
+   * put a method into this table
+   * Duplication is not allowed.
+   * Also note that MiniJava does NOT allow overloading.
+   *
+   * @param cname class name
+   * @param mname method name
+   * @parm type return type of the method
+   */
+  public void put(String cname, String mname, MethodType type) throws ElabExpection
+  {
+    ClassBinding cb = this.table.get(cname);
+    cb.put(mname, type);
+  }
+
+  // return null for non-existing class
+  public ClassBinding get(String className)
+  {
+    return this.table.get(className);
+  }
+
+  // get type of some field
+  // return null for non-existing field.
+  public Type.T get(String className, String xid)
+  {
+    ClassBinding cb = this.table.get(className);
+    Type.T type = cb.fields.get(xid);
+    while (type == null) { // search all parent classes until found or fail
+      if (cb.extendss == null) {
+        return type;
+      }
+
+      cb = this.table.get(cb.extendss);
+      type = cb.fields.get(xid);
     }
+    return type;
+  }
 
-    // put a field into this table
-    // Duplication is not allowed
-    public void put(String c, String id, Type.T type) {
-	ClassBinding cb = this.table.get(c);
-	cb.put(id, type);
-	return;
+  /**
+   * get type of some method
+   *
+   * @param className
+   * @param mid
+   * @return null for non-existing method
+   */
+  public MethodType getMethodType(String className, String mid)
+  {
+    if (className == null) {
+      return null;
     }
-
-    // put a method into this table
-    // Duplication is not allowed.
-    // Also note that MiniJava does NOT allow overloading.
-    public void put(String c, String id, MethodType type) {
-	ClassBinding cb = this.table.get(c);
-	cb.put(id, type);
-	return;
+    ClassBinding cb = this.table.get(className);
+    MethodType type = cb.methods.get(mid);
+    if (cb.extendss == null) {
+      return type;
+    } else {
+      return getMethodType(cb.extendss, mid);
     }
+  }
 
-    // return null for non-existing class
-    public ClassBinding get(String className) {
-	return this.table.get(className);
+  @Override
+  public String toString()
+  {
+    StringBuilder sb = new StringBuilder();
+    for (Map.Entry<String, ClassBinding> en : table.entrySet()){
+      String k = en.getKey();
+      ClassBinding v = en.getValue();
+      sb.append("class: "+k);
+      sb.append(" ");
+      sb.append(v.toString());
+      sb.append("\n");
     }
-
-    // get type of some field
-    // return null for non-existing field.
-    public Type.T get(String className, String xid) {
-	ClassBinding cb = this.table.get(className);
-	Type.T type = cb.fields.get(xid);
-	while (type == null) { // search all parent classes until found or fail
-	    if (cb.extendss == null)
-		return type;
-
-	    cb = this.table.get(cb.extendss);
-	    type = cb.fields.get(xid);
-	}
-	return type;
-    }
-
-    // get type of some method
-    // return null for non-existing method
-    public MethodType getm(String className, String mid) {
-	ClassBinding cb = this.table.get(className);
-	MethodType type = cb.methods.get(mid);
-	while (type == null) { // search all parent classes until found or fail
-	    if (cb.extendss == null)
-		return type;
-
-	    cb = this.table.get(cb.extendss);
-	    type = cb.methods.get(mid);
-	}
-	return type;
-    }
-
-    public void dump() {
-	System.out.println("<String---ClassBinding>");
-	System.out.println(this.table);
-    }
-
-    @Override
-    public String toString() {
-	return this.table.toString();
-    }
+    return sb.toString();
+  }
 }

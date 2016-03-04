@@ -96,13 +96,13 @@ public class Parser
     return args;
   }
 
-  // AtomExp -> (exp)
+  // AtomExp -> (caller)
   // -> INTEGER_LITERAL
   // -> true
   // -> false
   // -> this
   // -> id
-  // -> new int [exp]
+  // -> new int [caller]
   // -> new id ()
   private Exp.T parseAtomExp()
   {
@@ -173,7 +173,7 @@ public class Parser
 
   // NotExp -> AtomExp
   // -> AtomExp .id (expList)
-  // -> AtomExp [exp]
+  // -> AtomExp [caller]
   // -> AtomExp .length
   private Exp.T parseNotExp()
   {
@@ -196,7 +196,7 @@ public class Parser
         eatToken(Kind.TOKEN_RPAREN);
         return new Call(exp, s, args, linenum);
       } else {
-        // [exp]
+        // [caller]
         Exp.T t = (Exp.Id) exp;
         advance();
         exp = parseExp();

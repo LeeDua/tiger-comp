@@ -9,14 +9,14 @@ public class Ast
   // type
   public static class Type
   {
+    public static final int TYPE_BOOLEAN = -1;
+    public static final int TYPE_INT = 0;
+    public static final int TYPE_INTARRAY = 1;
+    public static final int TYPE_CLASS = 2;
+
     public static abstract class T implements ast.Acceptable
     {
-      // boolean: -1
-      // int: 0
-      // int[]: 1
-      // class: 2
-      // Such that one can easily tell who is who
-      public abstract int getNum();//
+      public abstract int getType();
     }
 
     // boolean
@@ -33,9 +33,9 @@ public class Ast
       }
 
       @Override
-      public int getNum()//
+      public int getType()//
       {
-        return -1;
+        return TYPE_BOOLEAN;
       }
 
       @Override
@@ -58,15 +58,15 @@ public class Ast
       @Override
       public String toString()
       {
-        // since Type.beelen toString() is "@boolean"
+        // since Type.boolean toString() is "@boolean"
         // return "@" + this.id;
         return this.id;
       }
 
       @Override
-      public int getNum()
+      public int getType()
       {
-        return 2;
+        return TYPE_CLASS;
       }
 
       @Override
@@ -96,9 +96,9 @@ public class Ast
       }
 
       @Override
-      public int getNum()
+      public int getType()
       {
-        return 0;
+        return TYPE_INT;
       }
     }
 
@@ -118,9 +118,10 @@ public class Ast
       }
 
       @Override
-      public int getNum()
+      public int getType()
+
       {
-        return 1;
+        return TYPE_INTARRAY;
       }
 
       @Override
@@ -138,6 +139,7 @@ public class Ast
   {
     public static abstract class T implements ast.Acceptable
     {
+      int linenum;
     }
 
     public static class DecSingle extends T
@@ -151,6 +153,14 @@ public class Ast
         this.type = type;
         this.id = id;
         this.isField = isField;
+      }
+
+      public DecSingle(Type.T type, String id, boolean isField, int linenum)
+      {
+        this.type = type;
+        this.id = id;
+        this.isField = isField;
+        this.linenum = linenum;
       }
 
       @Override
@@ -256,38 +266,38 @@ public class Ast
     // Call
     public static class Call extends T
     {
-      public T exp;
-      public String id;
+      public T caller;
+      public String id; // method name that be invoked
       public java.util.LinkedList<T> args;
-      public String type; // type of first field "exp"
-      public java.util.LinkedList<Type.T> at; // arg's type
-      public Type.T rt;
+      public String type; // type of caller
+      public java.util.LinkedList<Type.T> at; // args type list
+      public Type.T retType;
 
-      public Call(T exp, String id, java.util.LinkedList<T> args,
-                  String type, java.util.LinkedList<Type.T> at, Type.T rt)
+      public Call(T caller, String id, java.util.LinkedList<T> args,
+                  String type, java.util.LinkedList<Type.T> at, Type.T retType)
       {
-        this.exp = exp;
+        this.caller = caller;
         this.id = id;
         this.args = args;
         this.type = type;
         this.at = at;
-        this.rt = rt;
+        this.retType = retType;
 
       }
 
-      public Call(T exp, String id, java.util.LinkedList<T> args,
+      public Call(T caller, String id, java.util.LinkedList<T> args,
                   int linenum)
       {
-        this.exp = exp;
+        this.caller = caller;
         this.id = id;
         this.args = args;
         this.type = null;
         this.linenum = linenum;
       }
 
-      public Call(T exp, String id, java.util.LinkedList<T> args)
+      public Call(T caller, String id, java.util.LinkedList<T> args)
       {
-        this.exp = exp;
+        this.caller = caller;
         this.id = id;
         this.args = args;
         this.type = null;
@@ -325,8 +335,8 @@ public class Ast
     // Id
     public static class Id extends T
     {
-      public String id; // name of the id
-      public Type.T type; // type of the id,type��isField��elabʱ�����ֵ����
+      public String id;
+      public Type.T type;
       public boolean isField; // whether or not this is a class field
 
       public Id(String id, int linenum)
@@ -360,14 +370,6 @@ public class Ast
         this.isField = isField;
         this.linenum = 0;
       }
-
-      // public Id(String id,boolean isField)
-      // {
-      // this.id=id;
-      // this.isField=isField;
-      // this.linenum=0;
-      //
-      // }
 
       @Override
       public void accept(ast.Visitor v)
@@ -676,7 +678,7 @@ public class Ast
       }
     }
 
-    // assign-array number[10]=exp;
+    // assign-array number[10]=caller;
     public static class AssignArray extends T
     {
       public String id;

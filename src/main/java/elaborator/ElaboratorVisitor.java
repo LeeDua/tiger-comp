@@ -35,7 +35,6 @@ import ast.Ast.Stm.Print;
 import ast.Ast.Stm.While;
 import ast.Ast.Type;
 import ast.Ast.Type.ClassType;
-import control.Control.ConAst;
 
 public class ElaboratorVisitor implements ast.Visitor
 {
@@ -43,7 +42,6 @@ public class ElaboratorVisitor implements ast.Visitor
   public MethodTable methodTable; // symbol table for each method
   public String currentClass; // the class name being elaborated
   public Type.T type; // type of the expression being elaborated
-  public String currentMethod;
   public int linenum;
 
   public ElaboratorVisitor()
@@ -63,10 +61,8 @@ public class ElaboratorVisitor implements ast.Visitor
     e.left.accept(this);
     Type.T t = this.type;
     e.right.accept(this);
-    if (!t.toString().equals(this.type.toString())) {
-      Error.MISTYPE.error(this, e.linenum);
-    }
-    if (!t.toString().equals("@int")) {
+    if (t.getType() != Type.TYPE_INT ||
+        t.getType() != Type.TYPE_INT) {
       Error.MISTYPE.error(this, e.linenum);
     }
 
@@ -78,11 +74,9 @@ public class ElaboratorVisitor implements ast.Visitor
     e.left.accept(this);
     Type.T t = this.type;
     e.right.accept(this);
-    if (!t.toString().equals(this.type.toString())) {
+    if (t.getType() != Type.TYPE_BOOLEAN ||
+        this.type.getType() != Type.TYPE_BOOLEAN) {
       Error.MISTYPE.error(this, e.linenum);
-    }
-    if (!t.toString().equals("@boolean")) {
-      Error.MISTYPE.error(this, e.linenum);//
     }
   }
 
@@ -91,80 +85,92 @@ public class ElaboratorVisitor implements ast.Visitor
   {
 
     e.index.accept(this);
-    if (!this.type.toString().equals("@int")) {
+    if (this.type.getType() != Type.TYPE_INT) {
       Error.MISTYPE.error(this, e.linenum);
     }
     e.array.accept(this);
-
-    //
     this.type = new ast.Ast.Type.Int();
+  }
+
+  /**
+   *
+   * @param subName
+   * @param baseName
+   * @return
+   */
+  private boolean findBase(String subName, String baseName)
+  {
+    if (subName == null) {
+      return false;
+    }
+    ClassBinding cb = this.classTable.get(subName);
+    if (cb == null) {
+      return false;
+    }
+    if (cb.extendss.equals(baseName)) {
+      return true;
+    } else {
+      return findBase(cb.extendss, baseName);
+    }
+  }
+
+  /**
+   * @param args
+   * @param proto
+   * @return If matched, return a type list which has the most generic type.
+   * Otherwise, return null.
+   */
+  private LinkedList<Type.T> elabArgsList(LinkedList<Type.T> args, LinkedList<Type.T> proto)
+  {
+    if (args.size() != proto.size()) {
+      Error.MISTYPE.error(this, linenum);
+    }
+    for (int i = 0; i < args.size(); i++) {
+      Type.T argType = args.get(i);
+      Type.T protoType = proto.get(i);
+      if (argType.toString().equals(protoType.toString())) {
+        continue;
+      } else {
+        String subName = argType.toString();
+        String baseName = proto.toString();
+        if (findBase(subName, baseName)) {
+          args.set(i, protoType);
+        } else {
+          Error.MISTYPE.error(this, linenum);
+        }
+      }
+    }
+    return args;
   }
 
   @Override
   public void visit(Call e)
   {
-    Type.T leftty;
-    Type.ClassType ty = null;
-
-    e.exp.accept(this);
-    leftty = this.type;
-    if (leftty instanceof ClassType) {
-      ty = (ClassType) leftty;
-      e.type = ty.id;
-    } else {
+    e.caller.accept(this);
+    Type.T callerType = this.type;
+    if (callerType.getType() != Type.TYPE_CLASS) {
       Error.MISTYPE.error(this, e.linenum);
     }
-    MethodType mty = this.classTable.getm(ty.id, e.id);
-    java.util.LinkedList<Type.T> argsty = new LinkedList<>();
+
+    Type.ClassType ty = (ClassType) callerType;
+    e.type = ty.id;
+    MethodType methodType = this.classTable.getMethodType(ty.id, e.id);
+    if (methodType == null) {
+      Error.UNDECL.error(this, e.linenum);
+    }
+    LinkedList<Type.T> argsType = new LinkedList<>();
     for (Exp.T a : e.args) {
       a.accept(this);
-      argsty.addLast(this.type);
+      argsType.addLast(this.type);
     }
-    //
-    if (mty.argsType.size() != argsty.size()) {
-      Error.MISTYPE.error(this, e.linenum);
+    LinkedList<Type.T> protoType = new LinkedList<>();
+    for (Dec.T dec : methodType.argsType) {
+      Dec.DecSingle d = (Dec.DecSingle) dec;
+      protoType.add(d.type);
     }
-    //
-    for (int i = 0; i < argsty.size(); i++) {
-      Dec.DecSingle dec = (Dec.DecSingle) mty.argsType.get(i);
-      if (dec.type.toString().equals(argsty.get(i).toString())) {
-      } else {
-
-        if (dec.type instanceof ClassType) {
-          String currentcla = argsty.get(i).toString();
-          ClassBinding cb = this.classTable.get(currentcla);
-          boolean succ = false;
-          while (cb.extendss != null) {
-            if (cb.extendss.equals(dec.type.toString())) {
-              succ = true;
-              break;
-            } else {
-              cb = this.classTable.get(cb.extendss);
-            }
-          }
-          if (succ) {
-          } else {
-            Error.MISTYPE.error(this, e.linenum);
-          }
-        } else {
-          Error.MISTYPE.error(this, e.linenum);
-        }
-
-        if (dec.type instanceof ClassType
-            && argsty.get(i) instanceof ClassType) {
-          for (int j = 0; j < argsty.size(); j++) {
-            Dec.DecSingle decc = (Dec.DecSingle) mty.argsType
-                .get(j);
-            Type.ClassType tcc = (Type.ClassType) decc.type;
-            argsty.set(j, tcc);
-          }
-        }
-      }
-
-    }
-    this.type = mty.retType;
-    e.at = argsty;
-    e.rt = this.type;
+    e.at = elabArgsList(argsType, protoType);
+    this.type = methodType.retType;
+    e.retType = this.type;
   }
 
   @Override
@@ -185,13 +191,12 @@ public class ElaboratorVisitor implements ast.Visitor
       // useful in later phase.
       e.isField = true;
     }
-    //
     if (type == null) {
       Error.UNDECL.error(this, e.linenum);
     }
     this.type = type;
     // record this type on this node for future use.
-    e.type = type;//
+    e.type = type;
   }
 
   @Override
@@ -208,7 +213,8 @@ public class ElaboratorVisitor implements ast.Visitor
     e.left.accept(this);
     Type.T ty = this.type;
     e.right.accept(this);
-    if (!this.type.toString().equals(ty.toString())) {
+    if (ty.getType() != Type.TYPE_INT ||
+        this.type.getType() != Type.TYPE_INT) {
       Error.MISTYPE.error(this, e.linenum);
     }
     this.type = new Type.Boolean();
@@ -218,7 +224,7 @@ public class ElaboratorVisitor implements ast.Visitor
   public void visit(NewIntArray e)
   {
     e.exp.accept(this);
-    if (!this.type.toString().equals("@int")) {
+    if (this.type.getType() != Type.TYPE_INT) {
       Error.MISTYPE.error(this, e.linenum);
     }
     this.type = new Type.IntArray();
@@ -247,9 +253,10 @@ public class ElaboratorVisitor implements ast.Visitor
   public void visit(Sub e)
   {
     e.left.accept(this);
-    Type.T leftty = this.type;
+    Type.T t = this.type;
     e.right.accept(this);
-    if (!this.type.toString().equals(leftty.toString())) {
+    if (t.getType() != Type.TYPE_INT ||
+        this.type.getType() != Type.TYPE_INT) {
       Error.MISTYPE.error(this, e.linenum);
     }
     this.type = new Type.Int();
@@ -265,9 +272,10 @@ public class ElaboratorVisitor implements ast.Visitor
   public void visit(Times e)
   {
     e.left.accept(this);
-    Type.T leftty = this.type;
+    Type.T t = this.type;
     e.right.accept(this);
-    if (!this.type.toString().equals(leftty.toString())) {
+    if (t.getType() != Type.TYPE_INT ||
+        this.type.getType() != Type.TYPE_INT) {
       Error.MISTYPE.error(this, e.linenum);
     }
     this.type = new Type.Int();
@@ -295,10 +303,8 @@ public class ElaboratorVisitor implements ast.Visitor
       Error.UNDECL.error(this, s.linenum);
     }
 
-    s.type = type;//
-    s.exp.accept(this);//
-    //
-
+    s.type = type;
+    s.exp.accept(this);
   }
 
   @Override
@@ -317,7 +323,7 @@ public class ElaboratorVisitor implements ast.Visitor
     }
     s.tyep = type;
     s.index.accept(this);
-    if (!this.type.toString().equals("@int")) {
+    if (this.type.getType() != Type.TYPE_INT) {
       Error.UNDECL.error(this, s.linenum);
     }
     s.exp.accept(this);
@@ -343,7 +349,7 @@ public class ElaboratorVisitor implements ast.Visitor
   public void visit(If s)
   {
     s.condition.accept(this);
-    if (!this.type.toString().equals("@boolean")) {
+    if (this.type.getType() != Type.TYPE_BOOLEAN) {
       Error.MISTYPE.error(this, s.linenum);
     }
     s.thenn.accept(this);
@@ -355,7 +361,7 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     s.exp.accept(this);
 
-    if (!this.type.toString().equals("@int")) {
+    if (this.type.getType() != Type.TYPE_INT) {
       Error.MISTYPE.error(this, s.linenum);
     }
 
@@ -365,7 +371,7 @@ public class ElaboratorVisitor implements ast.Visitor
   public void visit(While s)
   {
     s.condition.accept(this);
-    if (!this.type.toString().equals("@boolean")) {
+    if (this.type.getType() != Type.TYPE_BOOLEAN) {
       Error.MISTYPE.error(this, s.linenum);
     }
     s.body.accept(this);
@@ -409,27 +415,22 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     // construct the method table
     this.methodTable = new MethodTable();
-    this.methodTable.put(m.formals, m.locals);
-
-    if (ConAst.elabMethodTable) {
-      this.methodTable.dump();
+    try {
+      this.methodTable.put(m.formals, m.locals);
+    } catch (ElabExpection e) {
+      System.err.println(e.getMessage());
+      System.exit(1);
     }
 
     for (Stm.T s : m.stms) {
       s.accept(this);
-      linenum = s.linenum;
     }
     ClassBinding cb = this.classTable.get(currentClass);
     MethodType methodtype = cb.methods.get(m.id);
 
     m.retExp.accept(this);
-    if (!methodtype.retType.toString().equals(this.type.toString())) // Why??
-    // methodtype.retType==this.type
-    {
-      // test
-      System.out.println(methodtype.retType.toString());
-      System.out.println(this.type.toString());
-
+    linenum = m.retExp.linenum;
+    if (!methodtype.retType.toString().equals(this.type.toString())) {
       Error.RET.error(this, linenum);
     }
   }
@@ -439,11 +440,7 @@ public class ElaboratorVisitor implements ast.Visitor
   public void visit(Class.ClassSingle c)
   {
     this.currentClass = c.id;
-	/*
-	 */
-
     for (Method.T m : c.methods) {
-      MethodSingle mm = (MethodSingle) m;
       m.accept(this);
     }
   }
@@ -465,48 +462,57 @@ public class ElaboratorVisitor implements ast.Visitor
   // class table for Main class
   private void buildMainClass(MainClass.MainClassSingle main)
   {
-    this.classTable.put(main.id, new ClassBinding(null));
+    try {
+      this.classTable.put(main.id, new ClassBinding(null));
+    } catch (ElabExpection e) {
+      System.err.println(e.getMessage());
+      System.exit(1);
+    }
   }
 
   // class table for normal classes
   private void buildClass(ClassSingle c)
   {
-    this.classTable.put(c.id, new ClassBinding(c.extendss));
-    // VarDecls
-    for (Dec.T dec : c.decs) {
-      Dec.DecSingle d = (Dec.DecSingle) dec;
-      this.classTable.put(c.id, d.id, d.type);
-    }
-    // Method
-    for (Method.T method : c.methods) {
-      MethodSingle m = (MethodSingle) method;
-      this.classTable.put(c.id, m.id,
-          new MethodType(m.retType, m.formals));
+    try {
+      this.classTable.put(c.id, new ClassBinding(c.extendss));
+      // VarDecls
+      for (Dec.T dec : c.decs) {
+        Dec.DecSingle d = (Dec.DecSingle) dec;
+        this.classTable.put(c.id, d.id, d.type);
+      }
+      // Method
+      for (Method.T method : c.methods) {
+        MethodSingle m = (MethodSingle) method;
+        this.classTable.put(c.id, m.id,
+            new MethodType(m.retType, m.formals));
+      }
+    } catch (ElabExpection e) {
+      System.err.println(e.getMessage());
+      System.exit(1);
     }
   }
 
-  // step 1: end
-  // ///////////////////////////////////////////////////
+  /**
+   * Build a symbol table for class (the class table)
+   * a class table is a mapping from class names to class bindings
+   * classTable: className -> ClassBinding{extends, fields, methods}
+   */
+  void buildSymbleTable(ProgramSingle p)
+  {
+    buildMainClass((MainClass.MainClassSingle) p.mainClass);
+    for (Class.T c : p.classes) {
+      buildClass((ClassSingle) c);
+    }
+  }
 
   // program
   @Override
   public void visit(ProgramSingle p)
   {
-    // ////////////////////////////////////////////////
-    // step 1: build a symbol table for class (the class table)
-    // a class table is a mapping from class names to class bindings
-    // classTable: className -> ClassBinding{extends, fields, methods}
-    buildMainClass((MainClass.MainClassSingle) p.mainClass);
-    for (Class.T c : p.classes) {
-      buildClass((ClassSingle) c);
-    }
 
-    // we can double check that the class table is OK!
-    if (control.Control.ConAst.elabClassTable) {
-      this.classTable.dump();
-    }
+    // setp 1
+    buildSymbleTable(p);
 
-    // ////////////////////////////////////////////////
     // step 2: elaborate each class in turn, under the class table
     // built above.
     p.mainClass.accept(this);

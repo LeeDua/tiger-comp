@@ -107,7 +107,7 @@ public class TranslateVisitor implements ast.Visitor {
 
     @Override
     public void visit(ast.Ast.Exp.Call e) {
-	e.exp.accept(this);
+	e.caller.accept(this);
 	String newid = this.genId();
 	this.tmpVars.add(new Dec.DecSingle(new Type.ClassType(e.type), newid));
 	Exp.T exp = this.exp;

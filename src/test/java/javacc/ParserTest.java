@@ -31,8 +31,8 @@ public class ParserTest
     Ast.Stm.Print stm = (Ast.Stm.Print) main.stm;
     assertEquals("ast.Ast$Exp$Call", stm.exp.getClass().getName());
     Ast.Exp.Call call = (Ast.Exp.Call) stm.exp;
-    assertEquals("ast.Ast$Exp$NewObject", call.exp.getClass().getName());
-    Ast.Exp.NewObject obj = (Ast.Exp.NewObject) call.exp;
+    assertEquals("ast.Ast$Exp$NewObject", call.caller.getClass().getName());
+    Ast.Exp.NewObject obj = (Ast.Exp.NewObject) call.caller;
     assertEquals("Person", obj.id);
     assertEquals("foo", call.id);
   }
@@ -57,7 +57,7 @@ public class ParserTest
         new ByteArrayInputStream("int[]".getBytes()));
     javacc.Parser p = new Parser(in);
     p.parseType();
-    assertEquals(1 , p.currentType.getNum());
+    assertEquals(1 , p.currentType.getType());
   }
 
   @Test
@@ -68,7 +68,7 @@ public class ParserTest
         new ByteArrayInputStream("int[] a1;".getBytes()));
     Parser p = new Parser(in);
     Ast.Dec.DecSingle dec = (Ast.Dec.DecSingle) p.parseVarDecl(false);
-    assertEquals(1, dec.type.getNum());
+    assertEquals(1, dec.type.getType());
   }
 
 }

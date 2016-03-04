@@ -86,11 +86,11 @@ public class TranslateVisitor implements ast.Visitor {
 
     @Override
     public void visit(ast.Ast.Exp.Call e) {
-	e.exp.accept(this);
+	e.caller.accept(this);
 	for (ast.Ast.Exp.T x : e.args) {
 	    x.accept(this);
 	}
-	e.rt.accept(this);
+	e.retType.accept(this);
 	Type.T rt = this.type;
 	java.util.LinkedList<Type.T> at = new LinkedList<Type.T>();
 	for (ast.Ast.Type.T t : e.at) {
@@ -310,7 +310,7 @@ public class TranslateVisitor implements ast.Visitor {
 	m.retExp.accept(this);
 	String retName = this.evar;
 
-	if (m.retType.getNum() > 0)
+	if (m.retType.getType() > 0)
 	    emit(new ReturnObject(retName));
 	else
 	    emit(new Return(retName));
