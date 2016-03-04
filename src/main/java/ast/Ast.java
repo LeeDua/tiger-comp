@@ -269,7 +269,7 @@ public class Ast
       public T caller;
       public String id; // method name that be invoked
       public java.util.LinkedList<T> args;
-      public String type; // type of caller
+      public String type; // type of exp
       public java.util.LinkedList<Type.T> at; // args type list
       public Type.T retType;
 
@@ -678,7 +678,7 @@ public class Ast
       }
     }
 
-    // assign-array number[10]=caller;
+    // assign-array number[10]=exp;
     public static class AssignArray extends T
     {
       public String id;

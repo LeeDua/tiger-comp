@@ -247,7 +247,7 @@ public class TranslateVisitor implements ast.Visitor {
     }
 
     @Override
-    // id[caller]=caller
+    // id[exp]=exp
     public void visit(ast.Ast.Stm.AssignArray s) {
 	// 需要特殊对待s.id
 	ast.Ast.Exp.Id id = new ast.Ast.Exp.Id(s.id, s.tyep, s.isField);

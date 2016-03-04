@@ -185,9 +185,9 @@ public class PrettyPrintVisitor implements Visitor {
     @Override
     public void visit(NewIntArray e) {
 	// 重点
-	// new int[caller]------>(int)malloc((caller)*sizeof(int))
+	// new int[exp]------>(int)malloc((exp)*sizeof(int))
 	// this.say("(int)malloc((");
-	// e.caller.accept(this);
+	// e.exp.accept(this);
 	// this.say(")*sizeof(int))");
 	this.say("(int*)Tiger_new_array(");
 	e.exp.accept(this);

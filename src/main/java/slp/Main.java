@@ -20,7 +20,7 @@
 // // ///////////////////////////////////////////
 // // maximum number of args
 //
-// private int maxArgsExp(Exp.T caller)
+// private int maxArgsExp(Exp.T exp)
 // {
 // new Todo();
 // return -1;
@@ -48,7 +48,7 @@
 // // ////////////////////////////////////////
 // // interpreter
 //
-// private void interpExp(Exp.T caller)
+// private void interpExp(Exp.T exp)
 // {
 // new Todo();
 // }
@@ -75,20 +75,20 @@
 // buf.append(s);
 // }
 //
-// private void compileExp(Exp.T caller)
+// private void compileExp(Exp.T exp)
 // {
-// if (caller instanceof Id) {
-// Exp.Id e = (Exp.Id) caller;
+// if (exp instanceof Id) {
+// Exp.Id e = (Exp.Id) exp;
 // String id = e.id;
 //
 // emit("\tmovl\t" + id + ", %eax\n");
-// } else if (caller instanceof Num) {
-// Exp.Num e = (Exp.Num) caller;
+// } else if (exp instanceof Num) {
+// Exp.Num e = (Exp.Num) exp;
 // int num = e.num;
 //
 // emit("\tmovl\t$" + num + ", %eax\n");
-// } else if (caller instanceof Op) {
-// Exp.Op e = (Exp.Op) caller;
+// } else if (exp instanceof Op) {
+// Exp.Op e = (Exp.Op) exp;
 // Exp.T left = e.left;
 // Exp.T right = e.right;
 // Exp.OP_T op = e.op;
@@ -129,10 +129,10 @@
 // default:
 // new Bug();
 // }
-// } else if (caller instanceof Eseq) {
-// Eseq e = (Eseq) caller;
+// } else if (exp instanceof Eseq) {
+// Eseq e = (Eseq) exp;
 // Stm.T stm = e.stm;
-// Exp.T ee = e.caller;
+// Exp.T ee = e.exp;
 //
 // compileStm(stm);
 // compileExp(ee);
@@ -144,10 +144,10 @@
 // {
 // if (explist instanceof ExpList.Pair) {
 // ExpList.Pair pair = (ExpList.Pair) explist;
-// Exp.T caller = pair.caller;
+// Exp.T exp = pair.exp;
 // ExpList.T list = pair.list;
 //
-// compileExp(caller);
+// compileExp(exp);
 // emit("\tpushl\t%eax\n");
 // emit("\tpushl\t$slp_format\n");
 // emit("\tcall\tprintf\n");
@@ -155,9 +155,9 @@
 // compileExpList(list);
 // } else if (explist instanceof ExpList.Last) {
 // ExpList.Last last = (ExpList.Last) explist;
-// Exp.T caller = last.caller;
+// Exp.T exp = last.exp;
 //
-// compileExp(caller);
+// compileExp(exp);
 // emit("\tpushl\t%eax\n");
 // emit("\tpushl\t$slp_format\n");
 // emit("\tcall\tprintf\n");
@@ -178,10 +178,10 @@
 // } else if (prog instanceof Stm.Assign) {
 // Stm.Assign s = (Stm.Assign) prog;
 // String id = s.id;
-// Exp.T caller = s.caller;
+// Exp.T exp = s.exp;
 //
 // ids.add(id);
-// compileExp(caller);
+// compileExp(exp);
 // emit("\tmovl\t%eax, " + id + "\n");
 // } else if (prog instanceof Stm.Print) {
 // Stm.Print s = (Stm.Print) prog;
