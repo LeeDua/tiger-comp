@@ -7,9 +7,9 @@ import java.util.Map;
 
 public class ClassBinding
 {
-  public String extendss; // null for non-existing extends
-  public HashMap<String, Type.T> fields;
-  public HashMap<String, MethodType> methods;
+  String extendss; // null for non-existing extends
+  HashMap<String, Type.T> fields;
+  HashMap<String, MethodType> methods;
 
   public ClassBinding(String extendss)
   {

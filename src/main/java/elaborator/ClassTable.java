@@ -8,7 +8,7 @@ import java.util.Map;
 public class ClassTable
 {
   // map each class name (a string), to the class bindings.
-  private HashMap<String, ClassBinding> table;
+  HashMap<String, ClassBinding> table;
 
   public ClassTable()
   {
@@ -21,7 +21,7 @@ public class ClassTable
    * @param cname class name
    * @param cb    the class bindings corresponding to the class
    */
-  public void put(String cname, ClassBinding cb) throws ElabExpection
+  void put(String cname, ClassBinding cb) throws ElabExpection
   {
     if (this.table.get(cname) != null) {
       throw new ElabExpection("duplicated class: " + cname);
@@ -37,7 +37,7 @@ public class ClassTable
    * @param fname field name
    * @param type  field type
    */
-  public void put(String cname, String fname, Type.T type) throws ElabExpection
+  void put(String cname, String fname, Type.T type) throws ElabExpection
   {
     ClassBinding cb = this.table.get(cname);
     cb.put(fname, type);
@@ -52,21 +52,21 @@ public class ClassTable
    * @param mname method name
    * @parm type return type of the method
    */
-  public void put(String cname, String mname, MethodType type) throws ElabExpection
+  void put(String cname, String mname, MethodType type) throws ElabExpection
   {
     ClassBinding cb = this.table.get(cname);
     cb.put(mname, type);
   }
 
   // return null for non-existing class
-  public ClassBinding get(String className)
+  ClassBinding get(String className)
   {
     return this.table.get(className);
   }
 
   // get type of some field
   // return null for non-existing field.
-  public Type.T get(String className, String xid)
+  Type.T get(String className, String xid)
   {
     ClassBinding cb = this.table.get(className);
     Type.T type = cb.fields.get(xid);
@@ -88,7 +88,7 @@ public class ClassTable
    * @param mid
    * @return null for non-existing method
    */
-  public MethodType getMethodType(String className, String mid)
+  MethodType getMethodType(String className, String mid)
   {
     if (className == null) {
       return null;

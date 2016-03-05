@@ -10,8 +10,8 @@ public class MethodType
   /**
    * Use return type and formals type to determin a unique method.
    */
-  public Type.T retType;
-  public LinkedList<Dec.T> argsType;
+  Type.T retType;
+  LinkedList<Dec.T> argsType;
 
   public MethodType(Type.T retType, LinkedList<Dec.T> decs)
   {

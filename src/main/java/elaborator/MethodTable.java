@@ -12,7 +12,7 @@ public class MethodTable
    * Map each locals name (a string), to the corresponding type.
    * The method locals include formals and locals variable.
    */
-  private HashMap<String, Type.T> locals;
+  HashMap<String, Type.T> locals;
 
   public MethodTable()
   {

@@ -1,6 +1,7 @@
 package elaborator;
 
 import java.util.LinkedList;
+import java.util.Vector;
 
 import ast.Ast.Class;
 import ast.Ast.Exp.False;
@@ -38,11 +39,12 @@ import ast.Ast.Type.ClassType;
 
 public class ElaboratorVisitor implements ast.Visitor
 {
-  public ClassTable classTable; // symbol table for class
-  public MethodTable methodTable; // symbol table for each method
-  public String currentClass; // the class name being elaborated
-  public Type.T type; // type of the expression being elaborated
-  public int linenum;
+  ClassTable classTable; // symbol table for class
+  MethodTable methodTable; // symbol table for each method
+  String currentClass; // the class name being elaborated
+  Type.T type; // type of the expression being elaborated
+  int linenum;
+  Vector<Error> errorStack;
 
   public ElaboratorVisitor()
   {
@@ -50,7 +52,7 @@ public class ElaboratorVisitor implements ast.Visitor
     this.methodTable = new MethodTable();
     this.currentClass = null;
     this.type = null;
-
+    this.errorStack = new Vector<>();
   }
 
   // /////////////////////////////////////////////////////
@@ -58,12 +60,14 @@ public class ElaboratorVisitor implements ast.Visitor
   @Override
   public void visit(Add e)
   {
+    this.linenum = e.linenum;
     e.left.accept(this);
     Type.T t = this.type;
     e.right.accept(this);
     if (t.getType() != Type.TYPE_INT ||
         t.getType() != Type.TYPE_INT) {
-      Error.MISTYPE.error(this, e.linenum);
+      Error.MISTYPE.error(this, linenum);
+      errorStack.add(Error.MISTYPE);
     }
 
   }
@@ -71,29 +75,29 @@ public class ElaboratorVisitor implements ast.Visitor
   @Override
   public void visit(And e)
   {
+    this.linenum = e.linenum;
     e.left.accept(this);
     Type.T t = this.type;
     e.right.accept(this);
     if (t.getType() != Type.TYPE_BOOLEAN ||
         this.type.getType() != Type.TYPE_BOOLEAN) {
-      Error.MISTYPE.error(this, e.linenum);
+      Error.MISTYPE.error(this, linenum);
     }
   }
 
   @Override
   public void visit(ArraySelect e)
   {
-
+    this.linenum = e.linenum;
     e.index.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      Error.MISTYPE.error(this, e.linenum);
+      Error.MISTYPE.error(this, linenum);
     }
     e.array.accept(this);
     this.type = new ast.Ast.Type.Int();
   }
 
   /**
-   *
    * @param subName
    * @param baseName
    * @return
@@ -107,7 +111,9 @@ public class ElaboratorVisitor implements ast.Visitor
     if (cb == null) {
       return false;
     }
-    if (cb.extendss.equals(baseName)) {
+    if (cb.extendss == null) {
+      return false;
+    } else if (cb.extendss.equals(baseName)) {
       return true;
     } else {
       return findBase(cb.extendss, baseName);
@@ -132,7 +138,7 @@ public class ElaboratorVisitor implements ast.Visitor
         continue;
       } else {
         String subName = argType.toString();
-        String baseName = proto.toString();
+        String baseName = protoType.toString();
         if (findBase(subName, baseName)) {
           args.set(i, protoType);
         } else {
@@ -146,17 +152,18 @@ public class ElaboratorVisitor implements ast.Visitor
   @Override
   public void visit(Call e)
   {
+    this.linenum = e.linenum;
     e.caller.accept(this);
     Type.T callerType = this.type;
     if (callerType.getType() != Type.TYPE_CLASS) {
-      Error.MISTYPE.error(this, e.linenum);
+      Error.MISTYPE.error(this, linenum);
     }
 
     Type.ClassType ty = (ClassType) callerType;
     e.type = ty.id;
     MethodType methodType = this.classTable.getMethodType(ty.id, e.id);
     if (methodType == null) {
-      Error.UNDECL.error(this, e.linenum);
+      Error.UNDECL.error(this, linenum);
     }
     LinkedList<Type.T> argsType = new LinkedList<>();
     for (Exp.T a : e.args) {
@@ -176,12 +183,14 @@ public class ElaboratorVisitor implements ast.Visitor
   @Override
   public void visit(False e)
   {
+    this.linenum = e.linenum;
     this.type = new Type.Boolean();
   }
 
   @Override
   public void visit(Id e)
   {
+    this.linenum = e.linenum;
     // first look up the id in method table
     Type.T type = this.methodTable.get(e.id);
     // if search failed, then s.id must be a class field.
@@ -202,20 +211,21 @@ public class ElaboratorVisitor implements ast.Visitor
   @Override
   public void visit(Length e)
   {
+    this.linenum = e.linenum;
     e.array.accept(this);
-
     this.type = new Type.Int();
   }
 
   @Override
   public void visit(Lt e)
   {
+    this.linenum = e.linenum;
     e.left.accept(this);
     Type.T ty = this.type;
     e.right.accept(this);
     if (ty.getType() != Type.TYPE_INT ||
         this.type.getType() != Type.TYPE_INT) {
-      Error.MISTYPE.error(this, e.linenum);
+      Error.MISTYPE.error(this, linenum);
     }
     this.type = new Type.Boolean();
   }
@@ -223,9 +233,10 @@ public class ElaboratorVisitor implements ast.Visitor
   @Override
   public void visit(NewIntArray e)
   {
+    this.linenum = e.linenum;
     e.exp.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      Error.MISTYPE.error(this, e.linenum);
+      Error.MISTYPE.error(this, linenum);
     }
     this.type = new Type.IntArray();
   }
@@ -233,12 +244,14 @@ public class ElaboratorVisitor implements ast.Visitor
   @Override
   public void visit(NewObject e)
   {
+    this.linenum = e.linenum;
     this.type = new Type.ClassType(e.id);
   }
 
   @Override
   public void visit(Not e)
   {
+    this.linenum = e.linenum;
     e.exp.accept(this);
     this.type = new Type.Boolean();
   }
@@ -246,12 +259,14 @@ public class ElaboratorVisitor implements ast.Visitor
   @Override
   public void visit(Num e)
   {
+    this.linenum = e.linenum;
     this.type = new Type.Int();
   }
 
   @Override
   public void visit(Sub e)
   {
+    this.linenum = e.linenum;
     e.left.accept(this);
     Type.T t = this.type;
     e.right.accept(this);
@@ -265,18 +280,20 @@ public class ElaboratorVisitor implements ast.Visitor
   @Override
   public void visit(This e)
   {
+    this.linenum = e.linenum;
     this.type = new Type.ClassType(this.currentClass);
   }
 
   @Override
   public void visit(Times e)
   {
+    this.linenum = e.linenum;
     e.left.accept(this);
     Type.T t = this.type;
     e.right.accept(this);
     if (t.getType() != Type.TYPE_INT ||
         this.type.getType() != Type.TYPE_INT) {
-      Error.MISTYPE.error(this, e.linenum);
+      Error.MISTYPE.error(this, linenum);
     }
     this.type = new Type.Int();
   }
@@ -284,6 +301,7 @@ public class ElaboratorVisitor implements ast.Visitor
   @Override
   public void visit(True e)
   {
+    this.linenum = e.linenum;
     this.type = new Type.Boolean();
   }
 

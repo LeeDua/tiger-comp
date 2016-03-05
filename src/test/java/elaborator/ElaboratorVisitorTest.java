@@ -10,18 +10,21 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 /**
  * Created by qc1iu on 3/4/16.
  */
 public class ElaboratorVisitorTest
 {
   @Test
-  public void testElab() throws ParseException
+  public void testExtends() throws ParseException
   {
     InputStream in = null;
     try {
       in = new BufferedInputStream(
-          new FileInputStream("src/test/resources/LinkedList.java"));
+          new FileInputStream("src/test/resources/TreeVisitor.java"));
     } catch (FileNotFoundException e) {
       System.err.println(e.getMessage());
       System.exit(1);
@@ -31,7 +34,9 @@ public class ElaboratorVisitorTest
     Ast.Program.T pp = p.parser();
     ElaboratorVisitor elab = new ElaboratorVisitor();
     pp.accept(elab);
-    System.out.println(elab.classTable);
+    assertEquals(5, elab.classTable.table.size());
+    ClassBinding cb = elab.classTable.table.get("MyVisitor");
+    assertNotNull(cb);
+    assertEquals("Visitor", cb.extendss);
   }
-
 }
