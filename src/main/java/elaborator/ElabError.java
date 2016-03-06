@@ -9,7 +9,7 @@ import java.util.LinkedList;
  */
 public class ElabError
 {
-  public static abstract class T
+  public static abstract class T extends Exception
   {
     int linenum;
     String info;
@@ -100,7 +100,7 @@ public class ElabError
     {
       StringBuilder sb = new StringBuilder();
       sb.append("MethodMissMatchError line:" + linenum + ">");
-      sb.append("no matching method for "+id+got);
+      sb.append("no matching method for " + id + got);
       sb.append("\n");
       return sb.toString();
     }

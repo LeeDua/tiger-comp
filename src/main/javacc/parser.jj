@@ -212,10 +212,11 @@ Exp.T parseAtomExp():
     |
         <NEW>
         (
-            <LPAREN>
+            <INT>
+            <LBRACK>
             {Exp.T exp;}
             exp = parseExp()
-            t = <RPAREN>
+            t = <RBRACK>
             {return new Exp.NewIntArray(exp, t.beginLine);}
         |
             t = <ID>
@@ -432,7 +433,7 @@ Stm.T parseStatement():
             <SEMI>
             {return new Stm.Assign(t.image, exp, t.beginLine);}
         |
-            t = <LBRACK>
+            <LBRACK>
             {
                 Exp.T exp;
                 Exp.T index;
@@ -441,6 +442,7 @@ Stm.T parseStatement():
             <RBRACK>
             <ASSIGN>
             exp = parseExp()
+            <SEMI>
             {return new Stm.AssignArray(t.image, index, exp, t.beginLine);}
         )
     {return stm;}

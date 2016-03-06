@@ -2,7 +2,6 @@ package elaborator;
 
 import java.util.LinkedList;
 import java.util.Vector;
-
 import ast.Ast.Class;
 import ast.Ast.Exp.False;
 import ast.Ast.Exp.Id;
@@ -358,17 +357,6 @@ public class ElaboratorVisitor implements ast.Visitor
     if (this.type.getType() < 0 || this.type.getType() > 1) {
       emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
-    /*
-    if (!s.exp.getClass().getName().equals("ast.Ast$Exp$ArraySelect")) {
-      if (!this.type.toString().equals("@int")) {
-        Error.MISTYPE.error(this, s.linenum);
-      }
-    } else {
-      if (!type.toString().equals("@int[]")) {
-        Error.MISTYPE.error(this, s.linenum);
-      }
-    }
-    */
   }
 
   @Override
@@ -449,15 +437,13 @@ public class ElaboratorVisitor implements ast.Visitor
     try {
       this.methodTable.put(m.formals, m.locals);
     } catch (ElabExpection e) {
-      System.err.println(e.getMessage());
-      System.exit(1);
+      e.printStackTrace();
     }
     for (Stm.T s : m.stms) {
       s.accept(this);
     }
     ClassBinding cb = this.classTable.get(currentClass);
     MethodType methodtype = cb.methods.get(m.id);
-
     m.retExp.accept(this);
     linenum = m.retExp.linenum;
     if (!methodtype.retType.toString().equals(this.type.toString())) {
@@ -483,14 +469,11 @@ public class ElaboratorVisitor implements ast.Visitor
     this.currentClass = c.id;
     // "main" has an argument "arg" of type "String[]", but
     // one has no chance to use it. So it's safe to skip it...
-
     c.stm.accept(this);
 
   }
 
-  // ////////////////////////////////////////////////////////
-  // step 1: build class table
-  // class table for Main class
+  // build class table for Main class
   private void buildMainClass(MainClass.MainClassSingle main)
   {
     try {
@@ -540,16 +523,13 @@ public class ElaboratorVisitor implements ast.Visitor
   @Override
   public void visit(ProgramSingle p)
   {
-
     // setp 1
     buildSymbleTable(p);
-
     // step 2: elaborate each class in turn, under the class table
     // built above.
     p.mainClass.accept(this);
     for (Class.T c : p.classes) {
       c.accept(this);
     }
-
   }
 }

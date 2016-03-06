@@ -19,13 +19,13 @@ public class MethodTable
     this.locals = new HashMap<>();
   }
 
-
   /**
    * Put all formals and locals into localsTable.
    * Duplication is not allowed
    *
    * @param formals the formal arguments of the method
    * @param locals  the local variables of the method
+   * @throws ElabExpection
    */
   public void put(LinkedList<Dec.T> formals, LinkedList<Dec.T> locals) throws ElabExpection
   {
@@ -46,7 +46,6 @@ public class MethodTable
     }
 
   }
-
 
   /**
    * return null for non-existing keys

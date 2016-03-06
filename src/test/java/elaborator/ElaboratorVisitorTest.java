@@ -21,13 +21,13 @@ import static org.junit.Assert.assertNotNull;
 public class ElaboratorVisitorTest
 {
   String[] files = {
-      //"BinarySearch.java",
+      "BinarySearch.java",
       "BinaryTree.java",
-      //"BubbleSort.java",
+      "BubbleSort.java",
       "Factorial.java",
-      //"LinearSearch.java",
+      "LinearSearch.java",
       "LinkedList.java",
-      //"QuickSort.java",
+      "QuickSort.java",
       "Sum.java",
       "TreeVisitor.java"
   };
@@ -38,22 +38,20 @@ public class ElaboratorVisitorTest
   @Test
   public void testNoError()
   {
-    for (String fname : files){
+    for (String fname : files) {
       InputStream in = null;
       try {
         in = new BufferedInputStream(
-            new FileInputStream("src/test/resources/"+fname));
+            new FileInputStream("src/test/resources/" + fname));
       } catch (FileNotFoundException e) {
-        System.err.println(e.getMessage());
-        System.exit(1);
+        e.printStackTrace();
       }
-
       Parser p = new Parser(in);
       Ast.Program.T pp = null;
       try {
         pp = p.parser();
       } catch (ParseException e) {
-        System.err.println("in file: "+fname);
+        System.err.println("in file: " + fname);
         e.printStackTrace();
       }
       ElaboratorVisitor elab = new ElaboratorVisitor();
