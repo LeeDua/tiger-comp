@@ -44,7 +44,7 @@ public class ElaboratorVisitor implements ast.Visitor
   String currentClass; // the class name being elaborated
   Type.T type; // type of the expression being elaborated
   int linenum;
-  Vector<Error> errorStack;
+  Vector<ElabError.T> errorStack;
 
   public ElaboratorVisitor()
   {
@@ -55,6 +55,12 @@ public class ElaboratorVisitor implements ast.Visitor
     this.errorStack = new Vector<>();
   }
 
+  private Vector<ElabError.T> emitError(ElabError.T error)
+  {
+    this.errorStack.add(error);
+    return this.errorStack;
+  }
+
   // /////////////////////////////////////////////////////
   // expressions
   @Override
@@ -62,14 +68,13 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     this.linenum = e.linenum;
     e.left.accept(this);
-    Type.T t = this.type;
-    e.right.accept(this);
-    if (t.getType() != Type.TYPE_INT ||
-        t.getType() != Type.TYPE_INT) {
-      Error.MISTYPE.error(this, linenum);
-      errorStack.add(Error.MISTYPE);
+    if (this.type.getType() != Type.TYPE_INT) {
+      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
-
+    e.right.accept(this);
+    if (this.type.getType() != Type.TYPE_INT) {
+      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+    }
   }
 
   @Override
@@ -77,11 +82,12 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     this.linenum = e.linenum;
     e.left.accept(this);
-    Type.T t = this.type;
+    if (this.type.getType() != Type.TYPE_BOOLEAN) {
+      emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type, linenum));
+    }
     e.right.accept(this);
-    if (t.getType() != Type.TYPE_BOOLEAN ||
-        this.type.getType() != Type.TYPE_BOOLEAN) {
-      Error.MISTYPE.error(this, linenum);
+    if (this.type.getType() != Type.TYPE_BOOLEAN) {
+      emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type, linenum));
     }
   }
 
@@ -91,9 +97,12 @@ public class ElaboratorVisitor implements ast.Visitor
     this.linenum = e.linenum;
     e.index.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      Error.MISTYPE.error(this, linenum);
+      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     e.array.accept(this);
+    if (this.type.getType() != Type.TYPE_INTARRAY) {
+      emitError(new ElabError.TypeMissMatchError(new Type.IntArray(), this.type, linenum));
+    }
     this.type = new ast.Ast.Type.Int();
   }
 
@@ -126,10 +135,10 @@ public class ElaboratorVisitor implements ast.Visitor
    * @return If matched, return a type list which has the most generic type.
    * Otherwise, return null.
    */
-  private LinkedList<Type.T> elabArgsList(LinkedList<Type.T> args, LinkedList<Type.T> proto)
+  private LinkedList<Type.T> elabArgsList(String id, LinkedList<Type.T> args, LinkedList<Type.T> proto)
   {
     if (args.size() != proto.size()) {
-      Error.MISTYPE.error(this, linenum);
+      emitError(new ElabError.MethodMissMatch(id, proto, args, linenum));
     }
     for (int i = 0; i < args.size(); i++) {
       Type.T argType = args.get(i);
@@ -142,7 +151,7 @@ public class ElaboratorVisitor implements ast.Visitor
         if (findBase(subName, baseName)) {
           args.set(i, protoType);
         } else {
-          Error.MISTYPE.error(this, linenum);
+          emitError(new ElabError.MethodMissMatch(id, proto, args, linenum));
         }
       }
     }
@@ -156,14 +165,14 @@ public class ElaboratorVisitor implements ast.Visitor
     e.caller.accept(this);
     Type.T callerType = this.type;
     if (callerType.getType() != Type.TYPE_CLASS) {
-      Error.MISTYPE.error(this, linenum);
+      emitError(new ElabError.TypeMissMatchError(new Type.ClassType(""), this.type, linenum));
     }
 
     Type.ClassType ty = (ClassType) callerType;
     e.type = ty.id;
     MethodType methodType = this.classTable.getMethodType(ty.id, e.id);
     if (methodType == null) {
-      Error.UNDECL.error(this, linenum);
+      emitError(new ElabError.UndeclError(e.id, linenum));
     }
     LinkedList<Type.T> argsType = new LinkedList<>();
     for (Exp.T a : e.args) {
@@ -175,7 +184,7 @@ public class ElaboratorVisitor implements ast.Visitor
       Dec.DecSingle d = (Dec.DecSingle) dec;
       protoType.add(d.type);
     }
-    e.at = elabArgsList(argsType, protoType);
+    e.at = elabArgsList(e.id, argsType, protoType);
     this.type = methodType.retType;
     e.retType = this.type;
   }
@@ -201,11 +210,12 @@ public class ElaboratorVisitor implements ast.Visitor
       e.isField = true;
     }
     if (type == null) {
-      Error.UNDECL.error(this, e.linenum);
+      emitError(new ElabError.UndeclError(e.id, linenum));
+    } else {
+      this.type = type;
+      // record this type on this node for future use.
+      e.type = type;
     }
-    this.type = type;
-    // record this type on this node for future use.
-    e.type = type;
   }
 
   @Override
@@ -221,11 +231,12 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     this.linenum = e.linenum;
     e.left.accept(this);
-    Type.T ty = this.type;
+    if (this.type.getType() != Type.TYPE_INT) {
+      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+    }
     e.right.accept(this);
-    if (ty.getType() != Type.TYPE_INT ||
-        this.type.getType() != Type.TYPE_INT) {
-      Error.MISTYPE.error(this, linenum);
+    if (this.type.getType() != Type.TYPE_INT) {
+      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     this.type = new Type.Boolean();
   }
@@ -236,7 +247,7 @@ public class ElaboratorVisitor implements ast.Visitor
     this.linenum = e.linenum;
     e.exp.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      Error.MISTYPE.error(this, linenum);
+      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     this.type = new Type.IntArray();
   }
@@ -268,11 +279,12 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     this.linenum = e.linenum;
     e.left.accept(this);
-    Type.T t = this.type;
+    if (this.type.getType() != Type.TYPE_INT) {
+      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+    }
     e.right.accept(this);
-    if (t.getType() != Type.TYPE_INT ||
-        this.type.getType() != Type.TYPE_INT) {
-      Error.MISTYPE.error(this, e.linenum);
+    if (this.type.getType() != Type.TYPE_INT) {
+      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     this.type = new Type.Int();
   }
@@ -289,11 +301,12 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     this.linenum = e.linenum;
     e.left.accept(this);
-    Type.T t = this.type;
+    if (this.type.getType() != Type.TYPE_INT) {
+      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+    }
     e.right.accept(this);
-    if (t.getType() != Type.TYPE_INT ||
-        this.type.getType() != Type.TYPE_INT) {
-      Error.MISTYPE.error(this, linenum);
+    if (this.type.getType() != Type.TYPE_INT) {
+      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     this.type = new Type.Int();
   }
@@ -316,11 +329,9 @@ public class ElaboratorVisitor implements ast.Visitor
       type = this.classTable.get(this.currentClass, s.id);
       s.isField = true;
     }
-
     if (type == null) {
-      Error.UNDECL.error(this, s.linenum);
+      emitError(new ElabError.UndeclError(s.id, linenum));
     }
-
     s.type = type;
     s.exp.accept(this);
   }
@@ -328,23 +339,26 @@ public class ElaboratorVisitor implements ast.Visitor
   @Override
   public void visit(AssignArray s)
   {
-    //
     Type.T type = this.methodTable.get(s.id);
-    //
     if (type == null) {
       type = this.classTable.get(this.currentClass, s.id);
       s.isField = true;
-
     }
     if (type == null) {
-      Error.UNDECL.error(this, s.linenum);
+      emitError(new ElabError.UndeclError(s.id, linenum));
     }
     s.tyep = type;
     s.index.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      Error.UNDECL.error(this, s.linenum);
+      emitError(new ElabError.TypeMissMatchError("array index must be int",
+          new Type.Int(), this.type, linenum));
     }
+    // FIXME exp type must TYPE_INT??
     s.exp.accept(this);
+    if (this.type.getType() < 0 || this.type.getType() > 1) {
+      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+    }
+    /*
     if (!s.exp.getClass().getName().equals("ast.Ast$Exp$ArraySelect")) {
       if (!this.type.toString().equals("@int")) {
         Error.MISTYPE.error(this, s.linenum);
@@ -354,6 +368,7 @@ public class ElaboratorVisitor implements ast.Visitor
         Error.MISTYPE.error(this, s.linenum);
       }
     }
+    */
   }
 
   @Override
@@ -368,7 +383,7 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     s.condition.accept(this);
     if (this.type.getType() != Type.TYPE_BOOLEAN) {
-      Error.MISTYPE.error(this, s.linenum);
+      emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type, linenum));
     }
     s.thenn.accept(this);
     s.elsee.accept(this);
@@ -378,11 +393,9 @@ public class ElaboratorVisitor implements ast.Visitor
   public void visit(Print s)
   {
     s.exp.accept(this);
-
     if (this.type.getType() != Type.TYPE_INT) {
-      Error.MISTYPE.error(this, s.linenum);
+      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
-
   }
 
   @Override
@@ -390,7 +403,7 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     s.condition.accept(this);
     if (this.type.getType() != Type.TYPE_BOOLEAN) {
-      Error.MISTYPE.error(this, s.linenum);
+      emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type, linenum));
     }
     s.body.accept(this);
   }
@@ -439,7 +452,6 @@ public class ElaboratorVisitor implements ast.Visitor
       System.err.println(e.getMessage());
       System.exit(1);
     }
-
     for (Stm.T s : m.stms) {
       s.accept(this);
     }
@@ -450,6 +462,7 @@ public class ElaboratorVisitor implements ast.Visitor
     linenum = m.retExp.linenum;
     if (!methodtype.retType.toString().equals(this.type.toString())) {
       Error.RET.error(this, linenum);
+      emitError(new ElabError.TypeMissMatchError(methodtype.retType, this.type, linenum));
     }
   }
 
