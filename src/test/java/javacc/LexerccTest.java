@@ -70,6 +70,21 @@ public class LexerccTest
     LinkedList<Token> tokens = lex.lexerTest();
     assertEquals(0, tokens.size());
   }
+
+  @Test
+  public void testExpCall() throws ParseException
+  {
+    System.out.println("test lex Exp.call");
+    InputStream in = new BufferedInputStream(new ByteArrayInputStream(
+        "a= this.foo()[10];".getBytes()));
+    Parser lex = new Parser(in);
+    LinkedList<Token> tokens = lex.lexerTest();
+    String[] ss = {"a", "=", "this", ".", "foo", "(", ")", "[", "10", "]", ";"};
+    assertEquals(ss.length, tokens.size());
+    for (int i=0; i<ss.length; i++) {
+      assertEquals(ss[i], tokens.get(i).image);
+    }
+  }
 }
 
 

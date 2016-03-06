@@ -226,33 +226,42 @@ Exp.T parseAtomExp():
         )
 }
 
-
-// NotExp   -> AtomExp
-//          -> AtomExp .id (expList)
-//          -> AtomExp [exp]
+// CallExp  -> AtomExp
+//          -> AtomExp .id()
 //          -> AtomExp .length
-Exp.T parseNotExp():
+Exp.T parseCallExp():
 {
-    Exp.T exp;
     Token t;
+    Exp.T exp;
 }
 {
     exp = parseAtomExp()
     (
-            <DOT>
-            (
-                t = <LENGTH>
-                {return new Exp.Length(exp, t.beginLine);}
-            |
-                t = <ID>
-                <LPAREN>
-                {LinkedList<Exp.T> args;}
-                args = parseExpList()
-                <RPAREN>
-                {return new Exp.Call(exp, t.image, args, t.beginLine);}
-            )
-            //{return parseDotExp(exp);}
+        <DOT>
+        (
+            t = <LENGTH>
+            {return new Exp.Length(exp, t.beginLine);}
         |
+            t = <ID>
+            <LPAREN>
+            {LinkedList<Exp.T> args;}
+            args = parseExpList()
+            <RPAREN>
+            {return new Exp.Call(exp, t.image, args, t.beginLine);}
+        )
+    )?
+    {return exp;}
+}
+
+// NotExp   -> CallExp
+//          -> CallExp [exp]
+Exp.T parseNotExp():
+{
+    Exp.T exp;
+}
+{
+    exp = parseCallExp()
+    (
             {Exp.T index;}
             <LBRACK>
             index = parseExp()

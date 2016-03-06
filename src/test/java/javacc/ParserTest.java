@@ -57,7 +57,7 @@ public class ParserTest
         new ByteArrayInputStream("int[]".getBytes()));
     javacc.Parser p = new Parser(in);
     p.parseType();
-    assertEquals(1 , p.currentType.getType());
+    assertEquals(1, p.currentType.getType());
   }
 
   @Test
@@ -69,6 +69,19 @@ public class ParserTest
     Parser p = new Parser(in);
     Ast.Dec.DecSingle dec = (Ast.Dec.DecSingle) p.parseVarDecl(false);
     assertEquals(1, dec.type.getType());
+  }
+
+  @Test
+  public void testParseArraySelect() throws ParseException
+  {
+    System.out.println("test parse Exp.Call");
+    InputStream in = new BufferedInputStream(
+        new ByteArrayInputStream("this.foo()[10];".getBytes()));
+    Parser p = new Parser(in);
+    Ast.Exp.T e = p.parseExp();
+    assertEquals(Ast.Exp.ArraySelect.class, e.getClass());
+    Ast.Exp.ArraySelect as = (Ast.Exp.ArraySelect) e;
+    assertEquals(Ast.Exp.Call.class, as.array.getClass());
   }
 
 }
