@@ -8,7 +8,7 @@ class Fac {
   public int ComputeFac(int num) {
     int num_aux;
     class_field = 10;
-    if (undecl < 1)
+    if (undecl < 1) // undecl error
       num_aux = 1;
     else
       num_aux = num * (this.ComputeFac(num-1));

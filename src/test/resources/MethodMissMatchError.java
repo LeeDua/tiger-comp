@@ -12,7 +12,7 @@ class Fac {
     if (num < 1)
       num_aux = 1;
     else
-      num_aux = num * (this.ComputeFac(array));
+      num_aux = num * (this.ComputeFac(array)); // method missmatch error.
     return num_aux;
   }
 }

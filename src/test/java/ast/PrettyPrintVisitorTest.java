@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class PrettyPrintVisitorTest
 {
-  // // main class: "Factorial"
+  // main class: "Factorial"
   MainClass.T factorial = new MainClassSingle(
       "Factorial", "a", new Print(new Call(
       new NewObject("Fac", 1), "ComputeFac",

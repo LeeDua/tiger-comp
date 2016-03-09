@@ -8,16 +8,11 @@ class Fac {
   int[] array;
   public int ComputeFac(int num) {
     int num_aux;
-    class_field = num[0];
-    //class_field = this.getArray(array)[0];
+    class_field = num[0]; // type missmatch error
     if (num < 1)
       num_aux = 1;
     else
       num_aux = num * (this.ComputeFac(num -1));
     return num_aux;
-  }
-
-  public int[] getArray(int[] array) {
-    return array;
   }
 }
