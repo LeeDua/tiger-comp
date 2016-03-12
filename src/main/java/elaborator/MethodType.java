@@ -24,8 +24,8 @@ public class MethodType
   {
     StringBuilder sb = new StringBuilder();
     sb.append("(");
-    for (Dec.T d:argsType){
-     Type.T t = ((Dec.DecSingle)d).type;
+    for (Dec.T d : argsType) {
+      Type.T t = ((Dec.DecSingle) d).type;
       sb.append(t.toString());
       sb.append(" ");
     }

@@ -30,71 +30,72 @@ import codegen.C.Ast.Type.Int;
 import codegen.C.Ast.Type.IntArray;
 import codegen.C.Ast.Vtable.VtableSingle;
 
-public interface Visitor {
-    // expressions
-    public void visit(Add e);
+public interface Visitor
+{
+  // expressions
+  void visit(Add e);
 
-    public void visit(And e);
+  void visit(And e);
 
-    public void visit(ArraySelect e);
+  void visit(ArraySelect e);
 
-    public void visit(Call e);
+  void visit(Call e);
 
-    public void visit(Id e);
+  void visit(Id e);
 
-    public void visit(Length e);
+  void visit(Length e);
 
-    public void visit(Lt e);
+  void visit(Lt e);
 
-    public void visit(NewIntArray e);
+  void visit(NewIntArray e);
 
-    public void visit(NewObject e);
+  void visit(NewObject e);
 
-    public void visit(Not e);
+  void visit(Not e);
 
-    public void visit(Num e);
+  void visit(Num e);
 
-    public void visit(Sub e);
+  void visit(Sub e);
 
-    public void visit(This e);
+  void visit(This e);
 
-    public void visit(Times e);
+  void visit(Times e);
 
-    // statements
-    public void visit(Assign s);
+  // statements
+  void visit(Assign s);
 
-    public void visit(AssignArray s);
+  void visit(AssignArray s);
 
-    public void visit(Block s);
+  void visit(Block s);
 
-    public void visit(If s);
+  void visit(If s);
 
-    public void visit(Print s);
+  void visit(Print s);
 
-    public void visit(While s);
+  void visit(While s);
 
-    // type
-    public void visit(ClassType t);
+  // type
+  void visit(ClassType t);
 
-    public void visit(Int t);
+  void visit(Int t);
 
-    public void visit(IntArray t);
+  void visit(IntArray t);
 
-    // dec
-    public void visit(DecSingle d);
+  // dec
+  void visit(DecSingle d);
 
-    // method
-    public void visit(MethodSingle m);
+  // method
+  void visit(MethodSingle m);
 
-    // main method
-    public void visit(MainMethodSingle m);
+  // main method
+  void visit(MainMethodSingle m);
 
-    // vtable
-    public void visit(VtableSingle v);
+  // vtable
+  void visit(VtableSingle v);
 
-    // class
-    public void visit(ClassSingle c);
+  // class
+  void visit(ClassSingle c);
 
-    // program
-    public void visit(ProgramSingle p);
+  // program
+  void visit(ProgramSingle p);
 }

@@ -27,7 +27,8 @@ public class MethodTable
    * @param locals  the local variables of the method
    * @throws ElabExpection
    */
-  public void put(LinkedList<Dec.T> formals, LinkedList<Dec.T> locals) throws ElabExpection
+  public void put(LinkedList<Dec.T> formals, LinkedList<Dec.T> locals) throws
+      ElabExpection
   {
     for (Dec.T dec : formals) {
       Dec.DecSingle decc = (Dec.DecSingle) dec;

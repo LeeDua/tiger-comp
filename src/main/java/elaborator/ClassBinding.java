@@ -62,7 +62,7 @@ public class ClassBinding
   {
     StringBuilder sb = new StringBuilder();
     if (this.extendss != null) {
-      sb.append("extends " + this.extendss);
+      sb.append("extends ").append(this.extendss);
     }
     sb.append("\n");
     sb.append(" Fields:\n");

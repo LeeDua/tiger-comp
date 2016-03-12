@@ -106,10 +106,10 @@ public class ClassTable
   public String toString()
   {
     StringBuilder sb = new StringBuilder();
-    for (Map.Entry<String, ClassBinding> en : table.entrySet()){
+    for (Map.Entry<String, ClassBinding> en : table.entrySet()) {
       String k = en.getKey();
       ClassBinding v = en.getValue();
-      sb.append("class: "+k);
+      sb.append("class: " + k);
       sb.append(" ");
       sb.append(v.toString());
       sb.append("\n");

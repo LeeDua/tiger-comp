@@ -2,6 +2,7 @@ package elaborator;
 
 import java.util.LinkedList;
 import java.util.Vector;
+
 import ast.Ast.Class;
 import ast.Ast.Exp.False;
 import ast.Ast.Exp.Id;
@@ -39,7 +40,12 @@ import ast.Ast.Type.ClassType;
 public class ElaboratorVisitor implements ast.Visitor
 {
   ClassTable classTable; // symbol table for class
-  MethodTable methodTable; // symbol table for each method
+  /**
+   * Symbol table for each method.Binding a new MethodTable when elab a new
+   * meethod.Since the every can has method with the same name,ret,args etc, the
+   * MethodTable no need in ClassBinding.
+   */
+  MethodTable methodTable;
   String currentClass; // the class name being elaborated
   Type.T type; // type of the expression being elaborated
   int linenum;
@@ -68,11 +74,13 @@ public class ElaboratorVisitor implements ast.Visitor
     this.linenum = e.linenum;
     e.left.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     e.right.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
   }
 
@@ -82,11 +90,13 @@ public class ElaboratorVisitor implements ast.Visitor
     this.linenum = e.linenum;
     e.left.accept(this);
     if (this.type.getType() != Type.TYPE_BOOLEAN) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type, linenum));
+      emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type,
+          linenum));
     }
     e.right.accept(this);
     if (this.type.getType() != Type.TYPE_BOOLEAN) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type, linenum));
+      emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type,
+          linenum));
     }
   }
 
@@ -96,11 +106,13 @@ public class ElaboratorVisitor implements ast.Visitor
     this.linenum = e.linenum;
     e.index.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     e.array.accept(this);
     if (this.type.getType() != Type.TYPE_INTARRAY) {
-      emitError(new ElabError.TypeMissMatchError(new Type.IntArray(), this.type, linenum));
+      emitError(new ElabError.TypeMissMatchError(new Type.IntArray(), this.type,
+          linenum));
     }
     this.type = new ast.Ast.Type.Int();
   }
@@ -134,7 +146,8 @@ public class ElaboratorVisitor implements ast.Visitor
    * @return If matched, return a type list which has the most generic type.
    * Otherwise, return null.
    */
-  private LinkedList<Type.T> elabArgsList(String id, LinkedList<Type.T> args, LinkedList<Type.T> proto)
+  private LinkedList<Type.T> elabArgsList(String id, LinkedList<Type.T> args,
+                                          LinkedList<Type.T> proto)
   {
     if (args.size() != proto.size()) {
       emitError(new ElabError.MethodMissMatch(id, proto, args, linenum));
@@ -164,7 +177,9 @@ public class ElaboratorVisitor implements ast.Visitor
     e.caller.accept(this);
     Type.T callerType = this.type;
     if (callerType.getType() != Type.TYPE_CLASS) {
-      emitError(new ElabError.TypeMissMatchError(new Type.ClassType(""), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.ClassType(""), this.type,
+              linenum));
     }
 
     Type.ClassType ty = (ClassType) callerType;
@@ -231,11 +246,13 @@ public class ElaboratorVisitor implements ast.Visitor
     this.linenum = e.linenum;
     e.left.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     e.right.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     this.type = new Type.Boolean();
   }
@@ -246,7 +263,8 @@ public class ElaboratorVisitor implements ast.Visitor
     this.linenum = e.linenum;
     e.exp.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     this.type = new Type.IntArray();
   }
@@ -279,11 +297,13 @@ public class ElaboratorVisitor implements ast.Visitor
     this.linenum = e.linenum;
     e.left.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     e.right.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     this.type = new Type.Int();
   }
@@ -301,11 +321,13 @@ public class ElaboratorVisitor implements ast.Visitor
     this.linenum = e.linenum;
     e.left.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     e.right.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
     this.type = new Type.Int();
   }
@@ -355,7 +377,8 @@ public class ElaboratorVisitor implements ast.Visitor
     // FIXME exp type must TYPE_INT??
     s.exp.accept(this);
     if (this.type.getType() < 0 || this.type.getType() > 1) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
   }
 
@@ -371,7 +394,8 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     s.condition.accept(this);
     if (this.type.getType() != Type.TYPE_BOOLEAN) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type, linenum));
+      emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type,
+          linenum));
     }
     s.thenn.accept(this);
     s.elsee.accept(this);
@@ -382,7 +406,8 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     s.exp.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
+      emitError(
+          new ElabError.TypeMissMatchError(new Type.Int(), this.type, linenum));
     }
   }
 
@@ -391,7 +416,8 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     s.condition.accept(this);
     if (this.type.getType() != Type.TYPE_BOOLEAN) {
-      emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type, linenum));
+      emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type,
+          linenum));
     }
     s.body.accept(this);
   }
@@ -448,7 +474,8 @@ public class ElaboratorVisitor implements ast.Visitor
     linenum = m.retExp.linenum;
     if (!methodtype.retType.toString().equals(this.type.toString())) {
       Error.RET.error(this, linenum);
-      emitError(new ElabError.TypeMissMatchError(methodtype.retType, this.type, linenum));
+      emitError(new ElabError.TypeMissMatchError(methodtype.retType, this.type,
+          linenum));
     }
   }
 

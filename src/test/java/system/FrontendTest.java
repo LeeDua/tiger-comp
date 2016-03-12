@@ -28,7 +28,9 @@ public class FrontendTest
           new InputStreamReader(mkdir.getInputStream()));
       while (mkdir_br.readLine() != null) {
       }
-
+      mkdir_br = new BufferedReader(
+          new InputStreamReader(mkdir.getErrorStream()));
+      assertNull(mkdir_br.readLine());
       try {
         InputStream in = new BufferedInputStream(
             new FileInputStream("src/test/resources/" + r.fname + ".java"));

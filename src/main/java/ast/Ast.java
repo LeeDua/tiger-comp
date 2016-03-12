@@ -269,7 +269,7 @@ public class Ast
       public T caller;
       public String id; // method name that be invoked
       public java.util.LinkedList<T> args;
-      public String type; // type of exp
+      public String type; // type of caller
       public java.util.LinkedList<Type.T> at; // args type list
       public Type.T retType;
 
