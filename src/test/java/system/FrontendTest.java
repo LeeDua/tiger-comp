@@ -44,9 +44,8 @@ public class FrontendTest
         }
         PrettyPrintVisitor pp = new PrettyPrintVisitor();
         prog.accept(pp);
-        BufferedWriter w = new BufferedWriter(
-            new OutputStreamWriter(
-                new FileOutputStream("build/tmp/t/" + r.fname + ".java")));
+        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(
+            new FileOutputStream("build/tmp/t/" + r.fname + ".java")));
         w.write(pp.toString());
         w.flush();
         w.close();

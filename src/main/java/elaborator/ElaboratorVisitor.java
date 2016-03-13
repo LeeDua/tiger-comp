@@ -51,6 +51,11 @@ public class ElaboratorVisitor implements ast.Visitor
   int linenum;
   Vector<ElabError.T> errorStack;
 
+  public Vector<ElabError.T> getErrorStack()
+  {
+    return this.errorStack;
+  }
+
   public ElaboratorVisitor()
   {
     this.classTable = new ClassTable();

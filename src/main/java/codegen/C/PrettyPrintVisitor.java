@@ -432,6 +432,7 @@ public class PrettyPrintVisitor implements Visitor
     }
     this.indent();
     m.stm.accept(this);
+    this.printSpaces();
     this.sayln("return 0;\n}\n");
   }
 
