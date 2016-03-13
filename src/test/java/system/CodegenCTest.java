@@ -23,18 +23,19 @@ public class CodegenCTest
   @Test
   public void testC() throws IOException
   {
+    // mkdir
+    Process mkdir = Runtime.getRuntime().exec("mkdir build/tmp/t");
+    BufferedReader mkdir_br = new BufferedReader(
+        new InputStreamReader(mkdir.getInputStream()));
+    while (mkdir_br.readLine() != null) {
+    }
+    mkdir_br = new BufferedReader(
+        new InputStreamReader(mkdir.getErrorStream()));
+    assertNull(mkdir_br.readLine());
+
     for (int i = 0; i < Result.R.length; i++) {
       Result.R r = Result.R[i];
       System.out.println("Test "+r.fname);
-      // mkdir
-      Process mkdir = Runtime.getRuntime().exec("mkdir build/tmp/t");
-      BufferedReader mkdir_br = new BufferedReader(
-          new InputStreamReader(mkdir.getInputStream()));
-      while (mkdir_br.readLine() != null) {
-      }
-      mkdir_br = new BufferedReader(
-          new InputStreamReader(mkdir.getErrorStream()));
-      assertNull(mkdir_br.readLine());
       try {
         InputStream in = new BufferedInputStream(
             new FileInputStream("src/test/resources/"+r.fname+".java"));
@@ -65,8 +66,8 @@ public class CodegenCTest
         System.out.println("  Translate finished.");
         // compile
         Process compile = Runtime.getRuntime().exec(
-            "gcc build/tmp/t/"+r.fname+".java.c src/main/runtime/runtime.c " +
-                "-o build/tmp/t/a.out");
+            "gcc -g build/tmp/t/"+r.fname+".java.c src/main/runtime/runtime.c " +
+                "-o build/tmp/t/"+r.fname+".out");
         BufferedReader br = new BufferedReader(
             new InputStreamReader(compile.getErrorStream()));
         for (String err = br.readLine(); err != null; err = br.readLine()) {
@@ -80,7 +81,7 @@ public class CodegenCTest
         System.out.println("  Compile finished.");
         // run
         Process run = Runtime.getRuntime()
-            .exec("./build/tmp/t/a.out -heapSize 4096");
+            .exec("./build/tmp/t/"+r.fname+".out -heapSize 4096");
         BufferedReader run_stdout = new BufferedReader(
             new InputStreamReader(run.getInputStream()));
         String[] rr = r.r;
@@ -91,10 +92,9 @@ public class CodegenCTest
         }
         Assert.assertEquals(j, rr.length);
       } finally {
-        Runtime.getRuntime().exec("rm -rf build/tmp/t");
-        System.out.println("  clean finished");
       }
-
     }
+    System.out.println("All test case passed.");
+    Runtime.getRuntime().exec("rm -rf build/tmp/t");
   }
 }
