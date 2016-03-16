@@ -2,6 +2,7 @@ package system;
 
 import ast.Ast;
 import ast.PrettyPrintVisitor;
+import com.sun.javaws.progress.Progress;
 import javacc.ParseException;
 import javacc.Parser;
 import org.junit.Test;
@@ -74,7 +75,15 @@ public class FrontendTest
         }
         System.out.println("  exec finished");
       } finally {
-        Runtime.getRuntime().exec("rm -rf build/tmp/t");
+        Process p = Runtime.getRuntime().exec("rm -rf build/tmp/t");
+        BufferedReader rm_br = new BufferedReader(
+            new InputStreamReader(p.getInputStream()));
+        while (rm_br.readLine() != null) {
+        }
+        new BufferedReader(
+            new InputStreamReader(p.getErrorStream()));
+        while (rm_br.readLine() != null) {
+        }
         System.out.println("  clean finished");
       }
 
