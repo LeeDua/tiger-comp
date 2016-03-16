@@ -190,22 +190,23 @@ public class ElaboratorVisitor implements ast.Visitor
     Type.ClassType ty = (ClassType) callerType;
     e.type = ty.id;
     MethodType methodType = this.classTable.getMethodType(ty.id, e.id);
-    if (methodType == null) {
-      emitError(new ElabError.UndeclError(e.id, linenum));
-    }
     LinkedList<Type.T> argsType = new LinkedList<>();
     for (Exp.T a : e.args) {
       a.accept(this);
       argsType.addLast(this.type);
     }
     LinkedList<Type.T> protoType = new LinkedList<>();
-    for (Dec.T dec : methodType.argsType) {
-      Dec.DecSingle d = (Dec.DecSingle) dec;
-      protoType.add(d.type);
-    }
+    if (methodType == null) {
+      emitError(new ElabError.UndeclError(e.id, linenum));
+    }else {
+      for (Dec.T dec : methodType.argsType) {
+        Dec.DecSingle d = (Dec.DecSingle) dec;
+        protoType.add(d.type);
+      }
     e.at = elabArgsList(e.id, argsType, protoType);
     this.type = methodType.retType;
     e.retType = this.type;
+    }
   }
 
   @Override

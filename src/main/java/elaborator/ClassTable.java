@@ -90,16 +90,18 @@ public class ClassTable
    */
   MethodType getMethodType(String className, String mid)
   {
-    if (className == null) {
-      return null;
-    }
     ClassBinding cb = this.table.get(className);
     MethodType type = cb.methods.get(mid);
-    if (cb.extendss == null) {
-      return type;
-    } else {
-      return getMethodType(cb.extendss, mid);
+    // search all parent classes until found or fail
+    while (type == null) {
+      if (cb.extendss == null) {
+        return type;
+      }else {
+        cb = this.table.get(cb.extendss);
+        type = cb.methods.get(mid);
+      }
     }
+    return type;
   }
 
   @Override

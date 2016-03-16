@@ -156,4 +156,27 @@ public class ElaboratorVisitorTest
     assertEquals(1, elab.errorStack.size());
     assertEquals(ElabError.TypeMissMatchError.class, elab.errorStack.firstElement().getClass());
   }
+
+  @Test
+  public void testClassOverLoad()
+  {
+    InputStream in = null;
+    try {
+      in = new BufferedInputStream(
+          new FileInputStream("src/test/resources/ClassOverload.java"));
+    } catch (FileNotFoundException e) {
+      System.err.println(e.getMessage());
+      System.exit(1);
+    }
+    Parser p = new Parser(in);
+    Ast.Program.T pp = null;
+    try {
+      pp = p.parser();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    ElaboratorVisitor elab = new ElaboratorVisitor();
+    pp.accept(elab);
+    assertEquals(0, elab.errorStack.size());
+  }
 }
