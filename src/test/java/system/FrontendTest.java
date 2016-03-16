@@ -2,7 +2,6 @@ package system;
 
 import ast.Ast;
 import ast.PrettyPrintVisitor;
-import com.sun.javaws.progress.Progress;
 import javacc.ParseException;
 import javacc.Parser;
 import org.junit.Test;
