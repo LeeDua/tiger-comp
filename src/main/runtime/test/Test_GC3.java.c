@@ -137,9 +137,9 @@ int Doit_doit(struct Doit * this, int n)
     {
       System_out_println (i);
       frame.array = (int*)Tiger_new_array(5);
-      frame.array[0+4] = 0;
-      frame.array[1+4] = 2;
-      System_out_println (frame.array[2]);
+      frame.array[0+6] = 0;
+      frame.array[1+6] = 2;
+      System_out_println (frame.array[3]);
       frame.d1 = ((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit))));
       j = (frame.x_1=frame.d1, frame.x_1->vptr->doit2(frame.x_1, frame.g1, frame.g2, frame.g3));
       i = i + 1;
@@ -178,7 +178,7 @@ int Tiger_main ()
     frame.locals_gc_map = Tiger_main_locals_gc_map;
     frame.x_0=0;
     System_out_println ((frame.x_0=((struct Doit*)(Tiger_new (&Doit_vtable_, sizeof(struct Doit)))), frame.x_0->vptr->doit(frame.x_0, 101)));
-return 0;
+    return 0;
 }
 
 
