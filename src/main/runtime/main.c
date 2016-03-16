@@ -12,5 +12,7 @@ int main (int argc, char **argv)
   Tiger_heap_init (Control_heapSize);
   // enter Java code...
   Tiger_main ();
-  dump_status();
+  if (Log) {
+    dump_status();
+  }
 }
