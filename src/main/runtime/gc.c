@@ -231,10 +231,10 @@ void Tiger_heap_init (int heapSize)
 static void dumpObject(O obj)
 {
   fprintf(stdout, "-----------------\n");
-  fprintf(stdout, "obj->vptr %x\n", (unsigned int)obj->vptr);
-  fprintf(stdout, "obj->isArray %x\n", obj->isArray);
-  fprintf(stdout, "obj->length %x\n", obj->length);
-  fprintf(stdout, "obj->forwarding %x\n", (unsigned int)obj->forwarding);
+  fprintf(stdout, "obj->vptr %p\n", obj->vptr);
+  fprintf(stdout, "obj->isArray %d\n", obj->isArray);
+  fprintf(stdout, "obj->length %d\n", obj->length);
+  fprintf(stdout, "obj->forwarding %p\n", obj->forwarding);
   fprintf(stdout, "-----------------\n\n");
 
 }

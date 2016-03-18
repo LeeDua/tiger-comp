@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -103,8 +104,10 @@ public class ElaboratorVisitorTest
     ElaboratorVisitor elab = new ElaboratorVisitor();
     pp.accept(elab);
     assertEquals(1, elab.errorStack.size());
-    assertEquals(ElabError.UndeclError.class, elab.errorStack.firstElement().getClass());
-    ElabError.UndeclError err = (ElabError.UndeclError) elab.errorStack.firstElement();
+    assertEquals(ElabError.UndeclError.class,
+        elab.errorStack.firstElement().getClass());
+    ElabError.UndeclError err =
+        (ElabError.UndeclError) elab.errorStack.firstElement();
     assertEquals(11, err.linenum);
     assertEquals("undecl", err.undecl);
   }
@@ -130,7 +133,8 @@ public class ElaboratorVisitorTest
     ElaboratorVisitor elab = new ElaboratorVisitor();
     pp.accept(elab);
     assertEquals(1, elab.errorStack.size());
-    assertEquals(ElabError.MethodMissMatch.class, elab.errorStack.firstElement().getClass());
+    assertEquals(ElabError.MethodMissMatch.class,
+        elab.errorStack.firstElement().getClass());
   }
 
   @Test
@@ -154,7 +158,8 @@ public class ElaboratorVisitorTest
     ElaboratorVisitor elab = new ElaboratorVisitor();
     pp.accept(elab);
     assertEquals(1, elab.errorStack.size());
-    assertEquals(ElabError.TypeMissMatchError.class, elab.errorStack.firstElement().getClass());
+    assertEquals(ElabError.TypeMissMatchError.class,
+        elab.errorStack.firstElement().getClass());
   }
 
   @Test
@@ -178,5 +183,52 @@ public class ElaboratorVisitorTest
     ElaboratorVisitor elab = new ElaboratorVisitor();
     pp.accept(elab);
     assertEquals(0, elab.errorStack.size());
+  }
+
+  @Test
+  public void testElabExtends()
+  {
+    InputStream in = null;
+    try {
+      in = new BufferedInputStream(
+          new FileInputStream("src/test/resources/TestExtendsFrom.java"));
+    } catch (FileNotFoundException e) {
+      System.err.println(e.getMessage());
+      System.exit(1);
+    }
+    Parser p = new Parser(in);
+    Ast.Program.T pp = null;
+    try {
+      pp = p.parser();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    ElaboratorVisitor elab = new ElaboratorVisitor();
+    pp.accept(elab);
+    assertEquals(0, elab.errorStack.size());
+    Ast.Program.ProgramSingle ps = (Ast.Program.ProgramSingle) pp;
+    Ast.MainClass.MainClassSingle ms =
+        (Ast.MainClass.MainClassSingle) ps.mainClass;
+    Ast.Stm.Print stm_print = (Ast.Stm.Print) ms.stm;
+    Ast.Exp.Call exp_call = (Ast.Exp.Call) stm_print.exp;
+    Ast.Class.ClassSingle class_base1 = null;
+    for (Ast.Class.T c : ps.classes){
+      Ast.Class.ClassSingle cs = (Ast.Class.ClassSingle) c;
+      if (cs.id.equals("Base1")){
+        class_base1 = cs;
+      }
+    }
+    assertNotNull(class_base1);
+    Ast.Method.MethodSingle doit_base1 = null;
+    for (Ast.Method.T m : class_base1.methods){
+      Ast.Method.MethodSingle mss = (Ast.Method.MethodSingle) m;
+      if (mss.id.equals("doit_base1")){
+        doit_base1 = mss;
+      }
+    }
+    assertNotNull(doit_base1);
+    Ast.Stm.Print _stm_print = (Ast.Stm.Print) doit_base1.stms.getFirst();
+    Ast.Exp.Id id = (Ast.Exp.Id) _stm_print.exp;
+
   }
 }

@@ -3,6 +3,7 @@ package ast.optimizations;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import ast.Ast;
 import ast.Ast.Class.ClassSingle;
 import ast.Ast.Dec.DecSingle;
 import ast.Ast.Exp;
@@ -42,16 +43,14 @@ import ast.Ast.Type.IntArray;
 
 public class DeadClass implements ast.Visitor
 {
-  private HashSet<String> set;
+  private HashSet<String> classes;
   private LinkedList<String> worklist;
-  private ast.Ast.Class.T newClass;
   public Program.T program;
 
   public DeadClass()
   {
-    this.set = new HashSet<String>();
-    this.worklist = new LinkedList<String>();
-    this.newClass = null;
+    this.classes = new HashSet<>();
+    this.worklist = new LinkedList<>();
     this.program = null;
   }
 
@@ -119,10 +118,10 @@ public class DeadClass implements ast.Visitor
   @Override
   public void visit(NewObject e)
   {
-    if (this.set.contains(e.id))
+    if (this.classes.contains(e.id))
       return;
     this.worklist.add(e.id);
-    this.set.add(e.id);
+    this.classes.add(e.id);
   }
 
   @Override
@@ -242,6 +241,16 @@ public class DeadClass implements ast.Visitor
   @Override
   public void visit(ClassSingle c)
   {
+    // add the direct base class into worklist
+    if (c.extendss != null){
+      if (!this.classes.contains(c.extendss)){
+        this.worklist.addLast(c.extendss);
+        this.classes.add(c.extendss);
+      }
+    }
+    for (Ast.Method.T m : c.methods){
+      m.accept(this);
+    }
   }
 
   // main class
@@ -255,41 +264,25 @@ public class DeadClass implements ast.Visitor
   @Override
   public void visit(ProgramSingle p)
   {
-    // we push the class name for mainClass onto the worklist
     MainClassSingle mainclass = (MainClassSingle) p.mainClass;
-    this.set.add(mainclass.id);
-
+    this.classes.add(mainclass.id);
     p.mainClass.accept(this);
-
     while (!this.worklist.isEmpty()) {
       String cid = this.worklist.removeFirst();
-
       for (ast.Ast.Class.T c : p.classes) {
         ClassSingle current = (ClassSingle) c;
-
         if (current.id.equals(cid)) {
           c.accept(this);
           break;
         }
       }
     }
-
-    LinkedList<ast.Ast.Class.T> newClasses = new LinkedList<ast.Ast.Class.T>();
+    LinkedList<ast.Ast.Class.T> newClasses = new LinkedList<>();
     for (ast.Ast.Class.T classes : p.classes) {
       ClassSingle c = (ClassSingle) classes;
-      if (this.set.contains(c.id))
+      if (this.classes.contains(c.id))
         newClasses.add(c);
     }
-
-
-    this.program =
-        new ProgramSingle(p.mainClass, newClasses);
-
-    System.out.println("before optimization:");
-    ast.PrettyPrintVisitor pp = new ast.PrettyPrintVisitor();
-    p.accept(pp);
-    System.out.println("after optimization:");
-    this.program.accept(pp);
-
+    this.program = new ProgramSingle(p.mainClass, newClasses);
   }
 }

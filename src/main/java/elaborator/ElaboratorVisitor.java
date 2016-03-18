@@ -37,7 +37,8 @@ import ast.Ast.Stm.While;
 import ast.Ast.Type;
 import ast.Ast.Type.ClassType;
 
-public class ElaboratorVisitor implements ast.Visitor
+public class ElaboratorVisitor
+    implements ast.Visitor
 {
   ClassTable classTable; // symbol table for class
   /**
@@ -186,26 +187,25 @@ public class ElaboratorVisitor implements ast.Visitor
           new ElabError.TypeMissMatchError(new Type.ClassType(""), this.type,
               linenum));
     }
-
     Type.ClassType ty = (ClassType) callerType;
     e.type = ty.id;
     MethodType methodType = this.classTable.getMethodType(ty.id, e.id);
-    LinkedList<Type.T> argsType = new LinkedList<>();
-    for (Exp.T a : e.args) {
-      a.accept(this);
-      argsType.addLast(this.type);
-    }
-    LinkedList<Type.T> protoType = new LinkedList<>();
     if (methodType == null) {
       emitError(new ElabError.UndeclError(e.id, linenum));
-    }else {
+    } else {
+      LinkedList<Type.T> argsType = new LinkedList<>();
+      for (Exp.T a : e.args) {
+        a.accept(this);
+        argsType.addLast(this.type);
+      }
+      LinkedList<Type.T> protoType = new LinkedList<>();
       for (Dec.T dec : methodType.argsType) {
         Dec.DecSingle d = (Dec.DecSingle) dec;
         protoType.add(d.type);
       }
-    e.at = elabArgsList(e.id, argsType, protoType);
-    this.type = methodType.retType;
-    e.retType = this.type;
+      e.at = elabArgsList(e.id, argsType, protoType);
+      this.type = methodType.retType;
+      e.retType = this.type;
     }
   }
 
@@ -224,7 +224,7 @@ public class ElaboratorVisitor implements ast.Visitor
     Type.T type = this.methodTable.get(e.id);
     // if search failed, then s.id must be a class field.
     if (type == null) {
-      type = this.classTable.get(this.currentClass, e.id);
+      type = this.classTable.getFieldType(this.currentClass, e.id);
       // mark this id as a field id, this fact will be
       // useful in later phase.
       e.isField = true;
@@ -353,7 +353,7 @@ public class ElaboratorVisitor implements ast.Visitor
     Type.T type = this.methodTable.get(s.id);
     // if search failed, then s.id must
     if (type == null) {
-      type = this.classTable.get(this.currentClass, s.id);
+      type = this.classTable.getFieldType(this.currentClass, s.id);
       s.isField = true;
     }
     if (type == null) {
@@ -368,7 +368,7 @@ public class ElaboratorVisitor implements ast.Visitor
   {
     Type.T type = this.methodTable.get(s.id);
     if (type == null) {
-      type = this.classTable.get(this.currentClass, s.id);
+      type = this.classTable.getFieldType(this.currentClass, s.id);
       s.isField = true;
     }
     if (type == null) {

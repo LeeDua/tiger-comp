@@ -66,7 +66,7 @@ public class ClassTable
 
   // get type of some field
   // return null for non-existing field.
-  Type.T get(String className, String xid)
+  Type.T getFieldType(String className, String xid)
   {
     ClassBinding cb = this.table.get(className);
     Type.T type = cb.fields.get(xid);
