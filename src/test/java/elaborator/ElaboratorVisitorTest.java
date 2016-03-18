@@ -89,7 +89,7 @@ public class ElaboratorVisitorTest
     InputStream in = null;
     try {
       in = new BufferedInputStream(
-          new FileInputStream("src/test/resources/UndeclError.java"));
+          new FileInputStream("src/test/resources/TestUndeclError.java"));
     } catch (FileNotFoundException e) {
       System.err.println(e.getMessage());
       System.exit(1);
@@ -118,7 +118,7 @@ public class ElaboratorVisitorTest
     InputStream in = null;
     try {
       in = new BufferedInputStream(
-          new FileInputStream("src/test/resources/MethodMissMatchError.java"));
+          new FileInputStream("src/test/resources/TestMethodMissMatchError.java"));
     } catch (FileNotFoundException e) {
       System.err.println(e.getMessage());
       System.exit(1);
@@ -143,7 +143,7 @@ public class ElaboratorVisitorTest
     InputStream in = null;
     try {
       in = new BufferedInputStream(
-          new FileInputStream("src/test/resources/TypeMissMatchError.java"));
+          new FileInputStream("src/test/resources/TestTypeMissMatchError.java"));
     } catch (FileNotFoundException e) {
       System.err.println(e.getMessage());
       System.exit(1);
@@ -168,7 +168,7 @@ public class ElaboratorVisitorTest
     InputStream in = null;
     try {
       in = new BufferedInputStream(
-          new FileInputStream("src/test/resources/ClassOverload.java"));
+          new FileInputStream("src/test/resources/TestClassOverload.java"));
     } catch (FileNotFoundException e) {
       System.err.println(e.getMessage());
       System.exit(1);
