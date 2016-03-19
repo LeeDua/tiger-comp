@@ -80,32 +80,38 @@ public class PrettyPrintVisitor implements Visitor
   @Override
   public void visit(Add e)
   {
+    this.say("(");
     e.left.accept(this);
     this.say(" + ");
     e.right.accept(this);
-
+    this.say(")");
   }
 
   @Override
   public void visit(And e)
   {
+    this.say("(");
     e.left.accept(this);
     this.say(" && ");
     e.right.accept(this);
+    this.say(")");
   }
 
   @Override
   public void visit(ArraySelect e)
   {
+    this.say("(");
     e.array.accept(this);
     this.say("[");
     e.index.accept(this);
     this.say("]");
+    this.say(")");
   }
 
   @Override
   public void visit(Call e)
   {
+    this.say("(");
     e.caller.accept(this);
     this.say("." + e.id + "(");
     int i = 0;
@@ -117,6 +123,7 @@ public class PrettyPrintVisitor implements Visitor
       } else {
       }
     }
+    this.say(")");
     this.say(")");
   }
 
@@ -135,37 +142,47 @@ public class PrettyPrintVisitor implements Visitor
   @Override
   public void visit(Length e)
   {
+    this.say("(");
     e.array.accept(this);
     this.say(".length");
+    this.say(")");
   }
 
   @Override
   public void visit(Lt e)
   {
+    this.say("(");
     e.left.accept(this);
     this.say(" < ");
     e.right.accept(this);
+    this.say(")");
   }
 
   @Override
   public void visit(NewIntArray e)
   {
+    this.say("(");
     this.say("new int[");
     e.exp.accept(this);
     this.say("]");
+    this.say(")");
   }
 
   @Override
   public void visit(NewObject e)
   {
+    this.say("(");
     this.say("new " + e.id + "()");
+    this.say(")");
   }
 
   @Override
   public void visit(Not e)
   {
+    this.say("(");
     this.say("!(");
     e.exp.accept(this);
+    this.say(")");
     this.say(")");
   }
 
@@ -178,9 +195,11 @@ public class PrettyPrintVisitor implements Visitor
   @Override
   public void visit(Sub e)
   {
+    this.say("(");
     e.left.accept(this);
     this.say(" - ");
     e.right.accept(this);
+    this.say(")");
   }
 
   @Override
@@ -192,9 +211,11 @@ public class PrettyPrintVisitor implements Visitor
   @Override
   public void visit(Times e)
   {
+    this.say("(");
     e.left.accept(this);
     this.say(" * ");
     e.right.accept(this);
+    this.say(")");
   }
 
   @Override

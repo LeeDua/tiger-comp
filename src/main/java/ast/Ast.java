@@ -684,17 +684,17 @@ public class Ast
       public String id;
       public Exp.T index;
       public Exp.T exp;
-      public Type.T tyep;// type of the id
+      public Type.T type;// type of the id
       public boolean isField;
 
       public AssignArray(String id, ast.Ast.Exp.T index,
-                         ast.Ast.Exp.T exp, ast.Ast.Type.T tyep, boolean isField,
+                         ast.Ast.Exp.T exp, ast.Ast.Type.T type, boolean isField,
                          int linenum)
       {
         this.id = id;
         this.index = index;
         this.exp = exp;
-        this.tyep = tyep;
+        this.type = type;
         this.isField = isField;
         this.linenum = linenum;
       }

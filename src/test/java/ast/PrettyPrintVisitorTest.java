@@ -58,7 +58,7 @@ public class PrettyPrintVisitorTest
     Add addExp = new Add(left, right);
     PrettyPrintVisitor pp = new PrettyPrintVisitor();
     addExp.accept(pp);
-    assertEquals("x + 1", pp.toString());
+    assertEquals("(x + 1)", pp.toString());
   }
 
   @Test
@@ -70,6 +70,6 @@ public class PrettyPrintVisitorTest
         new NewObject("Fac", 1), "ComputeFac",
         new util.Flist<T>().list(new Num(10, 1)), 1);
     c.accept(pp);
-    assertEquals("new Fac().ComputeFac(10)", pp.toString());
+    assertEquals("((new Fac()).ComputeFac(10))", pp.toString());
   }
 }

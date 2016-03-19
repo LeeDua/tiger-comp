@@ -250,7 +250,7 @@ public class TranslateVisitor implements ast.Visitor {
     // id[exp]=exp
     public void visit(ast.Ast.Stm.AssignArray s) {
 	// 需要特殊对待s.id
-	ast.Ast.Exp.Id id = new ast.Ast.Exp.Id(s.id, s.tyep, s.isField);
+	ast.Ast.Exp.Id id = new ast.Ast.Exp.Id(s.id, s.type, s.isField);
 
 	id.accept(this);// objref,index,value依次进栈
 	s.index.accept(this);

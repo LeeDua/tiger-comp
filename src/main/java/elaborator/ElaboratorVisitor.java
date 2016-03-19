@@ -374,7 +374,7 @@ public class ElaboratorVisitor
     if (type == null) {
       emitError(new ElabError.UndeclError(s.id, linenum));
     }
-    s.tyep = type;
+    s.type = type;
     s.index.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
       emitError(new ElabError.TypeMissMatchError("array index must be int",

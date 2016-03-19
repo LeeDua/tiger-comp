@@ -299,7 +299,7 @@ Exp.T parseAddSubExp():
     left = parseTimesExp()
     (
         <TIMES>
-        right = parseTimesExp()
+        right = parseAddSubExp()
         {return new Exp.Times(left, right, right.linenum);}
     )?
     {return left;}
@@ -318,11 +318,11 @@ Exp.T parseLtExp():
     left = parseAddSubExp()
     (
         <ADD>
-        right = parseAddSubExp()
+        right = parseLtExp()
         {return new Exp.Add(left, right, right.linenum);}
     |
         <SUB>
-        right = parseAddSubExp()
+        right = parseLtExp()
         {return new Exp.Sub(left, right, right.linenum);}
     )?
     {return left;}
@@ -356,7 +356,7 @@ Exp.T parseExp():
     left = parseAndExp()
     (
         <AND>
-        right = parseAndExp()
+        right = parseExp()
         {return new Exp.And(left, right);}
     )?
     {return left;}

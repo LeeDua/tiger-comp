@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.io.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by qc1iu on 2/27/16.
@@ -83,6 +84,87 @@ public class ParserTest
     Ast.Exp.ArraySelect as = (Ast.Exp.ArraySelect) e;
     assertEquals(Ast.Exp.Call.class, as.array.getClass());
   }
+
+  @Test
+  public void testMultiAdd()
+  {
+    System.out.println("test parse multi Exp.Add");
+    InputStream in = new BufferedInputStream(
+        new ByteArrayInputStream("1+2+3+4-5".getBytes()));
+    Parser p = new Parser(in);
+    Ast.Exp.T exp = null;
+    try {
+      exp = p.parseExp();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    assertNotNull(exp);
+    assertEquals(Ast.Exp.Add.class, exp.getClass());
+    PrettyPrintVisitor pp = new PrettyPrintVisitor();
+    exp.accept(pp);
+    assertEquals("(1 + (2 + (3 + (4 - 5))))", pp.toString());
+  }
+
+  @Test
+  public void testMultiTimes()
+  {
+    System.out.println("test parse multi Exp.Times");
+    InputStream in = new BufferedInputStream(
+        new ByteArrayInputStream("1*2*3*4".getBytes()));
+    Parser p = new Parser(in);
+    Ast.Exp.T exp = null;
+    try {
+      exp = p.parseExp();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    assertNotNull(exp);
+    assertEquals(Ast.Exp.Times.class, exp.getClass());
+    PrettyPrintVisitor pp = new PrettyPrintVisitor();
+    exp.accept(pp);
+    assertEquals("(1 * (2 * (3 * 4)))", pp.toString());
+  }
+
+   @Test
+  public void testParen()
+  {
+    System.out.println("test parse paren");
+    InputStream in = new BufferedInputStream(
+        new ByteArrayInputStream("(1+2)*3".getBytes()));
+    Parser p = new Parser(in);
+    Ast.Exp.T exp = null;
+    try {
+      exp = p.parseExp();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    assertNotNull(exp);
+    assertEquals(Ast.Exp.Times.class, exp.getClass());
+    PrettyPrintVisitor pp = new PrettyPrintVisitor();
+    exp.accept(pp);
+    assertEquals("((1 + 2) * 3)", pp.toString());
+  }
+
+  @Test
+  public void testMultiNot()
+  {
+    System.out.println("test parse multi Exp.Not");
+    InputStream in = new BufferedInputStream(
+        new ByteArrayInputStream("!!!(true&&false)".getBytes()));
+    Parser p = new Parser(in);
+    Ast.Exp.T exp = null;
+    try {
+      exp = p.parseExp();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    assertNotNull(exp);
+    assertEquals(Ast.Exp.Not.class, exp.getClass());
+    PrettyPrintVisitor pp = new PrettyPrintVisitor();
+    exp.accept(pp);
+    assertEquals("(!((!((!((true && false)))))))", pp.toString());
+  }
+
 
 }
 
