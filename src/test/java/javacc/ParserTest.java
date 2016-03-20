@@ -125,7 +125,7 @@ public class ParserTest
     assertEquals("(1 * (2 * (3 * 4)))", pp.toString());
   }
 
-   @Test
+  @Test
   public void testParen()
   {
     System.out.println("test parse paren");
