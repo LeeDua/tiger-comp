@@ -106,6 +106,46 @@ public class ParserTest
   }
 
   @Test
+  public void testMultiSub()
+  {
+    System.out.println("test parse multi Exp.Sub");
+    InputStream in = new BufferedInputStream(
+        new ByteArrayInputStream("1-2-3-4-5".getBytes()));
+    Parser p = new Parser(in);
+    Ast.Exp.T exp = null;
+    try {
+      exp = p.parseExp();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    assertNotNull(exp);
+    assertEquals(Ast.Exp.Sub.class, exp.getClass());
+    PrettyPrintVisitor pp = new PrettyPrintVisitor();
+    exp.accept(pp);
+    assertEquals("(1 - (2 + (3 + (4 + 5))))", pp.toString());
+  }
+
+  @Test
+  public void testMultiAddSub()
+  {
+    System.out.println("test parse multi Exp.Add Exp.Sub");
+    InputStream in = new BufferedInputStream(
+        new ByteArrayInputStream("1-2-3-(4+5)".getBytes()));
+    Parser p = new Parser(in);
+    Ast.Exp.T exp = null;
+    try {
+      exp = p.parseExp();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    assertNotNull(exp);
+    assertEquals(Ast.Exp.Sub.class, exp.getClass());
+    PrettyPrintVisitor pp = new PrettyPrintVisitor();
+    exp.accept(pp);
+    assertEquals("(1 - (2 + (3 + (4 + 5))))", pp.toString());
+  }
+
+  @Test
   public void testMultiTimes()
   {
     System.out.println("test parse multi Exp.Times");
@@ -164,12 +204,4 @@ public class ParserTest
     exp.accept(pp);
     assertEquals("(!((!((!((true && false)))))))", pp.toString());
   }
-
-
 }
-
-
-
-
-
-

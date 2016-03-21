@@ -323,6 +323,12 @@ Exp.T parseLtExp():
     |
         <SUB>
         right = parseLtExp()
+        {
+            if (right instanceof Exp.Sub){
+                Exp.Sub e = (Exp.Sub)right;
+                right = new Exp.Add(e.left, e.right, right.linenum);
+            }
+        }
         {return new Exp.Sub(left, right, right.linenum);}
     )?
     {return left;}

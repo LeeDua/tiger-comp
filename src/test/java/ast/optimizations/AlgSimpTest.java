@@ -144,7 +144,7 @@ public class AlgSimpTest
     assertNotNull(exp);
     PrettyPrintVisitor pp = new PrettyPrintVisitor();
     exp.accept(pp);
-    assertEquals("(0 - (1 - 0))", pp.toString());
+    assertEquals("(0 - (1 + 0))", pp.toString());
     assertEquals(Ast.Exp.Sub.class, exp.getClass());
     System.out.println("  before opt: OK");
     AlgSimp algSimp = new AlgSimp();
@@ -174,7 +174,7 @@ public class AlgSimpTest
     PrettyPrintVisitor pp = new PrettyPrintVisitor();
     exp.accept(pp);
     assertEquals(Ast.Exp.Sub.class, exp.getClass());
-    assertEquals("(0 - (1 - (0 - (0 - 0))))", pp.toString());
+    assertEquals("(0 - (1 + (0 + (0 + 0))))", pp.toString());
     System.out.println("  before opt: OK");
     AlgSimp algSimp = new AlgSimp();
     exp.accept(algSimp);
@@ -214,5 +214,4 @@ public class AlgSimpTest
     assertEquals("(array[0])", pp_after.toString());
     System.out.println("  after opt: OK");
   }
-
 }
