@@ -1,12 +1,12 @@
-package codegen.C;
+package cfg;
 
-import codegen.C.Ast.Type;
+import cfg.Cfg.Type;
 
 public class Tuple
 {
   public String classs; // name of the class
-  public Type.T type;
-  public String id;
+  public Type.T type; // type of the field
+  public String id; // name of the field or method
 
   public Tuple(String classs, Type.T type, String id)
   {
@@ -24,9 +24,11 @@ public class Tuple
     if (t == null) {
       return false;
     }
+
     if (!(t instanceof Tuple)) {
       return false;
     }
+
     return this.id.equals(((Tuple) t).id);
   }
 
