@@ -45,12 +45,14 @@ public class DeadClass implements ast.Visitor
 {
   private HashSet<String> classes;
   private LinkedList<String> worklist;
+  boolean changed;
   public Program.T program;
 
   public DeadClass()
   {
     this.classes = new HashSet<>();
     this.worklist = new LinkedList<>();
+    this.changed = false;
     this.program = null;
   }
 
@@ -242,13 +244,13 @@ public class DeadClass implements ast.Visitor
   public void visit(ClassSingle c)
   {
     // add the direct base class into worklist
-    if (c.extendss != null){
-      if (!this.classes.contains(c.extendss)){
+    if (c.extendss != null) {
+      if (!this.classes.contains(c.extendss)) {
         this.worklist.addLast(c.extendss);
         this.classes.add(c.extendss);
       }
     }
-    for (Ast.Method.T m : c.methods){
+    for (Ast.Method.T m : c.methods) {
       m.accept(this);
     }
   }
@@ -282,6 +284,9 @@ public class DeadClass implements ast.Visitor
       ClassSingle c = (ClassSingle) classes;
       if (this.classes.contains(c.id))
         newClasses.add(c);
+    }
+    if (p.classes.size() != newClasses.size()) {
+      this.changed = true;
     }
     this.program = new ProgramSingle(p.mainClass, newClasses);
   }

@@ -24,13 +24,12 @@ public class DeadCode implements ast.Visitor
   Ast.Stm.T _stm;
   Ast.Method.T _method;
   Ast.Exp.T _exp;
+  boolean changed;
   public ast.Ast.Program.T program;
 
   public DeadCode()
   {
-    this._class = null;
-    this._mainClass = null;
-    this.program = null;
+    changed = false;
   }
 
   // expressions
@@ -167,9 +166,11 @@ public class DeadCode implements ast.Visitor
     s.condition.accept(this);
     if (this._exp instanceof Ast.Exp.True) {
       this._stm = s.thenn;
-    } else if (this._exp instanceof Ast.Exp.False){
+      this.changed = true;
+    } else if (this._exp instanceof Ast.Exp.False) {
       this._stm = s.elsee;
-    }else{
+      this.changed = true;
+    } else {
       this._stm = s;
     }
   }
@@ -186,6 +187,7 @@ public class DeadCode implements ast.Visitor
     s.condition.accept(this);
     if (this._exp instanceof Ast.Exp.False) {
       this._stm = null;
+      this.changed = true;
     } else {
       this._stm = s;
     }

@@ -26,11 +26,13 @@ public class AlgSimp implements ast.Visitor
   Ast.Method.T _method;
   Ast.Stm.T _stm;
   Ast.Exp.T _exp;
+  boolean changed;
   public Program.T program;
 
   public AlgSimp()
   {
     this.program = null;
+    this.changed = false;
   }
 
   // expressions
@@ -46,12 +48,15 @@ public class AlgSimp implements ast.Visitor
     if (left0 && right0) {
       this._exp = new Ast.Exp.Num(0, e.linenum);
       this.isZero = true;
+      this.changed = true;
     } else if (left0) {
       this._exp = right;
       this.isZero = false;
+      this.changed = true;
     } else if (right0) {
       this._exp = left;
       this.isZero = false;
+      this.changed = true;
     } else {
       this._exp = new Ast.Exp.Add(left, right, e.linenum);
       this.isZero = false;
@@ -165,9 +170,11 @@ public class AlgSimp implements ast.Visitor
     if (right0 && left0) {
       this._exp = new Ast.Exp.Num(0, e.linenum);
       this.isZero = true;
+      this.changed = true;
     } else if (right0) {
       this._exp = left;
       this.isZero = false;
+      this.changed = true;
     } else {
       this._exp = new Ast.Exp.Sub(left, right, e.linenum);
       this.isZero = false;
@@ -193,6 +200,7 @@ public class AlgSimp implements ast.Visitor
     if (left0 || right0) {
       this._exp = new Ast.Exp.Num(0, e.linenum);
       this.isZero = true;
+      this.changed = true;
     } else {
       this._exp = new Ast.Exp.Times(left, right, e.linenum);
       this.isZero = false;

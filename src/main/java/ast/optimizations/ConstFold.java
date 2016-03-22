@@ -25,10 +25,12 @@ public class ConstFold implements ast.Visitor
   Ast.Stm.T _stm;
   Ast.Method.T _method;
   Ast.Exp.T _exp;
+  boolean changed;
   public Program.T program;
 
   public ConstFold()
   {
+    this.changed = false;
   }
 
   // expressions
@@ -44,6 +46,7 @@ public class ConstFold implements ast.Visitor
       Ast.Exp.Num l = (Num) left;
       Ast.Exp.Num r = (Num) right;
       this._exp = new Ast.Exp.Num(l.num + r.num, e.linenum);
+      this.changed = true;
     } else {
       this._exp = new Ast.Exp.Add(left, right, e.linenum);
     }
@@ -59,11 +62,13 @@ public class ConstFold implements ast.Visitor
     if ((left instanceof Ast.Exp.False) ||
         right instanceof Ast.Exp.False) {
       this._exp = new Ast.Exp.False(e.linenum);
+      this.changed = true;
     } else if ((left instanceof Ast.Exp.True) &&
         (right instanceof Ast.Exp.True)) {
       this._exp = new Ast.Exp.True(e.linenum);
+      this.changed = true;
     } else {
-      this._exp = new Ast.Exp.Add(left, right, e.linenum);
+      this._exp = new Ast.Exp.And(left, right, e.linenum);
     }
   }
 
@@ -126,6 +131,7 @@ public class ConstFold implements ast.Visitor
       } else {
         this._exp = new Ast.Exp.False(e.linenum);
       }
+      this.changed = true;
     } else {
       this._exp = new Ast.Exp.Lt(left, right, e.linenum);
     }
@@ -151,10 +157,12 @@ public class ConstFold implements ast.Visitor
     Ast.Exp.T exp = this._exp;
     if (exp instanceof Ast.Exp.True) {
       this._exp = new Ast.Exp.False(e.linenum);
+      this.changed = true;
     } else if (exp instanceof Ast.Exp.False) {
       this._exp = new Ast.Exp.True(e.linenum);
+      this.changed = true;
     } else {
-      this._exp = exp;
+      this._exp = new Ast.Exp.Not(exp, e.linenum);
     }
   }
 
@@ -176,6 +184,7 @@ public class ConstFold implements ast.Visitor
       Ast.Exp.Num l = (Num) left;
       Ast.Exp.Num r = (Num) right;
       this._exp = new Ast.Exp.Num(l.num - r.num, e.linenum);
+      this.changed = true;
     } else {
       this._exp = new Ast.Exp.Sub(left, right, e.linenum);
     }
@@ -199,6 +208,7 @@ public class ConstFold implements ast.Visitor
       Ast.Exp.Num l = (Num) left;
       Ast.Exp.Num r = (Num) right;
       this._exp = new Ast.Exp.Num(l.num * r.num, e.linenum);
+      this.changed = true;
     } else {
       this._exp = new Ast.Exp.Times(left, right, e.linenum);
     }
