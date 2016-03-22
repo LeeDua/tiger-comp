@@ -274,7 +274,7 @@ public class Ast
       public Type.T retType;
 
       public Call(T caller, String id, java.util.LinkedList<T> args,
-                  String type, java.util.LinkedList<Type.T> at, Type.T retType)
+                  String type, java.util.LinkedList<Type.T> at, Type.T retType, int linenum)
       {
         this.caller = caller;
         this.id = id;
@@ -282,7 +282,7 @@ public class Ast
         this.type = type;
         this.at = at;
         this.retType = retType;
-
+        this.linenum = linenum;
       }
 
       public Call(T caller, String id, java.util.LinkedList<T> args,

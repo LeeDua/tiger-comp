@@ -86,7 +86,8 @@ public class AlgSimp implements ast.Visitor
       arg.accept(this);
       args.add(this._exp);
     }
-    this._exp = new Ast.Exp.Call(caller, e.id, args, e.type, e.at, e.retType);
+    this._exp = new Ast.Exp.Call(caller, e.id, args, e.type, e.at, e.retType,
+        e.linenum);
     this.isZero = false;
   }
 
@@ -159,7 +160,7 @@ public class AlgSimp implements ast.Visitor
     Ast.Exp.T left = this._exp;
     boolean left0 = this.isZero;
     e.right.accept(this);
-    Ast.Exp.T right  = this._exp;
+    Ast.Exp.T right = this._exp;
     boolean right0 = this.isZero;
     if (right0 && left0) {
       this._exp = new Ast.Exp.Num(0, e.linenum);
