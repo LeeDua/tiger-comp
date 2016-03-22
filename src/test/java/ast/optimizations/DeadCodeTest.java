@@ -1,15 +1,13 @@
 package ast.optimizations;
 
 import ast.Ast;
+import ast.PrettyPrintVisitor;
 import elaborator.ElaboratorVisitor;
 import javacc.ParseException;
 import javacc.Parser;
 import org.junit.Test;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import static org.junit.Assert.*;
 
@@ -19,54 +17,81 @@ import static org.junit.Assert.*;
 public class DeadCodeTest
 {
   @Test
-  public void testDeadCode() throws IOException
+  public void testOptStmIfTrue()
   {
+    System.out.println("test deadcode opt Stm.If true");
+    InputStream in = new BufferedInputStream(
+        new ByteArrayInputStream(
+            "if(true){System.out.println(1);}else{x=1;}"
+                .getBytes()));
+    Parser p = new Parser(in);
+    Ast.Stm.T stm = null;
     try {
-      InputStream in = new BufferedInputStream(
-          new FileInputStream("src/test/resources/TestDeadCode.java"));
-      Parser p = new Parser(in);
-      ast.Ast.Program.T prog = null;
-      try {
-        prog = p.parser();
-      } catch (ParseException e) {
-        e.printStackTrace();
-      }
-      System.out.println("  Parse finished.");
-      ElaboratorVisitor ev = new ElaboratorVisitor();
-      prog.accept(ev);
-      assertEquals(0, ev.getErrorStack().size());
-      System.out.println("  Elaborate finished.");
-
-      Ast.Class.ClassSingle cs1 =
-          (Ast.Class.ClassSingle) ((Ast.Program.ProgramSingle) prog).classes
-              .getFirst();
-      assertEquals(1, cs1.methods.size());
-      Ast.Method.MethodSingle ms1 =
-          (Ast.Method.MethodSingle) cs1.methods.getFirst();
-      // 2 stm before deadcode opt.
-      assertEquals(2, ms1.stms.size());
-      assertEquals(Ast.Stm.If.class, ms1.stms.getFirst().getClass());
-      assertEquals(Ast.Stm.While.class, ms1.stms.getLast().getClass());
-
-      // DeadCode opt
-      DeadCode dc = new DeadCode();
-      prog.accept(dc);
-      prog = dc.program;
-      System.out.println("  DeadCode opt finished.");
-
-      Ast.Class.ClassSingle cs =
-          (Ast.Class.ClassSingle) ((Ast.Program.ProgramSingle) prog).classes
-              .getFirst();
-      assertEquals(1, cs.methods.size());
-      Ast.Method.MethodSingle ms =
-          (Ast.Method.MethodSingle) cs.methods.getFirst();
-      // 1 stm after deadcode opt.
-      assertEquals(1, ms.stms.size());
-      Ast.Stm.T stm_print = ms.stms.getFirst();
-      assertEquals(Ast.Stm.Print.class, stm_print.getClass());
-    } finally {
+      stm = p.parseStatement();
+    } catch (ParseException e) {
+      e.printStackTrace();
     }
-
+    assertNotNull(stm);
+    assertEquals(Ast.Stm.If.class, stm.getClass());
+    System.out.println("  before opt: OK");
+    DeadCode dc = new DeadCode();
+    stm.accept(dc);
+    assertNotNull(dc._stm);
+    assertEquals(Ast.Stm.Block.class, dc._stm.getClass());
+    Ast.Stm.Block block = (Ast.Stm.Block) dc._stm;
+    assertEquals(1, block.stms.size());
+    assertEquals(Ast.Stm.Print.class, block.stms.getFirst().getClass());
+    System.out.println("  after opt: OK");
   }
 
+  @Test
+  public void testOptStmIfFalse()
+  {
+    System.out.println("test deadcode opt Stm.If false");
+    InputStream in = new BufferedInputStream(
+        new ByteArrayInputStream(
+            "if(false){System.out.println(1);}else{x=1;}"
+                .getBytes()));
+    Parser p = new Parser(in);
+    Ast.Stm.T stm = null;
+    try {
+      stm = p.parseStatement();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    assertNotNull(stm);
+    assertEquals(Ast.Stm.If.class, stm.getClass());
+    System.out.println("  before opt: OK");
+    DeadCode dc = new DeadCode();
+    stm.accept(dc);
+    assertNotNull(dc._stm);
+    assertEquals(Ast.Stm.Block.class, dc._stm.getClass());
+    Ast.Stm.Block block = (Ast.Stm.Block) dc._stm;
+    assertEquals(1, block.stms.size());
+    assertEquals(Ast.Stm.Assign.class, block.stms.getFirst().getClass());
+    System.out.println("  after opt: OK");
+  }
+
+  @Test
+  public void testOptStmWhileFalse()
+  {
+    System.out.println("test deadcode opt Stm.While false");
+    InputStream in = new BufferedInputStream(
+        new ByteArrayInputStream(
+            "while(false){System.out.println(1);}}".getBytes()));
+    Parser p = new Parser(in);
+    Ast.Stm.T stm = null;
+    try {
+      stm = p.parseStatement();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    assertNotNull(stm);
+    assertEquals(Ast.Stm.While.class, stm.getClass());
+    System.out.println("  before opt: OK");
+    DeadCode dc = new DeadCode();
+    stm.accept(dc);
+    assertNull(dc._stm);
+    System.out.println("  after opt: OK");
+  }
 }

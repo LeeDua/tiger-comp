@@ -19,11 +19,11 @@ import java.util.LinkedList;
 
 public class DeadCode implements ast.Visitor
 {
-  private Ast.Class.T _class;
-  private Ast.MainClass.T _mainClass;
-  private Ast.Stm.T _stm;
-  private Ast.Method.T _method;
-  private boolean isTrue;
+  Ast.Class.T _class;
+  Ast.MainClass.T _mainClass;
+  Ast.Stm.T _stm;
+  Ast.Method.T _method;
+  Ast.Exp.T _exp;
   public ast.Ast.Program.T program;
 
   public DeadCode()
@@ -37,47 +37,43 @@ public class DeadCode implements ast.Visitor
   @Override
   public void visit(Add e)
   {
-    this.isTrue = false;
+    this._exp = e;
   }
 
   @Override
   public void visit(And e)
   {
-    e.left.accept(this);
-    boolean left = this.isTrue;
-    e.right.accept(this);
-    boolean right = this.isTrue;
-    this.isTrue = left && right;
+    this._exp = e;
   }
 
   @Override
   public void visit(ArraySelect e)
   {
-    this.isTrue = false;
+    this._exp = e;
   }
 
   @Override
   public void visit(Call e)
   {
-    e.retType.accept(this);
+    this._exp = e;
   }
 
   @Override
   public void visit(False e)
   {
-    this.isTrue = false;
+    this._exp = e;
   }
 
   @Override
   public void visit(Id e)
   {
-    this.isTrue = false;
+    this._exp = e;
   }
 
   @Override
   public void visit(Length e)
   {
-    this.isTrue = false;
+    this._exp = e;
   }
 
   @Override
@@ -88,57 +84,55 @@ public class DeadCode implements ast.Visitor
 		 * Exp like 1<2 -> true, but the real work is in
 		 * const-fold.go
 		 */
-    this.isTrue = false;
+    this._exp = e;
   }
 
   @Override
   public void visit(NewIntArray e)
   {
-    this.isTrue = false;
+    this._exp = e;
   }
 
   @Override
   public void visit(NewObject e)
   {
-    this.isTrue = false;
+    this._exp = e;
   }
 
   @Override
   public void visit(Not e)
   {
-    boolean current = this.isTrue;
-    e.exp.accept(this);
-    this.isTrue = current && this.isTrue;
+    this._exp = e;
   }
 
   @Override
   public void visit(Num e)
   {
-    this.isTrue = false;
+    this._exp = e;
   }
 
   @Override
   public void visit(Sub e)
   {
-    this.isTrue = false;
+    this._exp = e;
   }
 
   @Override
   public void visit(This e)
   {
-    this.isTrue = false;
+    this._exp = e;
   }
 
   @Override
   public void visit(Times e)
   {
-    this.isTrue = false;
+    this._exp = e;
   }
 
   @Override
   public void visit(True e)
   {
-    this.isTrue = true;
+    this._exp = e;
   }
 
   // statements
@@ -171,10 +165,12 @@ public class DeadCode implements ast.Visitor
   public void visit(If s)
   {
     s.condition.accept(this);
-    if (this.isTrue) {
+    if (this._exp instanceof Ast.Exp.True) {
       this._stm = s.thenn;
-    } else {
+    } else if (this._exp instanceof Ast.Exp.False){
       this._stm = s.elsee;
+    }else{
+      this._stm = s;
     }
   }
 
@@ -188,10 +184,10 @@ public class DeadCode implements ast.Visitor
   public void visit(While s)
   {
     s.condition.accept(this);
-    if (this.isTrue) {
-      this._stm = s;
-    } else {
+    if (this._exp instanceof Ast.Exp.False) {
       this._stm = null;
+    } else {
+      this._stm = s;
     }
   }
 
