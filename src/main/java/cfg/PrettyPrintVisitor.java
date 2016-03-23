@@ -30,35 +30,63 @@ import cfg.Cfg.Type.IntArrayType;
 import cfg.Cfg.Type.IntType;
 import cfg.Cfg.Vtable;
 import cfg.Cfg.Vtable.VtableSingle;
-import control.Control;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+
+import static ast.Ast.Type.TYPE_INTARRAY;
 
 public class PrettyPrintVisitor implements Visitor
 {
-  private java.io.BufferedWriter writer;
+  public StringBuilder sb;
+  private int indentLevel;
+  private HashMap<String, LinkedList<Tuple>> class_decs;
+  private HashSet<String> redecs;
+
+  public PrettyPrintVisitor()
+  {
+    this.sb = new StringBuilder();
+    this.indentLevel = 2;
+    this.class_decs = new HashMap<>();
+    this.redecs = new HashSet<>();
+  }
+
+  private void indent()
+  {
+    this.indentLevel += 2;
+  }
+
+  private void unIndent()
+  {
+    this.indentLevel -= 2;
+  }
 
   private void printSpaces()
   {
-    this.say("  ");
+    int i = this.indentLevel;
+    while (i-- != 0)
+      this.say(" ");
   }
 
   private void sayln(String s)
   {
     say(s);
-    try {
-      this.writer.write("\n");
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(1);
-    }
+    this.sb.append("\n");
   }
 
   private void say(String s)
   {
-    try {
-      this.writer.write(s);
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(1);
+    this.sb.append(s);
+  }
+
+  private String getVar(String dst)
+  {
+    if (this.redecs.contains(dst)) {
+      return "frame." + dst;
+    } else {
+      return dst;
     }
   }
 
@@ -67,147 +95,199 @@ public class PrettyPrintVisitor implements Visitor
   @Override
   public void visit(Int operand)
   {
-    this.say(new Integer(operand.i).toString());
+    this.say(Integer.toString(operand.i));
   }
 
   @Override
   public void visit(Var operand)
   {
-    this.say(operand.id);
+    if (operand.isField) {
+      this.say("this->" + operand.id);
+    } else {
+      if (this.redecs.contains(operand.id)) {
+        this.say("frame." + operand.id);
+      } else {
+        this.say(operand.id);
+      }
+    }
   }
 
   // statements
   @Override
   public void visit(Add s)
   {
-    this.printSpaces();
-    this.say(s.dst + " = ");
+    say(getVar(s.dst) + " = ");
     s.left.accept(this);
-    this.say(" + ");
+    say(" + ");
+    s.right.accept(this);
+    say(";");
+  }
+
+  @Override
+  public void visit(Stm.And s)
+  {
+    this.say(getVar(s.dst) + " = ");
+    s.left.accept(this);
+    this.say(" && ");
     s.right.accept(this);
     this.say(";");
-    return;
+  }
+
+  @Override
+  public void visit(Stm.ArraySelect s)
+  {
+    this.say(s.dst + " = ");
+    s.array.accept(this);
+    this.say("[");
+    s.index.accept(this);
+    this.say("+ARRAYSELECT_OFFSET];");
+  }
+
+  @Override
+  public void visit(Stm.AssignArray s)
+  {
+    if (s.isField) {
+      this.say("this->" + s.dst + "[");
+    } else {
+      this.say(getVar(s.dst) + "[");
+    }
+    s.index.accept(this);
+    this.say("+ARRAYSELECT_OFFSET]=");
+    s.exp.accept(this);
+    this.say(";");
   }
 
   @Override
   public void visit(InvokeVirtual s)
   {
-    this.printSpaces();
-    this.say(s.dst + " = " + s.obj);
-    this.say("->vptr->" + s.f + "(" + s.obj);
+    this.say(getVar(s.dst) + " = " + getVar(s.obj));
+    this.say("->vptr->" + s.f + "(" + getVar(s.obj));
     for (Operand.T x : s.args) {
       this.say(", ");
       x.accept(this);
     }
     this.say(");");
-    return;
+  }
+
+  @Override
+  public void visit(Stm.Length s)
+  {
+    this.say(getVar(s.dst) + " = ");
+    s.array.accept(this);
+    this.say("[LENGTH];");
+
   }
 
   @Override
   public void visit(Lt s)
   {
-    this.printSpaces();
-    this.say(s.dst + " = ");
+    this.say(getVar(s.dst) + " = ");
     s.left.accept(this);
     this.say(" < ");
     s.right.accept(this);
     this.say(";");
-    return;
   }
 
   @Override
   public void visit(Move s)
   {
-    this.printSpaces();
-    this.say(s.dst + " = ");
+    if (s.isField) {
+      this.say("this->" + s.dst + " = ");
+    } else {
+      this.say(getVar(s.dst) + " = ");
+    }
     s.src.accept(this);
     this.say(";");
-    return;
+  }
+
+  @Override
+  public void visit(Stm.NewIntArray s)
+  {
+    this.say(getVar(s.dst) + " = (int*)Tiger_new_array(");
+    s.size.accept(this);
+    this.say(");");
+
   }
 
   @Override
   public void visit(NewObject s)
   {
-    this.printSpaces();
-    this.say(s.dst + " = ((struct " + s.c + "*)(Tiger_new (&" + s.c
+    this.say(getVar(s.dst) + " = ((struct " + s.c + "*)(Tiger_new (&" + s.c
         + "_vtable_, sizeof(struct " + s.c + "))));");
-    return;
+  }
+
+  @Override
+  public void visit(Stm.Not s)
+  {
+    this.say(getVar(s.dst) + " = !(");
+    s.exp.accept(this);
+    this.say(");");
   }
 
   @Override
   public void visit(Print s)
   {
-    this.printSpaces();
     this.say("System_out_println (");
     s.arg.accept(this);
-    this.sayln(");");
-    return;
+    this.say(");");
   }
 
   @Override
   public void visit(Sub s)
   {
-    this.printSpaces();
-    this.say(s.dst + " = ");
+    this.say(getVar(s.dst) + " = ");
     s.left.accept(this);
     this.say(" - ");
     s.right.accept(this);
     this.say(";");
-    return;
   }
 
   @Override
   public void visit(Times s)
   {
-    this.printSpaces();
-    this.say(s.dst + " = ");
+    this.say(getVar(s.dst) + " = ");
     s.left.accept(this);
     this.say(" * ");
     s.right.accept(this);
     this.say(";");
-    return;
   }
 
   // transfer
   @Override
   public void visit(If s)
   {
-    this.printSpaces();
     this.say("if (");
     s.operand.accept(this);
-    this.say(")\n");
+    this.sayln(")");
     this.printSpaces();
-    this.say("  goto " + s.truee.toString() + ";\n");
+    this.sayln("  goto " + s.truee.toString() + ";");
     this.printSpaces();
-    this.say("else\n");
+    this.sayln("else");
     this.printSpaces();
-    this.say("  goto " + s.falsee.toString() + ";\n");
-    return;
+    this.say("  goto " + s.falsee.toString() + ";");
   }
 
   @Override
   public void visit(Goto s)
   {
-    this.printSpaces();
-    this.say("goto " + s.label.toString() + ";\n");
-    return;
+    this.say("goto " + s.label.toString() + ";");
   }
 
   @Override
   public void visit(Return s)
   {
-    this.printSpaces();
+    this.sayln("previous = frame.prev_;");
+    printSpaces();
     this.say("return ");
     s.operand.accept(this);
     this.say(";");
-    return;
   }
 
   // type
   @Override
   public void visit(ClassType t)
   {
-    this.say("struct " + t.id + " *");
+    this.say("struct " + t.id + "*");
   }
 
   @Override
@@ -219,6 +299,7 @@ public class PrettyPrintVisitor implements Visitor
   @Override
   public void visit(IntArrayType t)
   {
+    this.say("int*");
   }
 
   // dec
@@ -227,26 +308,29 @@ public class PrettyPrintVisitor implements Visitor
   {
     d.type.accept(this);
     this.say(" " + d.id);
-    return;
   }
 
   // dec
   @Override
   public void visit(BlockSingle b)
   {
+    this.sayln("// block entry");
     this.say(b.label.toString() + ":\n");
     for (Stm.T s : b.stms) {
+      printSpaces();
       s.accept(this);
       this.say("\n");
     }
+    printSpaces();
     b.transfer.accept(this);
-    return;
+    this.sayln("\n//block exit");
   }
 
   // method
   @Override
   public void visit(MethodSingle m)
   {
+    this.redecs = new HashSet<>();
     m.retType.accept(this);
     this.say(" " + m.classId + "_" + m.id + "(");
     int size = m.formals.size();
@@ -260,42 +344,82 @@ public class PrettyPrintVisitor implements Visitor
       }
     }
     this.sayln(")");
+
     this.sayln("{");
+    printSpaces();
+    sayln("struct " + m.classId + "_" + m.id + "_gc_frame frame;");
+    printSpaces();
+    sayln("frame.prev_ = previous;");
+    printSpaces();
+    sayln("previous = &frame;");
+    printSpaces();
+    sayln("frame.arguments_gc_map = " + m.classId + "_" + m.id +
+        "_arguments_gc_map;");
+    printSpaces();
+    sayln("frame.arguments_base_address = (int*)&this;");
+    printSpaces();
+    sayln(
+        "frame.locals_gc_map = " + m.classId + "_" + m.id + "_locals_gc_map;");
 
     for (Dec.T d : m.locals) {
+      printSpaces();
       DecSingle dec = (DecSingle) d;
-      this.say("  ");
-      dec.type.accept(this);
-      this.say(" " + dec.id + ";\n");
+      if (dec.type instanceof ClassType ||
+          dec.type instanceof IntArrayType) {
+        this.redecs.add(dec.id);
+        sayln("frame." + dec.id + "=0;");
+      } else {
+        dec.accept(this);
+        this.sayln(";");
+      }
     }
+
     this.sayln("");
     for (Block.T block : m.blocks) {
       BlockSingle b = (BlockSingle) block;
       b.accept(this);
+      this.sayln("");
     }
     this.sayln("\n}");
-    return;
   }
 
   @Override
   public void visit(MainMethodSingle m)
   {
+    this.redecs = new HashSet<>();
     this.sayln("int Tiger_main ()");
     this.sayln("{");
-    for (Dec.T dec : m.locals) {
-      this.say("  ");
-      DecSingle d = (DecSingle) dec;
-      d.type.accept(this);
-      this.say(" ");
-      this.sayln(d.id + ";");
+    printSpaces();
+    sayln("struct Tiger_main_gc_frame frame;");
+    printSpaces();
+    sayln("frame.prev_ = previous;");
+    printSpaces();
+    sayln("previous = &frame;");
+    printSpaces();
+    sayln("frame.arguments_gc_map = 0;");
+    printSpaces();
+    sayln("frame.arguments_base_address = 0;");
+    printSpaces();
+    sayln("frame.locals_gc_map = Tiger_main_locals_gc_map;");
+
+    for (Dec.T d : m.locals) {
+      DecSingle dec = (DecSingle) d;
+      if (dec.type instanceof ClassType ||
+          dec.type instanceof IntArrayType) {
+        this.redecs.add(dec.id);
+        sayln("frame." + dec.id + "=0;");
+      } else {
+        dec.accept(this);
+        this.sayln(";");
+      }
     }
+
     this.sayln("");
     for (Block.T block : m.blocks) {
       BlockSingle b = (BlockSingle) block;
       b.accept(this);
     }
     this.sayln("\n}\n");
-    return;
   }
 
   // vtables
@@ -304,78 +428,215 @@ public class PrettyPrintVisitor implements Visitor
   {
     this.sayln("struct " + v.id + "_vtable");
     this.sayln("{");
+    printSpaces();
+    this.sayln("char* " + v.id + "_gc_map;");
     for (Ftuple t : v.ms) {
       this.say("  ");
       t.ret.accept(this);
-      this.sayln(" (*" + t.id + ")();");
+      this.say(" (*" + t.id + ")(");
+      for (int i = 0; i < t.args.size(); i++) {
+        DecSingle ds = (DecSingle) t.args.get(i);
+        if (i != 0) {
+          this.say(", ");
+        }
+        ds.accept(this);
+      }
+      this.sayln(");");
     }
     this.sayln("};\n");
-    return;
   }
 
   private void outputVtable(VtableSingle v)
   {
     this.sayln("struct " + v.id + "_vtable " + v.id + "_vtable_ = ");
     this.sayln("{");
+    printSpaces();
+    this.say("\"");
+    LinkedList<Tuple> locals = this.class_decs.get(v.id);
+    for (Tuple t : locals) {
+      if (t.type instanceof ClassType ||
+          t.type instanceof IntArrayType) {
+        this.say("1");
+      } else {
+        this.say("0");
+      }
+    }
+    this.say("\",");
+    this.sayln("  // bit map");
     for (Ftuple t : v.ms) {
-      this.say("  ");
+      printSpaces();
       this.sayln(t.classs + "_" + t.id + ",");
     }
     this.sayln("};\n");
-    return;
   }
 
   // class
   @Override
   public void visit(ClassSingle c)
   {
+    LinkedList<Tuple> locals = new LinkedList<>();
     this.sayln("struct " + c.id);
     this.sayln("{");
-    this.sayln("  struct " + c.id + "_vtable *vptr;");
+    printSpaces();
+    this.sayln("struct " + c.id + "_vtable *vptr;");
+    printSpaces();
+    this.sayln("int isObjOrArray;");
+    printSpaces();
+    this.sayln("int length;");
+    printSpaces();
+    this.sayln("void *forwarding;");
     for (Tuple t : c.decs) {
-      this.say("  ");
+      printSpaces();
       t.type.accept(this);
       this.say(" ");
       this.sayln(t.id + ";");
+      locals.add(t);
     }
+    this.class_decs.put(c.id, locals);
     this.sayln("};");
-    return;
   }
+
+  private void outputMainGcStack(Cfg.MainMethod.MainMethodSingle m)
+  {
+    sayln("struct Tiger_main_gc_frame");
+    sayln("{");
+    indent();
+    printSpaces();
+    sayln("void *prev_;");
+    printSpaces();
+    sayln("char *arguments_gc_map;");
+    printSpaces();
+    sayln("int *arguments_base_address;");
+    printSpaces();
+    sayln("int locals_gc_map;");
+    for (Dec.T dec : m.locals) {
+      DecSingle ds = (DecSingle) dec;
+      if (ds.type instanceof ClassType ||
+          ds.type instanceof IntArrayType) {
+        printSpaces();
+        ds.accept(this);
+        this.sayln(";");
+      }
+    }
+    unIndent();
+    this.sayln("};");
+  }
+
+  private void outputGcStack(Method.MethodSingle m)
+  {
+    sayln("struct " + m.classId + "_" + m.id + "_gc_frame");
+    sayln("{");
+    indent();
+    printSpaces();
+    sayln("void *prev_;");
+    printSpaces();
+    sayln("char *arguments_gc_map;");
+    printSpaces();
+    sayln("int *arguments_base_address;");
+    printSpaces();
+    sayln("int locals_gc_map;");
+    for (Dec.T dec : m.locals) {
+      DecSingle ds = (DecSingle) dec;
+      if (ds.type instanceof ClassType ||
+          ds.type instanceof IntArrayType) {
+        printSpaces();
+        ds.accept(this);
+        this.sayln(";");
+      }
+    }
+    unIndent();
+    this.sayln("};");
+  }
+
+  private void outputGcMap(MethodSingle m)
+  {
+    this.say("char* " + m.classId + "_" + m.id + "_arguments_gc_map = \"");
+    for (Dec.T dec : m.formals) {
+      DecSingle ds = (DecSingle) dec;
+      if (ds.type instanceof ClassType ||
+          ds.type instanceof IntArrayType) {
+        this.say("1");
+      } else {
+        this.say("0"); // hack for 64bit system
+      }
+    }
+    this.sayln("\";");
+    //locals map
+    int i = 0;
+    for (Dec.T dec : m.locals) {
+      DecSingle ds = (DecSingle) dec;
+      if (ds.type instanceof ClassType ||
+          ds.type instanceof IntArrayType) {
+        i++;
+      }
+    }
+    sayln("int " + m.classId + "_" + m.id + "_locals_gc_map= " + i + ";");
+  }
+
 
   // program
   @Override
   public void visit(ProgramSingle p)
   {
-    // we'd like to output to a file, rather than the "stdout".
-    try {
-      String outputName = null;
-      if (Control.ConCodeGen.outputName != null) {
-        outputName = Control.ConCodeGen.outputName;
-      } else if (Control.ConCodeGen.fileName != null) {
-        outputName = Control.ConCodeGen.fileName + ".c";
-      } else {
-        outputName = "a.c";
-      }
-
-      this.writer = new java.io.BufferedWriter(new java.io.OutputStreamWriter(
-          new java.io.FileOutputStream(outputName)));
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(1);
-    }
-
     this.sayln("// This is automatically generated by the Tiger compiler.");
     this.sayln("// Do NOT modify!\n");
     this.sayln("// Control-flow Graph\n");
+    this.sayln("#ifdef __M32__");
+    this.sayln("#define LENGTH 2");
+    this.sayln("#define ARRAYSELECT_OFFSET 4");
+    this.sayln("#else");
+    this.sayln("#define LENGTH 3");
+    this.sayln("#define ARRAYSELECT_OFFSET 6");
+    this.sayln("#endif");
+
+    sayln("extern void *previous;");
+    sayln("extern void *Tiger_new_array(int);");
+    sayln("extern void *Tiger_new(void*, int);");
+    sayln("extern int System_out_println(int);");
+
 
     this.sayln("// structures");
     for (Class.T c : p.classes) {
       c.accept(this);
     }
 
-    this.sayln("// vtables structures");
+    this.sayln("// vtable structures");
     for (Vtable.T v : p.vtables) {
       v.accept(this);
+    }
+    this.sayln("");
+    this.sayln("// method decls");
+    for (Method.T m : p.methods) {
+      MethodSingle ms = (MethodSingle) m;
+      ms.retType.accept(this);
+      this.say(" " + ms.classId + "_" + ms.id + "(");
+      for (int i = 0; i < ms.formals.size(); i++) {
+        if (i != 0) {
+          this.say(", ");
+        }
+        ms.formals.get(i).accept(this);
+      }
+      this.sayln(");");
+    }
+
+    this.sayln("// vtables");
+    for (Vtable.T v : p.vtables) {
+      outputVtable((VtableSingle) v);
+    }
+    this.sayln("");
+
+    this.sayln("// GC stack frame");
+    outputMainGcStack((MainMethodSingle) p.mainMethod);
+    for (Method.T m : p.methods) {
+      outputGcStack((MethodSingle) m);
+    }
+    this.sayln("");
+
+    this.sayln("// memery GC map");
+    this.sayln("int Tiger_main_locals_gc_map = 1;\n");
+    for (Method.T m : p.methods) {
+      outputGcMap((MethodSingle) m);
+      this.sayln("");
     }
     this.sayln("");
 
@@ -385,25 +646,10 @@ public class PrettyPrintVisitor implements Visitor
     }
     this.sayln("");
 
-    this.sayln("// vtables");
-    for (Vtable.T v : p.vtables) {
-      outputVtable((VtableSingle) v);
-    }
-    this.sayln("");
-
     this.sayln("// main method");
     p.mainMethod.accept(this);
     this.sayln("");
 
     this.say("\n\n");
-
-    try {
-      this.writer.close();
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(1);
-    }
-
   }
-
 }

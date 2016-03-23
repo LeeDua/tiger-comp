@@ -13,7 +13,7 @@ public class Ftuple
   public String id; // name of the field or method
 
   public Ftuple(String classs, Type.T ret,
-      LinkedList<Dec.T> args, String id)
+                LinkedList<Dec.T> args, String id)
   {
     this.classs = classs;
     this.ret = ret;
@@ -27,11 +27,13 @@ public class Ftuple
   // but ignores the first field.
   public boolean equals(Object t)
   {
-    if (t == null)
+    if (t == null) {
       return false;
+    }
 
-    if (!(t instanceof Ftuple))
+    if (!(t instanceof Ftuple)) {
       return false;
+    }
 
     return this.id.equals(((Ftuple) t).id);
   }

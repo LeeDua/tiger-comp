@@ -39,14 +39,13 @@ public class ClassTable
   }
 
   /**
-   *
    * @param cname
    * @param ret
    * @param args
    * @param mid
    */
   void initMethod(String cname, Type.T ret,
-                         java.util.LinkedList<Dec.T> args, String mid)
+                  java.util.LinkedList<Dec.T> args, String mid)
   {
     ClassBinding cb = this.table.get(cname);
     cb.putm(cname, ret, args, mid);

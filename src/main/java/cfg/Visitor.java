@@ -1,85 +1,73 @@
 package cfg;
 
-import cfg.Cfg.Block.BlockSingle;
-import cfg.Cfg.Class.ClassSingle;
-import cfg.Cfg.Dec.DecSingle;
-import cfg.Cfg.MainMethod.MainMethodSingle;
-import cfg.Cfg.Method.MethodSingle;
-import cfg.Cfg.Operand.Int;
-import cfg.Cfg.Operand.Var;
-import cfg.Cfg.Program.ProgramSingle;
-import cfg.Cfg.Stm.Add;
-import cfg.Cfg.Stm.InvokeVirtual;
-import cfg.Cfg.Stm.Lt;
-import cfg.Cfg.Stm.Move;
-import cfg.Cfg.Stm.NewObject;
-import cfg.Cfg.Stm.Print;
-import cfg.Cfg.Stm.Sub;
-import cfg.Cfg.Stm.Times;
-import cfg.Cfg.Transfer.Goto;
-import cfg.Cfg.Transfer.If;
-import cfg.Cfg.Transfer.Return;
-import cfg.Cfg.Type.ClassType;
-import cfg.Cfg.Type.IntArrayType;
-import cfg.Cfg.Type.IntType;
-import cfg.Cfg.Vtable.VtableSingle;
-
 public interface Visitor
 {
   // operand
-  void visit(Int o);
+  void visit(Cfg.Operand.Int o);
 
-  void visit(Var o);
+  void visit(Cfg.Operand.Var o);
 
   // type
-  void visit(ClassType t);
+  void visit(Cfg.Type.ClassType t);
 
-  void visit(IntType t);
+  void visit(Cfg.Type.IntType t);
 
-  void visit(IntArrayType t);
+  void visit(Cfg.Type.IntArrayType t);
 
   // dec
-  void visit(DecSingle d);
+  void visit(Cfg.Dec.DecSingle d);
 
   // transfer
-  void visit(If t);
+  void visit(Cfg.Transfer.If t);
 
-  void visit(Goto t);
+  void visit(Cfg.Transfer.Goto t);
 
-  void visit(Return t);
+  void visit(Cfg.Transfer.Return t);
 
   // statement:
-  void visit(Add m);
+  void visit(Cfg.Stm.Add s);
 
-  void visit(InvokeVirtual m);
+  void visit(Cfg.Stm.And s);
 
-  void visit(Lt m);
+  void visit(Cfg.Stm.ArraySelect s);
 
-  void visit(Move m);
+  void visit(Cfg.Stm.AssignArray s);
 
-  void visit(NewObject m);
+  void visit(Cfg.Stm.InvokeVirtual s);
 
-  void visit(Print m);
+  void visit(Cfg.Stm.Length s);
 
-  void visit(Sub m);
+  void visit(Cfg.Stm.Lt s);
 
-  void visit(Times m);
+  void visit(Cfg.Stm.Move s);
+
+  void visit(Cfg.Stm.NewIntArray s);
+
+  void visit(Cfg.Stm.NewObject s);
+
+  void visit(Cfg.Stm.Not s);
+
+  void visit(Cfg.Stm.Print s);
+
+  void visit(Cfg.Stm.Sub s);
+
+  void visit(Cfg.Stm.Times s);
 
   // block
-  void visit(BlockSingle b);
+  void visit(Cfg.Block.BlockSingle b);
 
   // method
-  void visit(MethodSingle m);
+  void visit(Cfg.Method.MethodSingle m);
 
   // vtable
-  void visit(VtableSingle v);
+  void visit(Cfg.Vtable.VtableSingle v);
 
   // class
-  void visit(ClassSingle c);
+  void visit(Cfg.Class.ClassSingle c);
 
   // main method
-  void visit(MainMethodSingle c);
+  void visit(Cfg.MainMethod.MainMethodSingle c);
 
   // program
-  void visit(ProgramSingle p);
+  void visit(Cfg.Program.ProgramSingle p);
 }

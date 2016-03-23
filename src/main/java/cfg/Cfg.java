@@ -129,10 +129,12 @@ public class Cfg
     public static class Var extends T
     {
       public String id;
+      public boolean isField;
 
-      public Var(String id)
+      public Var(String id, boolean isField)
       {
         this.id = id;
+        this.isField = isField;
       }
 
       @Override
@@ -155,17 +157,77 @@ public class Cfg
     public static class Add extends T
     {
       public String dst;
-      // type of the destination variable
-      public Type.T ty;
       public Operand.T left;
       public Operand.T right;
 
-      public Add(String dst, Type.T ty, Operand.T left, Operand.T right)
+      public Add(String dst, Operand.T left, Operand.T right)
       {
         this.dst = dst;
-        this.ty = ty;
         this.left = left;
         this.right = right;
+      }
+
+      @Override
+      public void accept(Visitor v)
+      {
+        v.visit(this);
+      }
+    }
+
+    public static class And extends T
+    {
+      public String dst;
+      public Operand.T left;
+      public Operand.T right;
+
+      public And(String dst, Operand.T left, Operand.T right)
+      {
+        this.dst = dst;
+        this.left = left;
+        this.right = right;
+      }
+
+      @Override
+      public void accept(Visitor v)
+      {
+        v.visit(this);
+      }
+    }
+
+    public static class ArraySelect extends T
+    {
+      public String dst;
+      public Operand.T array;
+      public Operand.T index;
+
+      public ArraySelect(String dst, Operand.T array, Operand.T index)
+      {
+        this.dst = dst;
+        this.array = array;
+        this.index = index;
+      }
+
+      @Override
+      public void accept(Visitor v)
+      {
+        v.visit(this);
+      }
+    }
+
+    public static class AssignArray extends T
+    {
+      public String dst;
+      public Operand.T index;
+      public Operand.T exp;
+      public boolean isField;
+
+      public AssignArray(String dst, Operand.T index, Operand.T exp,
+                         boolean isField)
+      {
+        this.dst = dst;
+        this.index = index;
+        this.exp = exp;
+        this.isField = isField;
       }
 
       @Override
@@ -180,7 +242,6 @@ public class Cfg
       public String dst;
       public String obj;
       public String f;
-      // type of the destination variable
       public LinkedList<Operand.T> args;
 
       public InvokeVirtual(String dst, String obj, String f,
@@ -199,18 +260,39 @@ public class Cfg
       }
     }
 
+    public static class Length extends T
+    {
+      public String dst;
+      public Operand.T array;
+
+      public Length(String dst, Operand.T array)
+      {
+        this.dst = dst;
+        this.array = array;
+      }
+
+      @Override
+      public void accept(Visitor v)
+      {
+        v.visit(this);
+      }
+
+      @Override
+      public String toString()
+      {
+        return this.dst + " = " + this.array.toString() + "[3];";
+      }
+    }
+
     public static class Lt extends T
     {
       public String dst;
-      // type of the destination variable
-      public Type.T ty;
       public Operand.T left;
       public Operand.T right;
 
-      public Lt(String dst, Type.T ty, Operand.T left, Operand.T right)
+      public Lt(String dst, Operand.T left, Operand.T right)
       {
         this.dst = dst;
-        this.ty = ty;
         this.left = left;
         this.right = right;
       }
@@ -225,15 +307,32 @@ public class Cfg
     public static class Move extends T
     {
       public String dst;
-      // type of the destination variable
-      public Type.T ty;
       public Operand.T src;
+      public boolean isField;
 
-      public Move(String dst, Type.T ty, Operand.T src)
+      public Move(String dst, Operand.T src, boolean isField)
       {
         this.dst = dst;
-        this.ty = ty;
         this.src = src;
+        this.isField = isField;
+      }
+
+      @Override
+      public void accept(Visitor v)
+      {
+        v.visit(this);
+      }
+    }
+
+    public static class NewIntArray extends T
+    {
+      public String dst;
+      public Operand.T size;
+
+      public NewIntArray(String dst, Operand.T size)
+      {
+        this.dst = dst;
+        this.size = size;
       }
 
       @Override
@@ -246,13 +345,30 @@ public class Cfg
     public static class NewObject extends T
     {
       public String dst;
-      // type of the destination variable
-      public String c;
+      public String c; // class id
 
       public NewObject(String dst, String c)
       {
         this.dst = dst;
         this.c = c;
+      }
+
+      @Override
+      public void accept(Visitor v)
+      {
+        v.visit(this);
+      }
+    }
+
+    public static class Not extends T
+    {
+      public String dst;
+      public Operand.T exp;
+
+      public Not(String dst, Operand.T exp)
+      {
+        this.dst = dst;
+        this.exp = exp;
       }
 
       @Override
@@ -281,8 +397,7 @@ public class Cfg
     public static class Sub extends T
     {
       public String dst;
-      // type of the destination variable
-      public Type.T ty;
+      public Type.T ty; // type of the destination variable
       public Operand.T left;
       public Operand.T right;
 
@@ -304,8 +419,7 @@ public class Cfg
     public static class Times extends T
     {
       public String dst;
-      // type of the destination variable
-      public Type.T ty;
+      public Type.T ty; // type of the destination variable
       public Operand.T left;
       public Operand.T right;
 
@@ -430,8 +544,8 @@ public class Cfg
       {
         StringBuffer strb = new StringBuffer();
         strb.append(this.label.toString() + ":\\n");
-        // Lab5. Your code here:
-        strb.append("Your code here:\\n");
+        // TODO
+        strb.append("TODO:\\n");
 
         return strb.toString();
       }
@@ -514,7 +628,6 @@ public class Cfg
       public void accept(Visitor v)
       {
         v.visit(this);
-        return;
       }
 
     }
@@ -608,7 +721,6 @@ public class Cfg
       public void accept(Visitor v)
       {
         v.visit(this);
-        return;
       }
     }
   }// end of program

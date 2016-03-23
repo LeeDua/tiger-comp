@@ -104,7 +104,6 @@ public class TranslateVisitor implements ast.Visitor
     e.right.accept(this);
     Exp.T right = this.exp;
     this.exp = new And(left, right);
-
   }
 
   @Override
