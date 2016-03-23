@@ -190,16 +190,16 @@ public class Ast
 
     public static class Call extends T
     {
-      public String assign;
+      public String dst;
       public T exp;
       public String id;
       public LinkedList<T> args;
       public Type.T retType;
 
-      public Call(String assign, T exp, String id,
+      public Call(String dst, T exp, String id,
                   java.util.LinkedList<T> args, Type.T retType)
       {
-        this.assign = assign;
+        this.dst = dst;
         this.exp = exp;
         this.id = id;
         this.args = args;
@@ -275,13 +275,12 @@ public class Ast
 
     public static class NewIntArray extends T
     {
-      public T exp;
-      // This field is used to name the allocation.
-      public String name;
+      public T size;
+      public String name; // This field is used to name the allocation.
 
-      public NewIntArray(T exp)
+      public NewIntArray(T size)
       {
-        this.exp = exp;
+        this.size = size;
       }
 
       @Override

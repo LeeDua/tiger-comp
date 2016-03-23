@@ -4,27 +4,11 @@
 /*  FILE NAME             :  gc.c                                   */
 /*  PRINCIPAL AUTHOR      :  qc1iu                                  */
 /*  LANGUAGE              :  C                                      */
-/*  TARGET ENVIRONMENT    :  ANY                                    */
+/*  TARGET ENVIRONMENT    :  Linux                                  */
 /*  DATE OF FIRST RELEASE :  2014/10/05                             */
 /*  DESCRIPTION           :  the tiger compiler 'gc                 */
 /*------------------------------------------------------------------*/
 
-/*
- * Revision log:
- * ---------------------
- * 2014/12/06
- * 1>add Exchange()
- * 2>add RewriteObj()
- * --------------------
- *
- * 2014/12/08
- * 1>add the copyCount
- *
- * 2015/08/26
- *  refactor by qc1iu
- *
- *
- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,18 +28,18 @@
  */
 #ifdef __CLANG__
 #define GET_STACK_ARG_ADDRESS(base, index)  \
-  (((char*)base)-(index)*sizeof(void*))
+  (((char*)base) - (index) * WORLD)
 #else
 #define GET_STACK_ARG_ADDRESS(base, index)  \
-  (((char*)base)+(index)*sizeof(void*))
+  (((char*)base) + (index) * WORLD)
 #endif
 
 #define CAST_ADDR(p)        ((int*)(p))
 #define GET_LOCAL_ADDRESS(frame, index)     \
-  (((char*)(frame+1))+index*(sizeof(int)))
+  (((char*)(frame + 1)) + index * (WORLD))
 
 #define GET_OBJECT_FIELD_ADDR(obj, index)   \
-  (((char*)(obj+1))+index*(sizeof(int)))
+  (((char*)(obj + 1)) + index * (INT_SIZE))
 
 #define GET_OBJECT(addr)    (*(O*)addr)
 
@@ -136,7 +120,9 @@ void *previous = 0;
 
 static int copyCount;
 
-static const int WORLD = sizeof(int);
+static const int WORLD = sizeof(int*);
+
+static const int INT_SIZE = sizeof(int);
 
 static const int OBJECT_HEADER_SIZE = sizeof(struct O);
 
@@ -271,7 +257,7 @@ static int objectSize(O obj)
       size = obj->length;
       break;
     case TYPE_ARRAY:
-      size = obj->length*sizeof(int)+OBJECT_HEADER_SIZE;
+      size = obj->length * INT_SIZE + OBJECT_HEADER_SIZE;
       break;
     default:
       ERROR("wrong type");
@@ -329,14 +315,23 @@ static void collectedObjectField(O obj)
   if (field_count <= 0) {
     return;
   }
-  int i=0;
+  int i = 0;
+#ifndef __M32__
+  int j = 0;
+#endif
   for (i=0; i<field_count; i++) {
     if (class_map[i] == '0')
-    continue;
+      continue;
 
     int r;
+#ifdef __M32__
     Verbose_TRACE("copyCollection", copyCollection, 
-          ((int**)GET_OBJECT_FIELD_ADDR(obj, i)), r, VERBOSE_SUBPASS);
+          ((int**)GET_OBJECT_FIELD_ADDR(obj, (i))), r, VERBOSE_SUBPASS);
+#else
+    Verbose_TRACE("copyCollection", copyCollection, 
+          ((int**)GET_OBJECT_FIELD_ADDR(obj, (i+j))), r, VERBOSE_SUBPASS);
+    j++;
+#endif
   }
 }
 
@@ -527,15 +522,15 @@ static void* newArray(int length)
 {
   O obj;
   obj = (O)heap.fromFree;
-  memset(obj ,0,length * WORLD + OBJECT_HEADER_SIZE);
+  memset(obj ,0,length * INT_SIZE + OBJECT_HEADER_SIZE);
   obj->vptr = NULL;
   obj->isArray = TYPE_ARRAY;
   obj->length = length;
   obj->forwarding = 0;
-  heap.fromFree += (length * WORLD) + OBJECT_HEADER_SIZE;
+  heap.fromFree += (length * INT_SIZE) + OBJECT_HEADER_SIZE;
   // status update
   status.new_array_times++;
-  status.mem_total_used += (length * WORLD + OBJECT_HEADER_SIZE);
+  status.mem_total_used += (length * INT_SIZE + OBJECT_HEADER_SIZE);
   return obj;
 }
 
@@ -603,10 +598,10 @@ void *Tiger_new (void *vtable, int size)
 void *Tiger_new_array (int length)
 {
   if(NO_ENOUGH_SPACE(heap.to-heap.fromFree,(
-            length*sizeof(int))+OBJECT_HEADER_SIZE)){
+            length * INT_SIZE) + OBJECT_HEADER_SIZE)){
     Tiger_gc();
     if(NO_ENOUGH_SPACE(heap.to-heap.fromFree, 
-            (length*sizeof(int))+OBJECT_HEADER_SIZE)){
+            (length * INT_SIZE) + OBJECT_HEADER_SIZE)){
       ERROR("OutOfMemory");
     }
   }
