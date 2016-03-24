@@ -8,6 +8,7 @@ import parser.Parser;
 import java.io.*;
 
 import static control.Control.ConAst.dumpAst;
+
 //-elab classTable -elab methodTable  -dump ast test/LinkedList.java -codegen C
 public class Tiger
 {
@@ -23,7 +24,8 @@ public class Tiger
   {
     Parser parser;
     try {
-      InputStream fstream = new BufferedInputStream(new FileInputStream(this.fname));
+      InputStream fstream = new BufferedInputStream(
+          new FileInputStream(this.fname));
       parser = new Parser(this.fname, fstream);
 
       this.theAst = parser.parse();
@@ -200,7 +202,7 @@ public class Tiger
     try {
       cmd.scan();
     } catch (ParseException e) {
-      System.out.println("ArgError: "+e.getMessage());
+      System.out.println("ArgError: " + e.getMessage());
       System.exit(0);
     }
 

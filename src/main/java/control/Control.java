@@ -43,6 +43,7 @@ public class Control
     {
       Bytecode, C, Dalvik, X86
     }
+
     public static Kind_t codegen = Kind_t.C;
   }
 }

@@ -6,7 +6,7 @@ public class Verbose
 
   public static interface F
   {
-    public Object f();
+    Object f();
   }
 
   public static final int SILENCE = 0;

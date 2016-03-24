@@ -50,7 +50,7 @@ public class CommandLineParser
         .build());
   }
 
-  protected void Usage()
+  private void Usage()
   {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("tiger", HEADER, opts, FOOTER, true);
@@ -58,41 +58,41 @@ public class CommandLineParser
 
   public void scan() throws ParseException
   {
-      CommandLine cmd = parse(this.opts, this.args);
-      if (cmd.hasOption("h")) {
-        Usage();
-        System.exit(0);
+    CommandLine cmd = parse(this.opts, this.args);
+    if (cmd.hasOption("h")) {
+      Usage();
+      System.exit(0);
+    }
+    String[] args = cmd.getArgs();
+    if (args.length < 1) {
+      throw new ParseException("no input file");
+    }
+    if (args.length > 1) {
+      throw new ParseException("can only parse one file");
+    }
+    Control.ConCodeGen.fileName = args[0];
+    if (cmd.hasOption("o")) {
+      Control.ConCodeGen.outputName = cmd.getOptionValue("o");
+    }
+    if (cmd.hasOption("codegen")) {
+      String generator = cmd.getOptionValue("codegen");
+      switch (generator) {
+        case "C":
+          Control.ConCodeGen.codegen = Control.ConCodeGen.Kind_t.C;
+          break;
+        case "Bytecode":
+          Control.ConCodeGen.codegen = Control.ConCodeGen.Kind_t.Bytecode;
+          break;
+        case "Dalvik":
+          Control.ConCodeGen.codegen = Control.ConCodeGen.Kind_t.Dalvik;
+          break;
+        case "X86":
+          Control.ConCodeGen.codegen = Control.ConCodeGen.Kind_t.X86;
+          break;
+        default:
+          throw new ParseException("expect {C|Bytecode|Dalvik|X86}");
       }
-      String[] args = cmd.getArgs();
-      if (args.length < 1) {
-        throw new ParseException("no input file");
-      }
-      if (args.length > 1) {
-        throw new ParseException("can only parse one file");
-      }
-      Control.ConCodeGen.fileName = args[0];
-      if (cmd.hasOption("o")){
-        Control.ConCodeGen.outputName = cmd.getOptionValue("o");
-      }
-      if (cmd.hasOption("codegen")) {
-        String generator = cmd.getOptionValue("codegen");
-        switch (generator) {
-          case "C":
-            Control.ConCodeGen.codegen = Control.ConCodeGen.Kind_t.C;
-            break;
-          case "Bytecode":
-            Control.ConCodeGen.codegen = Control.ConCodeGen.Kind_t.Bytecode;
-            break;
-          case "Dalvik":
-            Control.ConCodeGen.codegen = Control.ConCodeGen.Kind_t.Dalvik;
-            break;
-          case "X86":
-            Control.ConCodeGen.codegen = Control.ConCodeGen.Kind_t.X86;
-            break;
-          default:
-            throw new ParseException("expect {C|Bytecode|Dalvik|X86}");
-        }
-      }
+    }
   }
 
   private CommandLine parse(Options opts, String[] args) throws ParseException
