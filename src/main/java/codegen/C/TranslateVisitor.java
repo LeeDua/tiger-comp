@@ -30,11 +30,14 @@ import codegen.C.Ast.Type;
 import codegen.C.Ast.Type.ClassType;
 import codegen.C.Ast.Vtable;
 import codegen.C.Ast.Vtable.VtableSingle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 // Given a Java AST, translate it into a C AST and outputs it.
 
 public class TranslateVisitor implements ast.Visitor
 {
+  private static Logger logger = LogManager.getLogger("TransC");
   private ClassTable table;
 
   private String classId;
@@ -432,9 +435,12 @@ public class TranslateVisitor implements ast.Visitor
 
   private void scanProgram(ast.Ast.Program.T p)
   {
+    // use stacktrace to get method name
+    logger.debug(new Throwable().getStackTrace()[1].getMethodName()+" start");
     ast.Ast.Program.ProgramSingle pp = (ast.Ast.Program.ProgramSingle) p;
     scanMain(pp.mainClass);
     scanClasses(pp.classes);
+    logger.debug(new Throwable().getStackTrace()[1].getMethodName()+" end");
   }
   // end of the first pass
   // ////////////////////////////////////////////////////
@@ -443,6 +449,7 @@ public class TranslateVisitor implements ast.Visitor
   @Override
   public void visit(ast.Ast.Program.ProgramSingle p)
   {
+    logger.info("translate to C start");
     // The first pass is to scan the whole program "p", and
     // to collect all information of inheritance.
     scanProgram(p);
@@ -453,5 +460,6 @@ public class TranslateVisitor implements ast.Visitor
     }
     this.program = new ProgramSingle(this.classes, this.vtables,
         this.methods, this.mainMethod);
+    logger.info("translate to C end");
   }
 }
