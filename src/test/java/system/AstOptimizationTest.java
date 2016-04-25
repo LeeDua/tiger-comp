@@ -6,8 +6,8 @@ import ast.optimizations.Main;
 import elaborator.ElaboratorVisitor;
 import javacc.ParseException;
 import javacc.Parser;
-import junit.framework.Assert;
 import org.junit.Test;
+import util.StreamDrainer;
 
 import java.io.*;
 
@@ -26,13 +26,14 @@ public class AstOptimizationTest
     try {
       // mkdir
       Process mkdir = Runtime.getRuntime().exec("mkdir build/tmp/t");
-      BufferedReader mkdir_br = new BufferedReader(
-          new InputStreamReader(mkdir.getInputStream()));
-      while (mkdir_br.readLine() != null) {
+      new Thread(new StreamDrainer(mkdir.getInputStream())).start();
+      new Thread(new StreamDrainer(mkdir.getErrorStream())).start();
+      mkdir.getOutputStream().close();
+      try {
+        mkdir.waitFor();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
-      mkdir_br = new BufferedReader(
-          new InputStreamReader(mkdir.getErrorStream()));
-      assertNull(mkdir_br.readLine());
 
       for (int i = 0; i < Result.R.length; i++) {
         Result.R r = Result.R[i];
@@ -77,6 +78,7 @@ public class AstOptimizationTest
         for (int j = 0; j < rr.length; j++) {
           assertEquals(rr[j], br.readLine());
         }
+        exec.getOutputStream().close();
         try {
           exec.waitFor();
         } catch (InterruptedException e) {
@@ -86,13 +88,13 @@ public class AstOptimizationTest
       }
     } finally {
       Process p = Runtime.getRuntime().exec("rm -rf build/tmp/t");
-      BufferedReader rm_br = new BufferedReader(
-          new InputStreamReader(p.getInputStream()));
-      while (rm_br.readLine() != null) {
-      }
-      new BufferedReader(
-          new InputStreamReader(p.getErrorStream()));
-      while (rm_br.readLine() != null) {
+      new Thread(new StreamDrainer(p.getInputStream())).start();
+      new Thread(new StreamDrainer(p.getErrorStream())).start();
+      p.getOutputStream().close();
+      try {
+        p.waitFor();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
       System.out.println("  clean finished");
     }

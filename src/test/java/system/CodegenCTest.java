@@ -97,13 +97,13 @@ public class CodegenCTest
     }
     System.out.println("All test case passed.");
     Process p = Runtime.getRuntime().exec("rm -rf build/tmp/t");
-    BufferedReader rm_br = new BufferedReader(
-        new InputStreamReader(p.getInputStream()));
-    while (rm_br.readLine() != null) {
-    }
-    new BufferedReader(
-        new InputStreamReader(p.getErrorStream()));
-    while (rm_br.readLine() != null) {
+    new Thread(new util.StreamDrainer(p.getInputStream())).start();
+    new Thread(new util.StreamDrainer(p.getErrorStream())).start();
+    p.getOutputStream().close();
+    try {
+      p.waitFor();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
     System.out.println("  clean finished");
   }

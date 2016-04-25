@@ -5,6 +5,7 @@ import ast.PrettyPrintVisitor;
 import javacc.ParseException;
 import javacc.Parser;
 import org.junit.Test;
+import util.StreamDrainer;
 
 import java.io.*;
 
@@ -54,6 +55,13 @@ public class FrontendTest
         BufferedReader br = new BufferedReader(
             new InputStreamReader(compile.getInputStream()));
         assertNull(br.readLine());
+        new Thread(new StreamDrainer(compile.getErrorStream())).start();
+        compile.getOutputStream().close();
+        try {
+          compile.waitFor();
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
         System.out.println("  compile finished.");
 
         Process exec = Runtime.getRuntime()
@@ -67,6 +75,7 @@ public class FrontendTest
         for (int j = 0; j < rr.length; j++) {
           assertEquals(rr[j], br.readLine());
         }
+        exec.getOutputStream().close();
         try {
           exec.waitFor();
         } catch (InterruptedException e) {
@@ -75,18 +84,16 @@ public class FrontendTest
         System.out.println("  exec finished");
       } finally {
         Process p = Runtime.getRuntime().exec("rm -rf build/tmp/t");
-        BufferedReader rm_br = new BufferedReader(
-            new InputStreamReader(p.getInputStream()));
-        while (rm_br.readLine() != null) {
-        }
-        new BufferedReader(
-            new InputStreamReader(p.getErrorStream()));
-        while (rm_br.readLine() != null) {
+        new Thread(new StreamDrainer(p.getInputStream())).start();
+        new Thread(new StreamDrainer(p.getErrorStream())).start();
+        p.getOutputStream().close();
+        try {
+          p.waitFor();
+        } catch (InterruptedException e) {
+          e.printStackTrace();
         }
         System.out.println("  clean finished");
       }
-
     }
   }
-
 }

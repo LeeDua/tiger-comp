@@ -27,6 +27,7 @@ public class Control
   {
     public static boolean dumpAst = false;
     public static boolean testFac = false;
+    public static boolean dumpDot = false;
 
     // elaborator
     public static boolean elabClassTable = false;
@@ -46,4 +47,10 @@ public class Control
 
     public static Kind_t codegen = Kind_t.C;
   }
+
+  //graph visualization
+  public enum Visualize_Kind_t {
+    None, Bmp, Pdf, Ps, Jpg
+  }
+  public static Visualize_Kind_t visualize = Visualize_Kind_t.None;
 }

@@ -8,6 +8,7 @@ import javacc.ParseException;
 import javacc.Parser;
 import org.junit.Assert;
 import org.junit.Test;
+import util.StreamDrainer;
 
 import java.io.*;
 
@@ -111,13 +112,13 @@ public class CodegenCFGTest
     }
     System.out.println("All test case passed.");
     Process p = Runtime.getRuntime().exec("rm -rf build/tmp/t");
-    BufferedReader rm_br = new BufferedReader(
-        new InputStreamReader(p.getInputStream()));
-    while (rm_br.readLine() != null) {
-    }
-    new BufferedReader(
-        new InputStreamReader(p.getErrorStream()));
-    while (rm_br.readLine() != null) {
+    new Thread(new StreamDrainer(p.getInputStream())).start();
+    new Thread(new StreamDrainer(p.getErrorStream())).start();
+    p.getOutputStream().close();
+    try {
+      p.waitFor();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
     System.out.println("  clean finished");
   }

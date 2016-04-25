@@ -11,6 +11,7 @@ import javacc.ParseException;
 import javacc.Parser;
 import org.junit.Assert;
 import org.junit.Test;
+import util.StreamDrainer;
 
 import java.io.*;
 
@@ -26,13 +27,14 @@ public class DeadClassTest
   {
     // mkdir
     Process mkdir = Runtime.getRuntime().exec("mkdir build/tmp/t");
-    BufferedReader mkdir_br = new BufferedReader(
-        new InputStreamReader(mkdir.getInputStream()));
-    while (mkdir_br.readLine() != null) {
+    new Thread(new StreamDrainer(mkdir.getInputStream())).start();
+    new Thread(new StreamDrainer(mkdir.getErrorStream())).start();
+    mkdir.getOutputStream().close();
+    try {
+      mkdir.waitFor();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
-    mkdir_br = new BufferedReader(
-        new InputStreamReader(mkdir.getErrorStream()));
-    assertNull(mkdir_br.readLine());
 
     try {
       InputStream in = new BufferedInputStream(
@@ -71,15 +73,13 @@ public class DeadClassTest
       Process compile = Runtime.getRuntime().exec(
           "gcc -g build/tmp/t/TestDeadClass.java.c src/main/runtime/runtime.c " +
               "-o build/tmp/t/TestDeadClass.out");
-      BufferedReader br = new BufferedReader(
-          new InputStreamReader(compile.getErrorStream()));
-      for (String err = br.readLine(); err != null; err = br.readLine()) {
-        System.out.println(err);
-      }
-      BufferedReader stdout = new BufferedReader(
-          new InputStreamReader(compile.getInputStream()));
-      for (String s = stdout.readLine(); s != null; s = stdout.readLine()) {
-        System.out.println(s);
+      new Thread(new StreamDrainer(compile.getInputStream())).start();
+      new Thread(new StreamDrainer(compile.getErrorStream())).start();
+      compile.getOutputStream().close();
+      try {
+        compile.waitFor();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
       System.out.println("  Compile finished.");
       // run
@@ -91,16 +91,23 @@ public class DeadClassTest
            s = run_stdout.readLine()) {
         assertEquals("10", s);
       }
+      new Thread(new StreamDrainer(run.getErrorStream())).start();
+      run.getOutputStream().close();
+      try {
+        run.waitFor();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     } finally {
     }
     Process p = Runtime.getRuntime().exec("rm -rf build/tmp/t");
-    BufferedReader rm_br = new BufferedReader(
-        new InputStreamReader(p.getInputStream()));
-    while (rm_br.readLine() != null) {
-    }
-    new BufferedReader(
-        new InputStreamReader(p.getErrorStream()));
-    while (rm_br.readLine() != null) {
+    new Thread(new StreamDrainer(p.getInputStream())).start();
+    new Thread(new StreamDrainer(p.getErrorStream())).start();
+    p.getOutputStream().close();
+    try {
+      p.waitFor();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
     System.out.println("  clean finished");
   }
