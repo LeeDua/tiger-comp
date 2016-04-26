@@ -9,9 +9,12 @@ import org.apache.commons.cli.CommandLine;
 
 public class CommandLineParser
 {
-  private static final String HEADER = "The tiger compiler. Copyright (C) 2013-2015, CSS of USTC.\n\n";
-  private static final String FOOTER = "\nPlease report issues at https://github.com/qc1iu/tiger-comp/issues";
-  private static final String VERSION = "0.0.3";
+  private static final String VERSION = "v0.0.3";
+  private static final String HEADER =
+      "The tiger compiler " + VERSION +
+          ". Copyright (C) 2013-2016, CSS of USTC.\n\n";
+  private static final String FOOTER =
+      "\nPlease report issues at https://github.com/qc1iu/tiger-comp/issues";
 
   private Options opts;
   private String[] args;
@@ -54,6 +57,7 @@ public class CommandLineParser
   {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("tiger", HEADER, opts, FOOTER, true);
+    System.out.println();
   }
 
   public void scan() throws ParseException
@@ -91,6 +95,25 @@ public class CommandLineParser
           break;
         default:
           throw new ParseException("expect {C|Bytecode|Dalvik|X86}");
+      }
+    }
+    if (cmd.hasOption("v")) {
+      String format = cmd.getOptionValue("v");
+      switch (format) {
+        case "bmp":
+          Control.visualize = Control.Visualize_Kind_t.Bmp;
+          break;
+        case "pdf":
+          Control.visualize = Control.Visualize_Kind_t.Pdf;
+          break;
+        case "svg":
+          Control.visualize = Control.Visualize_Kind_t.Svg;
+          break;
+        case "jpg":
+          Control.visualize = Control.Visualize_Kind_t.Jpg;
+          break;
+        default:
+          throw new ParseException("expect {bmp|pdf|svg|jpg}");
       }
     }
   }

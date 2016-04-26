@@ -1,6 +1,7 @@
 package cfg;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 import cfg.Cfg.Block;
 import cfg.Cfg.Block.BlockSingle;
@@ -32,16 +33,47 @@ import cfg.Cfg.Vtable.VtableSingle;
 public class VisualVisitor implements Visitor
 {
   public StringBuffer strb;
+  private HashSet<String> redecs;
+  private int indentLevel;
 
   public VisualVisitor()
   {
     this.strb = new StringBuffer();
+    this.redecs = new HashSet<>();
+    this.indentLevel = 2;
   }
 
   // ///////////////////////////////////////////////////
+  private void printSpaces()
+  {
+    int i = this.indentLevel;
+    while (i-- != 0)
+      this.say(" ");
+  }
+
+  private void sayln(String s)
+  {
+    say(s);
+    this.strb.append("\n");
+  }
+
+  private void say(String s)
+  {
+    this.strb.append(s);
+  }
+
   private void emit(String s)
   {
     strb.append(s);
+  }
+
+  private String getVar(String dst)
+  {
+    if (this.redecs.contains(dst)) {
+      return "frame." + dst;
+    } else {
+      return dst;
+    }
   }
 
   // /////////////////////////////////////////////////////
@@ -49,7 +81,7 @@ public class VisualVisitor implements Visitor
   @Override
   public void visit(Int operand)
   {
-    emit(new Integer(operand.i).toString());
+    emit(Integer.toString(operand.i));
   }
 
   @Override
@@ -62,160 +94,210 @@ public class VisualVisitor implements Visitor
   @Override
   public void visit(Add s)
   {
-    emit(s.dst + " = ");
+    say(getVar(s.dst) + " = ");
     s.left.accept(this);
-    emit(" + ");
+    say(" + ");
     s.right.accept(this);
-    emit(";");
+    say(";");
   }
 
-  @Override public void visit(Cfg.Stm.And s)
+  @Override
+  public void visit(Cfg.Stm.And s)
   {
-
+    say(getVar(s.dst) + " = ");
+    s.left.accept(this);
+    say(" + ");
+    s.right.accept(this);
+    say(";");
   }
 
-  @Override public void visit(Cfg.Stm.ArraySelect s)
+  @Override
+  public void visit(Cfg.Stm.ArraySelect s)
   {
-
+    this.say(s.dst + " = ");
+    s.array.accept(this);
+    this.say("[");
+    s.index.accept(this);
+    this.say("+ARRAYSELECT_OFFSET];");
   }
 
-  @Override public void visit(Cfg.Stm.AssignArray s)
+  @Override
+  public void visit(Cfg.Stm.AssignArray s)
   {
-
+    if (s.isField) {
+      this.say("this->" + s.dst + "[");
+    } else {
+      this.say(getVar(s.dst) + "[");
+    }
+    s.index.accept(this);
+    this.say("+ARRAYSELECT_OFFSET]=");
+    s.exp.accept(this);
+    this.say(";");
   }
 
   @Override
   public void visit(InvokeVirtual s)
   {
-    emit(s.dst + " = " + s.obj);
-    emit("->vptr->" + s.f + "(" + s.obj);
+    this.say(getVar(s.dst) + " = " + getVar(s.obj));
+    this.say("->vptr->" + s.f + "(" + getVar(s.obj));
     for (Operand.T x : s.args) {
-      emit(", ");
+      this.say(", ");
       x.accept(this);
     }
-    emit(");");
+    this.say(");");
   }
 
-  @Override public void visit(Cfg.Stm.Length s)
+  @Override
+  public void visit(Cfg.Stm.Length s)
   {
-
+    this.say(getVar(s.dst) + " = ");
+    s.array.accept(this);
+    this.say("[LENGTH];");
   }
 
   @Override
   public void visit(Lt s)
   {
-    emit(s.dst + " = ");
+    this.say(getVar(s.dst) + " = ");
     s.left.accept(this);
-    emit(" < ");
+    this.say(" < ");
     s.right.accept(this);
-    emit(";");
+    this.say(";");
   }
 
   @Override
   public void visit(Move s)
   {
-    emit(s.dst + " = ");
+    if (s.isField) {
+      this.say("this->" + s.dst + " = ");
+    } else {
+      this.say(getVar(s.dst) + " = ");
+    }
     s.src.accept(this);
-    emit(";");
+    this.say(";");
   }
 
-  @Override public void visit(Cfg.Stm.NewIntArray s)
+  @Override
+  public void visit(Cfg.Stm.NewIntArray s)
   {
-
+    this.say(getVar(s.dst) + " = (int*)Tiger_new_array(");
+    s.size.accept(this);
+    this.say(");");
   }
 
   @Override
   public void visit(NewObject s)
   {
-    emit(s.dst + " = ((struct " + s.c + "*)(Tiger_new (&" + s.c
+    this.say(getVar(s.dst) + " = ((struct " + s.c + "*)(Tiger_new (&" + s.c
         + "_vtable_, sizeof(struct " + s.c + "))));");
   }
 
-  @Override public void visit(Cfg.Stm.Not s)
+  @Override
+  public void visit(Cfg.Stm.Not s)
   {
-
+    this.say(getVar(s.dst) + " = !(");
+    s.exp.accept(this);
+    this.say(");");
   }
 
   @Override
   public void visit(Print s)
   {
-    emit("System_out_println (");
+    this.say("System_out_println (");
     s.arg.accept(this);
-    emit(");");
+    this.say(");");
   }
 
   @Override
   public void visit(Sub s)
   {
-    emit(s.dst + " = ");
+    this.say(getVar(s.dst) + " = ");
     s.left.accept(this);
-    emit(" - ");
+    this.say(" - ");
     s.right.accept(this);
-    emit(";");
+    this.say(";");
   }
 
   @Override
   public void visit(Times s)
   {
-    emit(s.dst + " = ");
+    this.say(getVar(s.dst) + " = ");
     s.left.accept(this);
-    emit(" * ");
+    this.say(" * ");
     s.right.accept(this);
-    emit(";");
+    this.say(";");
   }
 
   // transfer
   @Override
   public void visit(If s)
   {
-    emit("if (");
+    this.say("if (");
     s.operand.accept(this);
-    emit(")\n");
-    emit("  goto " + s.truee.toString() + ";\n");
-    emit("else\n");
-    emit("  goto " + s.falsee.toString() + ";\n");
+    this.sayln(")");
+    this.printSpaces();
+    this.sayln("  goto " + s.truee.toString() + ";");
+    this.printSpaces();
+    this.sayln("else");
+    this.printSpaces();
+    this.say("  goto " + s.falsee.toString() + ";");
   }
 
   @Override
   public void visit(Goto s)
   {
-    emit("goto " + s.label.toString() + ";\n");
+    this.say("goto " + s.label.toString() + ";");
   }
 
   @Override
   public void visit(Return s)
   {
-
+    this.sayln("previous = frame.prev_;");
+    printSpaces();
+    this.say("return ");
+    s.operand.accept(this);
+    this.say(";");
   }
 
   // type
   @Override
   public void visit(ClassType t)
   {
-    emit("struct " + t.id + " *");
+    this.say("struct " + t.id + "*");
   }
 
   @Override
   public void visit(IntType t)
   {
+    this.say("int");
   }
 
   @Override
   public void visit(IntArrayType t)
   {
+    this.say("int*");
   }
 
   // dec
   @Override
   public void visit(DecSingle d)
   {
+    d.type.accept(this);
+    this.say(" " + d.id);
   }
 
   // dec
   @Override
   public void visit(BlockSingle b)
   {
-
+    this.say(b.label.toString() + ":\n");
+    for (Cfg.Stm.T s : b.stms) {
+      printSpaces();
+      s.accept(this);
+      this.say("\n");
+    }
+    printSpaces();
+    b.transfer.accept(this);
   }
 
   // method
@@ -233,9 +315,11 @@ public class VisualVisitor implements Visitor
     util.Graph<Block.T> graph = new util.Graph<>(m.classId + "_"
         + m.id);
 
+    // add node
     for (Block.T block : m.blocks) {
       graph.addNode(block);
     }
+    // add edge
     for (Block.T block : m.blocks) {
       BlockSingle b = (BlockSingle) block;
       Transfer.T transfer = b.transfer;
@@ -292,23 +376,23 @@ public class VisualVisitor implements Visitor
   @Override
   public void visit(VtableSingle v)
   {
+    //no need
   }
 
   // class
   @Override
   public void visit(ClassSingle c)
   {
+    //no need
   }
 
   // program
   @Override
   public void visit(ProgramSingle p)
   {
-    // we'd like to output to a file, rather than the "stdout".
     for (cfg.Cfg.Method.T m : p.methods) {
       m.accept(this);
     }
     p.mainMethod.accept(this);
   }
-
 }

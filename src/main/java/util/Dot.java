@@ -16,14 +16,16 @@ public class Dot
 
     public DotElement(X x, Y y, Z z)
     {
-      this.e = new Triple<X, Y, Z>(x, y, z);
+      this.e = new Triple<>(x, y, z);
     }
 
     public String toString()
     {
       String s = "";
-      if (this.e.z != null)
+      if (this.e.z != null) {
         s = this.e.z.toString();
+        return s;
+      }
 
       return ("\"" + e.x.toString() + "\"" + "->" + "\"" + e.y.toString()
           + "\"" + s + ";\n");
@@ -45,22 +47,19 @@ public class Dot
   public void insert(String from, String to, String info)
   {
 
-    String s = "[label=\"" + info + "\"]";
-    // System.out.println(s);
+    String s = util.Temp.next() + "[label=\"" + info + "\"]";
     this.list.addFirst(new DotElement<>(from, to, s));
   }
 
   public String toString()
   {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     for (DotElement<String, String, String> e : this.list) {
       sb.append(e.toString());
     }
 
-    String result = sb.toString();
-
-    return result;
+    return sb.toString();
   }
 
   public void toDot(String fname)
@@ -91,8 +90,8 @@ public class Dot
   void visualize(String name)
   {
     toDot(name);
-    String format = "";
-    String postfix = "";
+    String format = "-Tsvg";
+    String postfix = "svg";
     switch (control.Control.visualize) {
       case Bmp:
         format = "-Tbmp";
@@ -110,11 +109,16 @@ public class Dot
         format = "-Tjpg";
         postfix = "jpg";
         break;
+      case Svg:
+        format = "-Tsvg";
+        postfix = "svg";
+        break;
       default:
         new util.Bug();
         break;
     }
-    String[] args = {"dot", format, name + ".dot", "-o", name + "." + postfix};
+    String[] args = {"dot", format, name + ".dot", "-o",
+        "build/tmp" + name + "." + postfix};
     try {
       // Read this article:
       // http://walsh.iteye.com/blog/449051

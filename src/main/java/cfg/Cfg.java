@@ -543,10 +543,10 @@ public class Cfg
       public String toString()
       {
         StringBuffer strb = new StringBuffer();
-        strb.append(this.label.toString() + ":\\n");
-        // TODO
-        strb.append("TODO:\\n");
-
+        VisualVisitor v = new VisualVisitor();
+        this.accept(v);
+        strb.append(v.strb.toString());
+        strb.append("\n");
         return strb.toString();
       }
 

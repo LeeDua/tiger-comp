@@ -6,9 +6,7 @@ import codegen.C.TranslateVisitor;
 import elaborator.ElaboratorVisitor;
 import javacc.ParseException;
 import javacc.Parser;
-import org.junit.Assert;
 import org.junit.Test;
-import util.StreamDrainer;
 
 import java.io.*;
 
@@ -17,12 +15,12 @@ import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Created by qc1iu on 3/23/16.
+ * Created by qc1iu on 25/04/16.
  */
-public class CodegenCFGTest
+public class VisualizeTest
 {
   @Test
-  public void testCFG() throws IOException
+  public void testVisualize() throws IOException
   {
     // mkdir
     try {
@@ -71,54 +69,21 @@ public class CodegenCFGTest
         assertNotNull(cfgProg);
         System.out.println("  Translate C to CFG finished.");
 
-        cfg.PrettyPrintVisitor pp = new cfg.PrettyPrintVisitor();
-        cfgProg.accept(pp);
-        // translate
-        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(
-            new FileOutputStream("build/tmp/t/" + r.fname + ".java.c")));
-        w.write(pp.sb.toString());
-        w.flush();
-        w.close();
-        // compile
-        Process compile = Runtime.getRuntime().exec(
-            "gcc -g build/tmp/t/" + r.fname +
-                ".java.c src/main/runtime/runtime.c " +
-                "-o build/tmp/t/" + r.fname + ".out");
-        BufferedReader br = new BufferedReader(
-            new InputStreamReader(compile.getErrorStream()));
-        for (String err = br.readLine(); err != null; err = br.readLine()) {
-          System.out.println(err);
-        }
-        BufferedReader stdout = new BufferedReader(
-            new InputStreamReader(compile.getInputStream()));
-        for (String s = stdout.readLine(); s != null; s = stdout.readLine()) {
-          System.out.println(s);
-        }
-        System.out.println("  Compile finished.");
-        // run
-        Process run = Runtime.getRuntime()
-            .exec("./build/tmp/t/" + r.fname + ".out -heapSize 1500");
-        BufferedReader run_stdout = new BufferedReader(
-            new InputStreamReader(run.getInputStream()));
-        String[] rr = r.r;
-        int j = 0;
-        for (String s = run_stdout.readLine(); s != null;
-             s = run_stdout.readLine()) {
-          Assert.assertEquals(rr[j++], s);
-        }
-        Assert.assertEquals(j, rr.length);
+        cfg.VisualVisitor v = new cfg.VisualVisitor();
+        cfgProg.accept(v);
       }
       System.out.println("All test case passed.");
     } finally {
       Process p = Runtime.getRuntime().exec("rm -rf build/tmp/t");
-      new Thread(new StreamDrainer(p.getInputStream())).start();
-      new Thread(new StreamDrainer(p.getErrorStream())).start();
+      new Thread(new util.StreamDrainer(p.getInputStream())).start();
+      new Thread(new util.StreamDrainer(p.getErrorStream())).start();
       p.getOutputStream().close();
       try {
         p.waitFor();
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
+
       System.out.println("  clean finished");
     }
   }

@@ -9,19 +9,22 @@ public class Graph<X>
   public class Node
   {
     X data;
+    int inDegree;
+    int outDegree;
     public LinkedList<Edge> edges;
 
     public Node()
     {
       this.data = null;
       this.edges = null;
+      this.inDegree = 0;
+      this.outDegree = 0;
     }
 
     public Node(X data)
     {
       this.data = data;
       this.edges = new LinkedList<>();
-      ;
     }
 
     @Override
@@ -97,6 +100,8 @@ public class Graph<X>
 
   private void addEdge(Node from, Node to)
   {
+    from.outDegree++;
+    to.inDegree++;
     from.edges.addLast(new Edge(from, to));
   }
 
@@ -146,6 +151,9 @@ public class Graph<X>
     fname = this.gname;
 
     for (Node node : this.graph) {
+      if (node.inDegree == 0 && node.outDegree == 0){
+        dot.insert(null, null, node.toString());
+      }
       for (Edge edge : node.edges)
         dot.insert(edge.from.toString(), edge.to.toString());
     }

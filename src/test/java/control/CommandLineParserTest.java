@@ -15,13 +15,14 @@ public class CommandLineParserTest
   @Test
   public void test() throws ParseException
   {
-    String cmd = "-o aaa.c LinkedList.java -codegen Bytecode";
+    String cmd = "-o aaa.c LinkedList.java -codegen Bytecode -v svg";
     String[] args = cmd.split(" ");
     CommandLineParser c = new CommandLineParser(args);
     c.scan();
     assertEquals(Control.ConCodeGen.Kind_t.Bytecode, Control.ConCodeGen.codegen);
     assertEquals("LinkedList.java", Control.ConCodeGen.fileName);
     assertEquals("aaa.c", Control.ConCodeGen.outputName);
+    assertEquals("Svg", Control.visualize.name());
   }
 
 
@@ -56,6 +57,17 @@ public class CommandLineParserTest
     expectedEx.expect(ParseException.class);
     expectedEx.expectMessage("expect {C|Bytecode|Dalvik|X86}");
     String cmd = "-codegen abc LinkedList.java";
+    String[] args = cmd.split(" ");
+    CommandLineParser c = new CommandLineParser(args);
+    c.scan();
+  }
+
+  @Test
+  public void testIllegleVisualFormat() throws ParseException
+  {
+    expectedEx.expect(ParseException.class);
+    expectedEx.expectMessage("expect {bmp|pdf|svg|jpg}");
+    String cmd = "LinkedList.java -v jpeg";
     String[] args = cmd.split(" ");
     CommandLineParser c = new CommandLineParser(args);
     c.scan();

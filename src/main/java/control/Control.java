@@ -49,8 +49,10 @@ public class Control
   }
 
   //graph visualization
-  public enum Visualize_Kind_t {
-    None, Bmp, Pdf, Ps, Jpg
+  public enum Visualize_Kind_t
+  {
+    Bmp, Pdf, Ps, Jpg, Svg
   }
-  public static Visualize_Kind_t visualize = Visualize_Kind_t.None;
+
+  public static Visualize_Kind_t visualize = Visualize_Kind_t.Svg;
 }

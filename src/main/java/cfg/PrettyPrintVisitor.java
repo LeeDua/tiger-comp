@@ -206,7 +206,6 @@ public class PrettyPrintVisitor implements Visitor
     this.say(getVar(s.dst) + " = (int*)Tiger_new_array(");
     s.size.accept(this);
     this.say(");");
-
   }
 
   @Override
