@@ -1,14 +1,12 @@
-package codegen.C;
+package codegen.RuntimeC;
 
-import codegen.C.Ast.Dec;
-import codegen.C.Ast.Type;
+import codegen.RuntimeC.Ast.Dec;
+import codegen.RuntimeC.Ast.Type;
 
-public class ClassTable
-{
+public class ClassTable {
   private java.util.Hashtable<String, ClassBinding> table;
 
-  public ClassTable()
-  {
+  public ClassTable() {
     this.table = new java.util.Hashtable<>();
   }
 
@@ -18,19 +16,17 @@ public class ClassTable
    * @param cname    classname
    * @param extendss null if the class has no base class.
    */
-  void init(String cname, String extendss)
-  {
+  void init(String cname, String extendss) {
     this.table.put(cname, new ClassBinding(extendss));
   }
 
   /**
-   * put the C decls into corresponding classbinding.
+   * put the RuntimeC decls into corresponding classbinding.
    *
    * @param cname classname
-   * @param decs  the decleares of C.
+   * @param decs  the decleares of RuntimeC.
    */
-  void initDecs(String cname, java.util.LinkedList<Dec.T> decs)
-  {
+  void initDecs(String cname, java.util.LinkedList<Dec.T> decs) {
     ClassBinding cb = this.table.get(cname);
     for (Dec.T dec : decs) {
       Dec.DecSingle decc = (Dec.DecSingle) dec;
@@ -45,8 +41,7 @@ public class ClassTable
    * @param mid
    */
   void initMethod(String cname, Type.T ret,
-                  java.util.LinkedList<Dec.T> args, String mid)
-  {
+                  java.util.LinkedList<Dec.T> args, String mid) {
     ClassBinding cb = this.table.get(cname);
     cb.putm(cname, ret, args, mid);
   }
@@ -54,8 +49,7 @@ public class ClassTable
   /**
    * @param cname class name
    */
-  void inherit(String cname)
-  {
+  void inherit(String cname) {
     ClassBinding cb = this.table.get(cname);
     if (cb.visited) {
       return;
@@ -75,7 +69,7 @@ public class ClassTable
     // methods;
     java.util.ArrayList<Ftuple> newMethods = new java.util.ArrayList<>();
     newMethods.addAll(pb.methods);
-    for (codegen.C.Ftuple t : cb.methods) {
+    for (codegen.RuntimeC.Ftuple t : cb.methods) {
       int index = newMethods.indexOf(t);
       if (index == -1) {
         newMethods.add(t);
@@ -89,14 +83,12 @@ public class ClassTable
   }
 
   // return null for non-existing keys
-  ClassBinding get(String c)
-  {
+  ClassBinding get(String c) {
     return this.table.get(c);
   }
 
   @Override
-  public String toString()
-  {
+  public String toString() {
     return this.table.toString();
   }
 }

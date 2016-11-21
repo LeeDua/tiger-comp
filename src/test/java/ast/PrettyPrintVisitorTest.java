@@ -8,13 +8,13 @@ import ast.Ast.Stm.Assign;
 import ast.Ast.Stm.If;
 import ast.Ast.Stm.Print;
 import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 
 /**
  * Created by qc1iu on 02/03/16.
  */
-public class PrettyPrintVisitorTest
-{
+public class PrettyPrintVisitorTest {
   // main class: "Factorial"
   MainClass.T factorial = new MainClassSingle(
       "Factorial", "a", new Print(new Call(
@@ -43,15 +43,13 @@ public class PrettyPrintVisitorTest
       new util.Flist<Ast.Class.T>().list(fac));
 
   @Test
-  public void testPrettyPrint()
-  {
+  public void testPrettyPrint() {
     PrettyPrintVisitor pp = new PrettyPrintVisitor();
     prog.accept(pp);
   }
 
   @Test
-  public void testAddExp()
-  {
+  public void testAddExp() {
     System.out.println("testAddExp");
     Id left = new Id("x");
     Num right = new Num(1);
@@ -62,8 +60,7 @@ public class PrettyPrintVisitorTest
   }
 
   @Test
-  public void testCallExp()
-  {
+  public void testCallExp() {
     System.out.println("testCallExp");
     PrettyPrintVisitor pp = new PrettyPrintVisitor();
     Call c = new Call(

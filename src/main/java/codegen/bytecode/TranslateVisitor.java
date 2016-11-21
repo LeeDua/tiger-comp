@@ -21,8 +21,7 @@ import util.Label;
 
 // Given a Java ast, translate it into Java bytecode.
 
-public class TranslateVisitor implements ast.Visitor
-{
+public class TranslateVisitor implements ast.Visitor {
   private String classId;// 记录正在Trans的类名
   private int index;
   private Hashtable<String, Integer> indexTable;//frame
@@ -37,8 +36,7 @@ public class TranslateVisitor implements ast.Visitor
   private MainClass.T mainClass;
   public Program.T program;
 
-  public TranslateVisitor()
-  {
+  public TranslateVisitor() {
     this.classId = null;
     this.indexTable = null;
     this.type = null;
@@ -50,16 +48,14 @@ public class TranslateVisitor implements ast.Visitor
     this.program = null;
   }
 
-  private void emit(Stm.T s)
-  {
+  private void emit(Stm.T s) {
     this.stms.add(s);
   }
 
   // /////////////////////////////////////////////////////
   // expressions
   @Override
-  public void visit(ast.Ast.Exp.Add e)
-  {
+  public void visit(ast.Ast.Exp.Add e) {
     e.left.accept(this);
     e.right.accept(this);
     emit(new Iadd());
@@ -67,8 +63,7 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.And e)
-  {
+  public void visit(ast.Ast.Exp.And e) {
     e.left.accept(this);
     e.right.accept(this);
     emit(new Iand());
@@ -77,8 +72,7 @@ public class TranslateVisitor implements ast.Visitor
 
   @Override
   // array[index]
-  public void visit(ast.Ast.Exp.ArraySelect e)
-  {
+  public void visit(ast.Ast.Exp.ArraySelect e) {
     e.array.accept(this);// arrayref这一步会执行Aload或Iload把ID的进栈
     e.index.accept(this);// index
     emit(new IAload());// retrieve integer from array
@@ -86,8 +80,7 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Call e)
-  {
+  public void visit(ast.Ast.Exp.Call e) {
     e.caller.accept(this);
     for (ast.Ast.Exp.T x : e.args) {
       x.accept(this);
@@ -106,15 +99,13 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.False e)
-  {
+  public void visit(ast.Ast.Exp.False e) {
     emit(new Ldc(0));
     return;
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Id e)
-  {
+  public void visit(ast.Ast.Exp.Id e) {
     if (!e.isField) {
       int index = this.indexTable.get(e.id);
       ast.Ast.Type.T type = e.type;
@@ -140,8 +131,7 @@ public class TranslateVisitor implements ast.Visitor
 
   @Override
   // ayyay.length
-  public void visit(ast.Ast.Exp.Length e)
-  {
+  public void visit(ast.Ast.Exp.Length e) {
     e.array.accept(this);
     emit(new ArrayLength());
 
@@ -151,8 +141,7 @@ public class TranslateVisitor implements ast.Visitor
   *
   */
   @Override
-  public void visit(ast.Ast.Exp.Lt e)
-  {
+  public void visit(ast.Ast.Exp.Lt e) {
     Label tl = new Label();// true
     Label fl = new Label();// false
     Label el = new Label();// exit
@@ -171,23 +160,20 @@ public class TranslateVisitor implements ast.Visitor
 
   @Override
   // new int[index]
-  public void visit(ast.Ast.Exp.NewIntArray e)
-  {
+  public void visit(ast.Ast.Exp.NewIntArray e) {
     e.exp.accept(this);
     emit(new NewIntArray());
     return;
   }
 
   @Override
-  public void visit(ast.Ast.Exp.NewObject e)
-  {
+  public void visit(ast.Ast.Exp.NewObject e) {
     emit(new New(e.id));
     return;
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Not e)
-  {
+  public void visit(ast.Ast.Exp.Not e) {
     Label tl = new Label(), el = new Label();
     e.exp.accept(this);
     this.emit(new Ifne(tl));
@@ -203,15 +189,13 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Num e)
-  {
+  public void visit(ast.Ast.Exp.Num e) {
     emit(new Ldc(e.num));
     return;
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Sub e)
-  {
+  public void visit(ast.Ast.Exp.Sub e) {
     e.left.accept(this);
     e.right.accept(this);
     emit(new Isub());
@@ -219,15 +203,13 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.This e)
-  {
+  public void visit(ast.Ast.Exp.This e) {
     emit(new Aload(0));
     return;
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Times e)
-  {
+  public void visit(ast.Ast.Exp.Times e) {
     e.left.accept(this);
     e.right.accept(this);
     emit(new Imul());
@@ -235,8 +217,7 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.True e)
-  {
+  public void visit(ast.Ast.Exp.True e) {
     emit(new Ldc(1));
     return;
   }
@@ -244,8 +225,7 @@ public class TranslateVisitor implements ast.Visitor
   // ///////////////////////////////////////////////////
   // statements
   @Override
-  public void visit(ast.Ast.Stm.Assign s)
-  {
+  public void visit(ast.Ast.Stm.Assign s) {
     // 同样要特殊处理id
     ast.Ast.Exp.Id id = new ast.Ast.Exp.Id(s.id, s.type, s.isField);
     if (!id.isField) {
@@ -272,8 +252,7 @@ public class TranslateVisitor implements ast.Visitor
 
   @Override
   // id[exp]=exp
-  public void visit(ast.Ast.Stm.AssignArray s)
-  {
+  public void visit(ast.Ast.Stm.AssignArray s) {
     // 需要特殊对待s.id
     ast.Ast.Exp.Id id = new ast.Ast.Exp.Id(s.id, s.type, s.isField);
 
@@ -285,16 +264,14 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Stm.Block s)
-  {
+  public void visit(ast.Ast.Stm.Block s) {
     for (ast.Ast.Stm.T t : s.stms) {
       t.accept(this);
     }
   }
 
   @Override
-  public void visit(ast.Ast.Stm.If s)
-  {
+  public void visit(ast.Ast.Stm.If s) {
     Label tl = new Label(), fl = new Label(), el = new Label();
     s.condition.accept(this);// 现将condition的结果进栈
 
@@ -310,16 +287,14 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Stm.Print s)
-  {
+  public void visit(ast.Ast.Stm.Print s) {
     s.exp.accept(this);
     emit(new Print());
     return;
   }
 
   @Override
-  public void visit(ast.Ast.Stm.While s)
-  {
+  public void visit(ast.Ast.Stm.While s) {
     Label start = new Label();
     Label t1 = new Label();
     Label f1 = new Label();
@@ -342,36 +317,31 @@ public class TranslateVisitor implements ast.Visitor
 
   // type
   @Override
-  public void visit(ast.Ast.Type.Boolean t)
-  {
+  public void visit(ast.Ast.Type.Boolean t) {
     this.type = new codegen.bytecode.Ast.Type.Int();
     return;
   }
 
   @Override
-  public void visit(ast.Ast.Type.ClassType t)
-  {
+  public void visit(ast.Ast.Type.ClassType t) {
     this.type = new codegen.bytecode.Ast.Type.ClassType(t.id);
     return;
   }
 
   @Override
-  public void visit(ast.Ast.Type.Int t)
-  {
+  public void visit(ast.Ast.Type.Int t) {
     this.type = new Int();
   }
 
   @Override
-  public void visit(ast.Ast.Type.IntArray t)
-  {
+  public void visit(ast.Ast.Type.IntArray t) {
     this.type = new codegen.bytecode.Ast.Type.IntArray();
     return;
   }
 
   // dec
   @Override
-  public void visit(ast.Ast.Dec.DecSingle d)
-  {
+  public void visit(ast.Ast.Dec.DecSingle d) {
     d.type.accept(this);// will modify this.type
     this.dec = new DecSingle(this.type, d.id);
     // 将所有声明都放到indexTable当中,除了Class里面的声明
@@ -384,8 +354,7 @@ public class TranslateVisitor implements ast.Visitor
 
   // method
   @Override
-  public void visit(ast.Ast.Method.MethodSingle m)
-  {
+  public void visit(ast.Ast.Method.MethodSingle m) {
     // record, in a hash table, each var's index
     // this index will be used in the load store operation
     this.index = 1;
@@ -432,8 +401,7 @@ public class TranslateVisitor implements ast.Visitor
 
   // class
   @Override
-  public void visit(ast.Ast.Class.ClassSingle c)
-  {
+  public void visit(ast.Ast.Class.ClassSingle c) {
     this.classId = c.id;
     // 遍历javaAST的一个类的decsList，显然，每一个类都应该构造一个新的decsList
     LinkedList<Dec.T> newDecs = new LinkedList<Dec.T>();
@@ -454,8 +422,7 @@ public class TranslateVisitor implements ast.Visitor
 
   // main class
   @Override
-  public void visit(ast.Ast.MainClass.MainClassSingle c)
-  {
+  public void visit(ast.Ast.MainClass.MainClassSingle c) {
     c.stm.accept(this);
     this.mainClass = new MainClassSingle(c.id, c.arg, this.stms);
     // 当处理完mainClass时，初始化一个新的Stm链
@@ -465,8 +432,7 @@ public class TranslateVisitor implements ast.Visitor
 
   // program
   @Override
-  public void visit(ast.Ast.Program.ProgramSingle p)
-  {
+  public void visit(ast.Ast.Program.ProgramSingle p) {
     // do translations
     p.mainClass.accept(this);
 

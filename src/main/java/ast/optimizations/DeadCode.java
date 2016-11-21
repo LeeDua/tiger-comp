@@ -17,8 +17,7 @@ import java.util.LinkedList;
 
 // Dead code elimination optimizations on an AST.
 
-public class DeadCode implements ast.Visitor
-{
+public class DeadCode implements ast.Visitor {
   Ast.Class.T _class;
   Ast.MainClass.T _mainClass;
   Ast.Stm.T _stm;
@@ -27,57 +26,48 @@ public class DeadCode implements ast.Visitor
   boolean changed;
   public ast.Ast.Program.T program;
 
-  public DeadCode()
-  {
+  public DeadCode() {
     changed = false;
   }
 
   // expressions
   @Override
-  public void visit(Add e)
-  {
+  public void visit(Add e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(And e)
-  {
+  public void visit(And e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(ArraySelect e)
-  {
+  public void visit(ArraySelect e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(Call e)
-  {
+  public void visit(Call e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(False e)
-  {
+  public void visit(False e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(Id e)
-  {
+  public void visit(Id e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(Length e)
-  {
+  public void visit(Length e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(Lt e)
-  {
+  public void visit(Lt e) {
     /*
      * Although we can do some magic in here to opt
 		 * Exp like 1<2 -> true, but the real work is in
@@ -87,69 +77,58 @@ public class DeadCode implements ast.Visitor
   }
 
   @Override
-  public void visit(NewIntArray e)
-  {
+  public void visit(NewIntArray e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(NewObject e)
-  {
+  public void visit(NewObject e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(Not e)
-  {
+  public void visit(Not e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(Num e)
-  {
+  public void visit(Num e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(Sub e)
-  {
+  public void visit(Sub e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(This e)
-  {
+  public void visit(This e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(Times e)
-  {
+  public void visit(Times e) {
     this._exp = e;
   }
 
   @Override
-  public void visit(True e)
-  {
+  public void visit(True e) {
     this._exp = e;
   }
 
   // statements
   @Override
-  public void visit(Assign s)
-  {
+  public void visit(Assign s) {
     this._stm = s;
   }
 
   @Override
-  public void visit(AssignArray s)
-  {
+  public void visit(AssignArray s) {
     this._stm = s;
   }
 
   @Override
-  public void visit(Block s)
-  {
+  public void visit(Block s) {
     LinkedList<Ast.Stm.T> stms = new LinkedList<>();
     for (Ast.Stm.T stm : s.stms) {
       stm.accept(this);
@@ -161,8 +140,7 @@ public class DeadCode implements ast.Visitor
   }
 
   @Override
-  public void visit(If s)
-  {
+  public void visit(If s) {
     s.condition.accept(this);
     if (this._exp instanceof Ast.Exp.True) {
       this._stm = s.thenn;
@@ -176,14 +154,12 @@ public class DeadCode implements ast.Visitor
   }
 
   @Override
-  public void visit(Print s)
-  {
+  public void visit(Print s) {
     this._stm = s;
   }
 
   @Override
-  public void visit(While s)
-  {
+  public void visit(While s) {
     s.condition.accept(this);
     if (this._exp instanceof Ast.Exp.False) {
       this._stm = null;
@@ -195,40 +171,34 @@ public class DeadCode implements ast.Visitor
 
   // type
   @Override
-  public void visit(Boolean t)
-  {
+  public void visit(Boolean t) {
     new util.Bug("impossible");
   }
 
   @Override
-  public void visit(ClassType t)
-  {
+  public void visit(ClassType t) {
     new util.Bug("impossible");
   }
 
   @Override
-  public void visit(Int t)
-  {
+  public void visit(Int t) {
     new util.Bug("impossible");
   }
 
   @Override
-  public void visit(IntArray t)
-  {
+  public void visit(IntArray t) {
     new util.Bug("impossible");
   }
 
   // dec
   @Override
-  public void visit(DecSingle d)
-  {
+  public void visit(DecSingle d) {
     new util.Bug("impossible");
   }
 
   // method
   @Override
-  public void visit(MethodSingle m)
-  {
+  public void visit(MethodSingle m) {
     LinkedList<Ast.Stm.T> stms = new LinkedList<>();
     for (Ast.Stm.T s : m.stms) {
       s.accept(this);
@@ -243,8 +213,7 @@ public class DeadCode implements ast.Visitor
 
   // class
   @Override
-  public void visit(ClassSingle c)
-  {
+  public void visit(ClassSingle c) {
     LinkedList<Ast.Method.T> methods = new LinkedList<>();
     for (Ast.Method.T m : c.methods) {
       m.accept(this);
@@ -256,16 +225,14 @@ public class DeadCode implements ast.Visitor
 
   // main class
   @Override
-  public void visit(MainClassSingle c)
-  {
+  public void visit(MainClassSingle c) {
     c.stm.accept(this);
     this._mainClass = new Ast.MainClass.MainClassSingle(c.id, c.arg, this._stm);
   }
 
   // program
   @Override
-  public void visit(ProgramSingle p)
-  {
+  public void visit(ProgramSingle p) {
     p.mainClass.accept(this);
     LinkedList<Ast.Class.T> classes = new LinkedList<>();
     for (Ast.Class.T c : p.classes) {

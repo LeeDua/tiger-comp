@@ -15,11 +15,9 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * Created by qc1iu on 3/7/16.
  */
-public class FrontendTest
-{
+public class FrontendTest {
   @Test
-  public void testAll() throws IOException
-  {
+  public void testAll() throws IOException {
     for (int i = 0; i < Result.R.length; i++) {
       Result.R r = Result.R[i];
       System.out.println("test " + r.fname);

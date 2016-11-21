@@ -3,15 +3,12 @@ package system;
 /**
  * Created by qc1iu on 3/9/16.
  */
-public class Result
-{
-  public static class R
-  {
+public class Result {
+  public static class R {
     String fname;
     String[] r;
 
-    public R(String fname, String[] r)
-    {
+    public R(String fname, String[] r) {
       this.fname = fname;
       this.r = r;
     }

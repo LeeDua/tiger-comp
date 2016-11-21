@@ -26,9 +26,9 @@ import ast.Ast.Stm;
 import lexer.Lexer;
 import lexer.Token;
 import lexer.Token.Kind;
+
 @Deprecated
-public class Parser
-{
+public class Parser {
   private Lexer lexer;
   private Token current;
 
@@ -44,8 +44,7 @@ public class Parser
   private int linenum = 1;
   private Type.T currentType = null;
 
-  public Parser(String fname, InputStream f)
-  {
+  public Parser(String fname, InputStream f) {
     lexer = new Lexer(fname, f);
     current = lexer.nextToken();
   }
@@ -63,8 +62,7 @@ public class Parser
     current = lexer.nextToken();
   }
 
-  private void eatToken(Kind kind)
-  {
+  private void eatToken(Kind kind) {
     if (kind == current.kind) {
       advance();
     } else {
@@ -81,8 +79,7 @@ public class Parser
   // ExpList -> Exp ExpRest*
   // ->
   // ExpRest -> , Exp
-  private LinkedList<T> parseExpList()
-  {
+  private LinkedList<T> parseExpList() {
     LinkedList<T> args = new LinkedList<T>();
     if (current.kind == Kind.TOKEN_RPAREN) {
       return args;
@@ -104,8 +101,7 @@ public class Parser
   // -> id
   // -> new int [exp]
   // -> new id ()
-  private Exp.T parseAtomExp()
-  {
+  private Exp.T parseAtomExp() {
     Exp.T exp = null;
     String s;
     int i;
@@ -175,8 +171,7 @@ public class Parser
   // -> AtomExp .id (expList)
   // -> AtomExp [exp]
   // -> AtomExp .length
-  private Exp.T parseNotExp()
-  {
+  private Exp.T parseNotExp() {
     Exp.T exp;
 
     exp = parseAtomExp();
@@ -209,8 +204,7 @@ public class Parser
 
   // TimesExp -> ! TimesExp
   // -> NotExp
-  private Exp.T parseTimesExp()
-  {
+  private Exp.T parseTimesExp() {
     Exp.T exp = null;
     Exp.T exp2 = null;
     while (current.kind == Kind.TOKEN_NOT) {
@@ -229,8 +223,7 @@ public class Parser
 
   // AddSubExp -> TimesExp * TimesExp
   // -> TimesExp
-  private Exp.T parseAddSubExp()
-  {
+  private Exp.T parseAddSubExp() {
     Exp.T left, right = null;
     left = parseTimesExp();
     while (current.kind == Kind.TOKEN_TIMES) {
@@ -244,8 +237,7 @@ public class Parser
   // LtExp -> AddSubExp + AddSubExp
   // -> AddSubExp - AddSubExp
   // -> AddSubExp
-  private Exp.T parseLtExp()
-  {
+  private Exp.T parseLtExp() {
     Exp.T left, right = null;
     left = parseAddSubExp();
     while (current.kind == Kind.TOKEN_ADD
@@ -265,8 +257,7 @@ public class Parser
 
   // AndExp -> LtExp < LtExp
   // -> LtExp
-  private Exp.T parseAndExp()
-  {
+  private Exp.T parseAndExp() {
     Exp.T left, right = null;
     left = parseLtExp();
     while (current.kind == Kind.TOKEN_LT) {
@@ -279,8 +270,7 @@ public class Parser
 
   // Exp -> AndExp && AndExp
   // -> AndExp
-  private Exp.T parseExp()
-  {
+  private Exp.T parseExp() {
     Exp.T left, right = null;
     left = parseAndExp();
     while (current.kind == Kind.TOKEN_AND) {
@@ -297,8 +287,7 @@ public class Parser
   // -> System.out.println ( Exp ) ;
   // -> id = Exp ;
   // -> id [ Exp ]= Exp ;
-  private Stm.T parseStatement()
-  {
+  private Stm.T parseStatement() {
     Exp.T exp;
     Exp.T condition;
 
@@ -426,8 +415,7 @@ public class Parser
 
   // Statements -> Statement Statements
   // ->
-  private LinkedList<Stm.T> parseStatements()
-  {
+  private LinkedList<Stm.T> parseStatements() {
     LinkedList<Stm.T> stm = new LinkedList<Stm.T>();
     while (current.kind == Kind.TOKEN_LBRACE
         || current.kind == Kind.TOKEN_IF
@@ -446,8 +434,7 @@ public class Parser
   // -> boolean
   // -> int
   // -> id
-  private Type.T parseType()
-  {
+  private Type.T parseType() {
     switch (current.kind) {
       case TOKEN_INT:
         eatToken(Kind.TOKEN_INT);
@@ -472,8 +459,7 @@ public class Parser
   }
 
   // VarDecl -> Type id ;
-  private DecSingle parseVarDecl()
-  {
+  private DecSingle parseVarDecl() {
     DecSingle dec;
     String id;
     // to parse the "Type" nonterminal in this method, instead of writing
@@ -502,8 +488,7 @@ public class Parser
 
   // VarDecls -> VarDecl VarDecls
   // ->
-  private LinkedList<Dec.T> parseVarDecls()
-  {
+  private LinkedList<Dec.T> parseVarDecls() {
     LinkedList<Dec.T> decs = new LinkedList<ast.Ast.Dec.T>();
     while (current.kind == Kind.TOKEN_INT
         || current.kind == Kind.TOKEN_BOOLEAN
@@ -549,8 +534,7 @@ public class Parser
   // FormalList -> Type id FormalRest*
   // ->
   // FormalRest -> , Type id
-  private LinkedList<Dec.T> parseFormalList()
-  {
+  private LinkedList<Dec.T> parseFormalList() {
     LinkedList<Dec.T> formals = new LinkedList<Dec.T>();
     Type.T type;
     String id;
@@ -573,8 +557,7 @@ public class Parser
 
   // Method -> public Type id ( FormalList )
   // { VarDecl* Statement* return Exp ;}
-  private MethodSingle parseMethod()
-  {
+  private MethodSingle parseMethod() {
     Type.T reType;
     String id;
     LinkedList<Dec.T> formals;
@@ -607,8 +590,7 @@ public class Parser
 
   // MethodDecls -> MethodDecl MethodDecls
   // ->
-  private LinkedList<Method.T> parseMethodDecls()
-  {
+  private LinkedList<Method.T> parseMethodDecls() {
     LinkedList<Method.T> methods = new LinkedList<ast.Ast.Method.T>();
     while (current.kind == Kind.TOKEN_PUBLIC) {
       isField = false;
@@ -624,8 +606,7 @@ public class Parser
 
   // ClassDecl -> class id { VarDecl* MethodDecl* }
   // -> class id extends id { VarDecl* MethodDecl* }
-  private ClassSingle parseClassDecl()
-  {
+  private ClassSingle parseClassDecl() {
     String id;
     String extendss = null;
     LinkedList<Dec.T> decs = new LinkedList<ast.Ast.Dec.T>();
@@ -651,8 +632,7 @@ public class Parser
 
   // ClassDecls -> ClassDecl ClassDecls
   // ->
-  private LinkedList<Class.T> parseClassDecls()
-  {
+  private LinkedList<Class.T> parseClassDecls() {
     LinkedList<Class.T> classed = new LinkedList<Class.T>();
     while (current.kind == Kind.TOKEN_CLASS) {
       ClassSingle sc = (ClassSingle) Verbose.trace("parseClassDecl",
@@ -671,8 +651,7 @@ public class Parser
   // Statement
   // }
   // }
-  private MainClassSingle parseMainClass()
-  {
+  private MainClassSingle parseMainClass() {
     // Parse a main class as described by the
     // grammar above.
 
@@ -707,8 +686,7 @@ public class Parser
 
   // Program -> MainClass ClassDecl*
 
-  private ProgramSingle parseProgram()
-  {
+  private ProgramSingle parseProgram() {
     // MainClass.T mainClass, LinkedList<Class.T> classes
     MainClassSingle mainClass;
     LinkedList<Class.T> classed;
@@ -728,8 +706,7 @@ public class Parser
     return new ProgramSingle(mainClass, classed);
   }
 
-  public ast.Ast.Program.T parse()
-  {
+  public ast.Ast.Program.T parse() {
     Program.T s = parseProgram();
     return s;
   }

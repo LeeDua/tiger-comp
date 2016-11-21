@@ -15,11 +15,9 @@ import static org.junit.Assert.*;
 /**
  * Created by qc1iu on 3/19/16.
  */
-public class AlgSimpTest
-{
+public class AlgSimpTest {
   @Test
-  public void testOptTimes()
-  {
+  public void testOptTimes() {
     System.out.println("test algsimp Exp.Times");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("x*0+2".getBytes()));
@@ -42,8 +40,7 @@ public class AlgSimpTest
   }
 
   @Test
-  public void testOptMultiTimes()
-  {
+  public void testOptMultiTimes() {
     System.out.println("test algsimp multi Exp.Times");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("x*y*3*0".getBytes()));
@@ -71,8 +68,7 @@ public class AlgSimpTest
   }
 
   @Test
-  public void testOptAdd()
-  {
+  public void testOptAdd() {
     System.out.println("test algsimp Exp.Add");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("1+0".getBytes()));
@@ -100,8 +96,7 @@ public class AlgSimpTest
   }
 
   @Test
-  public void testOptMultiAdd()
-  {
+  public void testOptMultiAdd() {
     System.out.println("test algsimp multi Exp.Add");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("1+0+3+0".getBytes()));
@@ -129,8 +124,7 @@ public class AlgSimpTest
   }
 
   @Test
-  public void testOptSub()
-  {
+  public void testOptSub() {
     System.out.println("test algsimp Exp.Sub");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("0-1-0".getBytes()));
@@ -158,8 +152,7 @@ public class AlgSimpTest
   }
 
   @Test
-  public void testOptMultiSub()
-  {
+  public void testOptMultiSub() {
     System.out.println("test algsimp multi Exp.Sub");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("0-1-0-0-0".getBytes()));
@@ -187,8 +180,7 @@ public class AlgSimpTest
   }
 
   @Test
-  public void testArraySelect()
-  {
+  public void testArraySelect() {
     System.out.println("test algsimp Exp.ArraySelect");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("array[5*0]".getBytes()));

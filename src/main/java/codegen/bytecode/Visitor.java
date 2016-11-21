@@ -8,8 +8,7 @@ import codegen.bytecode.Ast.Program.ProgramSingle;
 import codegen.bytecode.Ast.Stm.*;
 import codegen.bytecode.Ast.Type.*;
 
-public interface Visitor
-{
+public interface Visitor {
   // statements
   public void visit(Aload s);
 

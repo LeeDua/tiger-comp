@@ -2,7 +2,7 @@ package system;
 
 import ast.optimizations.Main;
 import cfg.Cfg;
-import codegen.C.TranslateVisitor;
+import codegen.RuntimeC.TranslateVisitor;
 import elaborator.ElaboratorVisitor;
 import javacc.ParseException;
 import javacc.Parser;
@@ -19,11 +19,9 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by qc1iu on 3/23/16.
  */
-public class CodegenCFGTest
-{
+public class CodegenCFGTest {
   @Test
-  public void testCFG() throws IOException
-  {
+  public void testCFG() throws IOException {
     // mkdir
     try {
       Process mkdir = Runtime.getRuntime().exec("mkdir build/tmp/t");
@@ -61,15 +59,15 @@ public class CodegenCFGTest
         TranslateVisitor tv = new TranslateVisitor();
         assertNotNull(prog);
         prog.accept(tv);
-        codegen.C.Ast.Program.T progc = tv.program;
+        codegen.RuntimeC.Ast.Program.T progc = tv.program;
         assertNotNull(progc);
-        System.out.println("  Translate AST to C finished.");
+        System.out.println("  Translate AST to RuntimeC finished.");
 
         cfg.TranslateVisitor cfgTrans = new cfg.TranslateVisitor();
         progc.accept(cfgTrans);
         Cfg.Program.ProgramSingle cfgProg = cfgTrans.program;
         assertNotNull(cfgProg);
-        System.out.println("  Translate C to CFG finished.");
+        System.out.println("  Translate RuntimeC to CFG finished.");
 
         cfg.PrettyPrintVisitor pp = new cfg.PrettyPrintVisitor();
         cfgProg.accept(pp);
@@ -103,7 +101,7 @@ public class CodegenCFGTest
         String[] rr = r.r;
         int j = 0;
         for (String s = run_stdout.readLine(); s != null;
-             s = run_stdout.readLine()) {
+            s = run_stdout.readLine()) {
           Assert.assertEquals(rr[j++], s);
         }
         Assert.assertEquals(j, rr.length);

@@ -18,11 +18,9 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * Created by qc1iu on 22/03/16.
  */
-public class AstOptimizationTest
-{
+public class AstOptimizationTest {
   @Test
-  public void testAll() throws IOException
-  {
+  public void testAll() throws IOException {
     try {
       // mkdir
       Process mkdir = Runtime.getRuntime().exec("mkdir build/tmp/t");
@@ -101,8 +99,7 @@ public class AstOptimizationTest
   }
 
   @Test
-  public void testOptMain()
-  {
+  public void testOptMain() {
     try {
       InputStream in = new BufferedInputStream(
           new FileInputStream("src/test/resources/TestAstOptMain.java"));

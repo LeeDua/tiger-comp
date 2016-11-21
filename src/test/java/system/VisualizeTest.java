@@ -2,7 +2,7 @@ package system;
 
 import ast.optimizations.Main;
 import cfg.Cfg;
-import codegen.C.TranslateVisitor;
+import codegen.RuntimeC.TranslateVisitor;
 import elaborator.ElaboratorVisitor;
 import javacc.ParseException;
 import javacc.Parser;
@@ -17,11 +17,9 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by qc1iu on 25/04/16.
  */
-public class VisualizeTest
-{
+public class VisualizeTest {
   @Test
-  public void testVisualize() throws IOException
-  {
+  public void testVisualize() throws IOException {
     // mkdir
     try {
       Process mkdir = Runtime.getRuntime().exec("mkdir build/tmp/t");
@@ -59,15 +57,15 @@ public class VisualizeTest
         TranslateVisitor tv = new TranslateVisitor();
         assertNotNull(prog);
         prog.accept(tv);
-        codegen.C.Ast.Program.T progc = tv.program;
+        codegen.RuntimeC.Ast.Program.T progc = tv.program;
         assertNotNull(progc);
-        System.out.println("  Translate AST to C finished.");
+        System.out.println("  Translate AST to RuntimeC finished.");
 
         cfg.TranslateVisitor cfgTrans = new cfg.TranslateVisitor();
         progc.accept(cfgTrans);
         Cfg.Program.ProgramSingle cfgProg = cfgTrans.program;
         assertNotNull(cfgProg);
-        System.out.println("  Translate C to CFG finished.");
+        System.out.println("  Translate RuntimeC to CFG finished.");
 
         cfg.VisualVisitor v = new cfg.VisualVisitor();
         cfgProg.accept(v);

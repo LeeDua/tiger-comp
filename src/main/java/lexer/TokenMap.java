@@ -5,12 +5,10 @@ import java.util.HashMap;
 import lexer.Token.Kind;
 
 @Deprecated
-public class TokenMap
-{
+public class TokenMap {
   public HashMap<String, Kind> tokenMap;
 
-  public TokenMap()
-  {
+  public TokenMap() {
     tokenMap = new HashMap<>();
 
     tokenMap.put("+", Kind.TOKEN_ADD);
@@ -55,8 +53,7 @@ public class TokenMap
     tokenMap.put("while", Kind.TOKEN_WHILE);
   }
 
-  public Kind getKind(String s)
-  {
+  public Kind getKind(String s) {
     return tokenMap.get(s);
   }
 

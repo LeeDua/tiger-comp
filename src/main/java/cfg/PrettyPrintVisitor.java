@@ -38,51 +38,43 @@ import java.util.Map;
 
 import static ast.Ast.Type.TYPE_INTARRAY;
 
-public class PrettyPrintVisitor implements Visitor
-{
+public class PrettyPrintVisitor implements Visitor {
   public StringBuilder sb;
   private int indentLevel;
   private HashMap<String, LinkedList<Tuple>> class_decs;
   private HashSet<String> redecs;
 
-  public PrettyPrintVisitor()
-  {
+  public PrettyPrintVisitor() {
     this.sb = new StringBuilder();
     this.indentLevel = 2;
     this.class_decs = new HashMap<>();
     this.redecs = new HashSet<>();
   }
 
-  private void indent()
-  {
+  private void indent() {
     this.indentLevel += 2;
   }
 
-  private void unIndent()
-  {
+  private void unIndent() {
     this.indentLevel -= 2;
   }
 
-  private void printSpaces()
-  {
+  private void printSpaces() {
     int i = this.indentLevel;
     while (i-- != 0)
       this.say(" ");
   }
 
-  private void sayln(String s)
-  {
+  private void sayln(String s) {
     say(s);
     this.sb.append("\n");
   }
 
-  private void say(String s)
-  {
+  private void say(String s) {
     this.sb.append(s);
   }
 
-  private String getVar(String dst)
-  {
+  private String getVar(String dst) {
     if (this.redecs.contains(dst)) {
       return "frame." + dst;
     } else {
@@ -93,14 +85,12 @@ public class PrettyPrintVisitor implements Visitor
   // /////////////////////////////////////////////////////
   // operand
   @Override
-  public void visit(Int operand)
-  {
+  public void visit(Int operand) {
     this.say(Integer.toString(operand.i));
   }
 
   @Override
-  public void visit(Var operand)
-  {
+  public void visit(Var operand) {
     if (operand.isField) {
       this.say("this->" + operand.id);
     } else {
@@ -114,8 +104,7 @@ public class PrettyPrintVisitor implements Visitor
 
   // statements
   @Override
-  public void visit(Add s)
-  {
+  public void visit(Add s) {
     say(getVar(s.dst) + " = ");
     s.left.accept(this);
     say(" + ");
@@ -124,8 +113,7 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Stm.And s)
-  {
+  public void visit(Stm.And s) {
     this.say(getVar(s.dst) + " = ");
     s.left.accept(this);
     this.say(" && ");
@@ -134,8 +122,7 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Stm.ArraySelect s)
-  {
+  public void visit(Stm.ArraySelect s) {
     this.say(s.dst + " = ");
     s.array.accept(this);
     this.say("[");
@@ -144,8 +131,7 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Stm.AssignArray s)
-  {
+  public void visit(Stm.AssignArray s) {
     if (s.isField) {
       this.say("this->" + s.dst + "[");
     } else {
@@ -158,8 +144,7 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(InvokeVirtual s)
-  {
+  public void visit(InvokeVirtual s) {
     this.say(getVar(s.dst) + " = " + getVar(s.obj));
     this.say("->vptr->" + s.f + "(" + getVar(s.obj));
     for (Operand.T x : s.args) {
@@ -170,8 +155,7 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Stm.Length s)
-  {
+  public void visit(Stm.Length s) {
     this.say(getVar(s.dst) + " = ");
     s.array.accept(this);
     this.say("[LENGTH];");
@@ -179,8 +163,7 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Lt s)
-  {
+  public void visit(Lt s) {
     this.say(getVar(s.dst) + " = ");
     s.left.accept(this);
     this.say(" < ");
@@ -189,8 +172,7 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Move s)
-  {
+  public void visit(Move s) {
     if (s.isField) {
       this.say("this->" + s.dst + " = ");
     } else {
@@ -201,39 +183,34 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Stm.NewIntArray s)
-  {
+  public void visit(Stm.NewIntArray s) {
     this.say(getVar(s.dst) + " = (int*)Tiger_new_array(");
     s.size.accept(this);
     this.say(");");
   }
 
   @Override
-  public void visit(NewObject s)
-  {
+  public void visit(NewObject s) {
     this.say(getVar(s.dst) + " = ((struct " + s.c + "*)(Tiger_new (&" + s.c
         + "_vtable_, sizeof(struct " + s.c + "))));");
   }
 
   @Override
-  public void visit(Stm.Not s)
-  {
+  public void visit(Stm.Not s) {
     this.say(getVar(s.dst) + " = !(");
     s.exp.accept(this);
     this.say(");");
   }
 
   @Override
-  public void visit(Print s)
-  {
+  public void visit(Print s) {
     this.say("System_out_println (");
     s.arg.accept(this);
     this.say(");");
   }
 
   @Override
-  public void visit(Sub s)
-  {
+  public void visit(Sub s) {
     this.say(getVar(s.dst) + " = ");
     s.left.accept(this);
     this.say(" - ");
@@ -242,8 +219,7 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Times s)
-  {
+  public void visit(Times s) {
     this.say(getVar(s.dst) + " = ");
     s.left.accept(this);
     this.say(" * ");
@@ -253,8 +229,7 @@ public class PrettyPrintVisitor implements Visitor
 
   // transfer
   @Override
-  public void visit(If s)
-  {
+  public void visit(If s) {
     this.say("if (");
     s.operand.accept(this);
     this.sayln(")");
@@ -267,14 +242,12 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Goto s)
-  {
+  public void visit(Goto s) {
     this.say("goto " + s.label.toString() + ";");
   }
 
   @Override
-  public void visit(Return s)
-  {
+  public void visit(Return s) {
     this.sayln("previous = frame.prev_;");
     printSpaces();
     this.say("return ");
@@ -284,35 +257,30 @@ public class PrettyPrintVisitor implements Visitor
 
   // type
   @Override
-  public void visit(ClassType t)
-  {
+  public void visit(ClassType t) {
     this.say("struct " + t.id + "*");
   }
 
   @Override
-  public void visit(IntType t)
-  {
+  public void visit(IntType t) {
     this.say("int");
   }
 
   @Override
-  public void visit(IntArrayType t)
-  {
+  public void visit(IntArrayType t) {
     this.say("int*");
   }
 
   // dec
   @Override
-  public void visit(DecSingle d)
-  {
+  public void visit(DecSingle d) {
     d.type.accept(this);
     this.say(" " + d.id);
   }
 
   // dec
   @Override
-  public void visit(BlockSingle b)
-  {
+  public void visit(BlockSingle b) {
     this.sayln("// block entry");
     this.say(b.label.toString() + ":\n");
     for (Stm.T s : b.stms) {
@@ -327,8 +295,7 @@ public class PrettyPrintVisitor implements Visitor
 
   // method
   @Override
-  public void visit(MethodSingle m)
-  {
+  public void visit(MethodSingle m) {
     this.redecs = new HashSet<>();
     m.retType.accept(this);
     this.say(" " + m.classId + "_" + m.id + "(");
@@ -383,8 +350,7 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(MainMethodSingle m)
-  {
+  public void visit(MainMethodSingle m) {
     this.redecs = new HashSet<>();
     this.sayln("int Tiger_main ()");
     this.sayln("{");
@@ -423,8 +389,7 @@ public class PrettyPrintVisitor implements Visitor
 
   // vtables
   @Override
-  public void visit(VtableSingle v)
-  {
+  public void visit(VtableSingle v) {
     this.sayln("struct " + v.id + "_vtable");
     this.sayln("{");
     printSpaces();
@@ -445,8 +410,7 @@ public class PrettyPrintVisitor implements Visitor
     this.sayln("};\n");
   }
 
-  private void outputVtable(VtableSingle v)
-  {
+  private void outputVtable(VtableSingle v) {
     this.sayln("struct " + v.id + "_vtable " + v.id + "_vtable_ = ");
     this.sayln("{");
     printSpaces();
@@ -471,8 +435,7 @@ public class PrettyPrintVisitor implements Visitor
 
   // class
   @Override
-  public void visit(ClassSingle c)
-  {
+  public void visit(ClassSingle c) {
     LinkedList<Tuple> locals = new LinkedList<>();
     this.sayln("struct " + c.id);
     this.sayln("{");
@@ -495,8 +458,7 @@ public class PrettyPrintVisitor implements Visitor
     this.sayln("};");
   }
 
-  private void outputMainGcStack(Cfg.MainMethod.MainMethodSingle m)
-  {
+  private void outputMainGcStack(Cfg.MainMethod.MainMethodSingle m) {
     sayln("struct Tiger_main_gc_frame");
     sayln("{");
     indent();
@@ -521,8 +483,7 @@ public class PrettyPrintVisitor implements Visitor
     this.sayln("};");
   }
 
-  private void outputGcStack(Method.MethodSingle m)
-  {
+  private void outputGcStack(Method.MethodSingle m) {
     sayln("struct " + m.classId + "_" + m.id + "_gc_frame");
     sayln("{");
     indent();
@@ -547,8 +508,7 @@ public class PrettyPrintVisitor implements Visitor
     this.sayln("};");
   }
 
-  private void outputGcMap(MethodSingle m)
-  {
+  private void outputGcMap(MethodSingle m) {
     this.say("char* " + m.classId + "_" + m.id + "_arguments_gc_map = \"");
     for (Dec.T dec : m.formals) {
       DecSingle ds = (DecSingle) dec;
@@ -575,8 +535,7 @@ public class PrettyPrintVisitor implements Visitor
 
   // program
   @Override
-  public void visit(ProgramSingle p)
-  {
+  public void visit(ProgramSingle p) {
     this.sayln("// This is automatically generated by the Tiger compiler.");
     this.sayln("// Do NOT modify!\n");
     this.sayln("// Control-flow Graph\n");

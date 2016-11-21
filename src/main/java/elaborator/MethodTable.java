@@ -6,16 +6,14 @@ import ast.Ast.Type;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-public class MethodTable
-{
+public class MethodTable {
   /**
    * Map each locals name (a string), to the corresponding type.
    * The method locals include formals and locals variable.
    */
   HashMap<String, Type.T> locals;
 
-  public MethodTable()
-  {
+  public MethodTable() {
     this.locals = new HashMap<>();
   }
 
@@ -28,8 +26,7 @@ public class MethodTable
    * @throws ElabExpection
    */
   public void put(LinkedList<Dec.T> formals, LinkedList<Dec.T> locals) throws
-      ElabExpection
-  {
+      ElabExpection {
     for (Dec.T dec : formals) {
       Dec.DecSingle decc = (Dec.DecSingle) dec;
       if (this.locals.get(decc.id) != null) {
@@ -54,20 +51,17 @@ public class MethodTable
    * @param id the key for locals
    * @return null if non-exeistiong
    */
-  public Type.T get(String id)
-  {
+  public Type.T get(String id) {
     return this.locals.get(id);
   }
 
-  public void dump()
-  {
+  public void dump() {
     System.out.println("<id----Type>");
     System.out.println(this.locals);
   }
 
   @Override
-  public String toString()
-  {
+  public String toString() {
     return this.locals.toString();
   }
 }

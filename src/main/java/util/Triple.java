@@ -1,21 +1,18 @@
 package util;
 
-public class Triple<X, Y, Z>
-{
+public class Triple<X, Y, Z> {
   public X x;
   public Y y;
   public Z z;
 
-  public Triple(X x, Y y, Z z)
-  {
+  public Triple(X x, Y y, Z z) {
     this.x = x;
     this.y = y;
     this.z = z;
   }
 
   @Override
-  public boolean equals(Object arg0)
-  {
+  public boolean equals(Object arg0) {
     if (arg0 == null) {
       return false;
     }
@@ -27,13 +24,11 @@ public class Triple<X, Y, Z>
     return (this.x.equals(e.x) && this.y.equals(e.y) && this.z.equals(e.z));
   }
 
-  public int hashCode()
-  {
+  public int hashCode() {
     return (x.hashCode() + y.hashCode() + z.hashCode());
   }
 
-  public String toString()
-  {
+  public String toString() {
     return ("(" + this.x.toString() + ", " + this.y.toString() + ", "
         + this.z.toString() + ")");
   }

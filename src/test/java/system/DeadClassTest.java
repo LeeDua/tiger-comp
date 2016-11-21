@@ -4,12 +4,11 @@ package system;
  */
 
 import ast.optimizations.DeadClass;
-import codegen.C.PrettyPrintVisitor;
-import codegen.C.TranslateVisitor;
+import codegen.RuntimeC.PrettyPrintVisitor;
+import codegen.RuntimeC.TranslateVisitor;
 import elaborator.ElaboratorVisitor;
 import javacc.ParseException;
 import javacc.Parser;
-import org.junit.Assert;
 import org.junit.Test;
 import util.StreamDrainer;
 
@@ -20,11 +19,9 @@ import static org.junit.Assert.*;
 /**
  * Created by qc1iu on 16/03/16.
  */
-public class DeadClassTest
-{
+public class DeadClassTest {
   @Test
-  public void testDeadClass() throws IOException
-  {
+  public void testDeadClass() throws IOException {
     // mkdir
     Process mkdir = Runtime.getRuntime().exec("mkdir build/tmp/t");
     new Thread(new StreamDrainer(mkdir.getInputStream())).start();
@@ -59,7 +56,7 @@ public class DeadClassTest
       TranslateVisitor tv = new TranslateVisitor();
       assertNotNull(prog);
       prog.accept(tv);
-      codegen.C.Ast.Program.T progc = tv.program;
+      codegen.RuntimeC.Ast.Program.T progc = tv.program;
       PrettyPrintVisitor ppc = new PrettyPrintVisitor();
       progc.accept(ppc);
       // translate
@@ -88,7 +85,7 @@ public class DeadClassTest
       BufferedReader run_stdout = new BufferedReader(
           new InputStreamReader(run.getInputStream()));
       for (String s = run_stdout.readLine(); s != null;
-           s = run_stdout.readLine()) {
+          s = run_stdout.readLine()) {
         assertEquals("10", s);
       }
       new Thread(new StreamDrainer(run.getErrorStream())).start();

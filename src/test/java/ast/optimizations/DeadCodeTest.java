@@ -14,11 +14,9 @@ import static org.junit.Assert.*;
 /**
  * Created by qc1iu on 18/03/16.
  */
-public class DeadCodeTest
-{
+public class DeadCodeTest {
   @Test
-  public void testOptStmIfTrue()
-  {
+  public void testOptStmIfTrue() {
     System.out.println("test deadcode opt Stm.If true");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream(
@@ -45,8 +43,7 @@ public class DeadCodeTest
   }
 
   @Test
-  public void testOptStmIfFalse()
-  {
+  public void testOptStmIfFalse() {
     System.out.println("test deadcode opt Stm.If false");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream(
@@ -73,8 +70,7 @@ public class DeadCodeTest
   }
 
   @Test
-  public void testOptStmWhileFalse()
-  {
+  public void testOptStmWhileFalse() {
     System.out.println("test deadcode opt Stm.While false");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream(

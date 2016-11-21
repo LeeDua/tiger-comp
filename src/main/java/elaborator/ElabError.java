@@ -7,10 +7,8 @@ import java.util.LinkedList;
 /**
  * Created by qc1iu on 3/5/16.
  */
-public class ElabError
-{
-  public static abstract class T extends Exception
-  {
+public class ElabError {
+  public static abstract class T extends Exception {
     int linenum;
     String info;
 
@@ -18,13 +16,11 @@ public class ElabError
 
   }
 
-  public static class TypeMissMatchError extends T
-  {
+  public static class TypeMissMatchError extends T {
     Ast.Type.T expect;
     Ast.Type.T got;
 
-    public TypeMissMatchError(Ast.Type.T expect, Ast.Type.T got, int linenum)
-    {
+    public TypeMissMatchError(Ast.Type.T expect, Ast.Type.T got, int linenum) {
       this.info = "";
       this.expect = expect;
       this.got = got;
@@ -33,8 +29,7 @@ public class ElabError
 
     public TypeMissMatchError(String info, Ast.Type.T expect,
                               Ast.Type.T got,
-                              int linenum)
-    {
+                              int linenum) {
       this.info = info;
       this.expect = expect;
       this.got = got;
@@ -42,8 +37,7 @@ public class ElabError
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
       StringBuilder sb = new StringBuilder();
       sb.append("TypeMissMatchError ");
       sb.append(this.info);
@@ -57,19 +51,16 @@ public class ElabError
   }
 
 
-  public static class UndeclError extends T
-  {
+  public static class UndeclError extends T {
     String undecl;
 
-    public UndeclError(String undecl, int linenum)
-    {
+    public UndeclError(String undecl, int linenum) {
       this.undecl = undecl;
       this.linenum = linenum;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
       StringBuilder sb = new StringBuilder();
       sb.append("UndeclError line:" + linenum + ">");
       sb.append("\'" + this.undecl + "\'" + " used but not decl.");
@@ -78,8 +69,7 @@ public class ElabError
     }
   }
 
-  public static class MethodMissMatch extends T
-  {
+  public static class MethodMissMatch extends T {
     String id; // method id
     LinkedList<Ast.Type.T> expect;
     LinkedList<Ast.Type.T> got;
@@ -87,8 +77,7 @@ public class ElabError
     public MethodMissMatch(String id,
                            LinkedList<Ast.Type.T> expect,
                            LinkedList<Ast.Type.T> got,
-                           int linenum)
-    {
+                           int linenum) {
       this.id = id;
       this.expect = expect;
       this.got = got;
@@ -96,8 +85,7 @@ public class ElabError
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
       StringBuilder sb = new StringBuilder();
       sb.append("MethodMissMatchError line:" + linenum + ">");
       sb.append("no matching method for " + id + got);

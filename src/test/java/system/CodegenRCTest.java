@@ -1,8 +1,8 @@
 package system;
 
 
-import codegen.C.PrettyPrintVisitor;
-import codegen.C.TranslateVisitor;
+import codegen.RuntimeC.PrettyPrintVisitor;
+import codegen.RuntimeC.TranslateVisitor;
 import elaborator.ElaboratorVisitor;
 import javacc.ParseException;
 import javacc.Parser;
@@ -18,11 +18,9 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by qc1iu on 3/12/16.
  */
-public class CodegenCTest
-{
+public class CodegenRCTest {
   @Test
-  public void testC() throws IOException
-  {
+  public void testC() throws IOException {
     // mkdir
     Process mkdir = Runtime.getRuntime().exec("mkdir build/tmp/t");
     BufferedReader mkdir_br = new BufferedReader(
@@ -54,7 +52,7 @@ public class CodegenCTest
         TranslateVisitor tv = new TranslateVisitor();
         assertNotNull(prog);
         prog.accept(tv);
-        codegen.C.Ast.Program.T progc = tv.program;
+        codegen.RuntimeC.Ast.Program.T progc = tv.program;
         PrettyPrintVisitor ppc = new PrettyPrintVisitor();
         progc.accept(ppc);
         // translate
@@ -88,7 +86,7 @@ public class CodegenCTest
         String[] rr = r.r;
         int j = 0;
         for (String s = run_stdout.readLine(); s != null;
-             s = run_stdout.readLine()) {
+            s = run_stdout.readLine()) {
           Assert.assertEquals(rr[j++], s);
         }
         Assert.assertEquals(j, rr.length);

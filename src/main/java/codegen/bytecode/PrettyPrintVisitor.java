@@ -22,16 +22,13 @@ import codegen.bytecode.Ast.Type.Int;
 import codegen.bytecode.Ast.Type.IntArray;
 import codegen.bytecode.Ast.Stm.*;
 
-public class PrettyPrintVisitor implements Visitor
-{
+public class PrettyPrintVisitor implements Visitor {
   private java.io.BufferedWriter writer;
 
-  public PrettyPrintVisitor()
-  {
+  public PrettyPrintVisitor() {
   }
 
-  private void sayln(String s)
-  {
+  private void sayln(String s) {
     say(s);
     try {
       this.writer.write("\n");
@@ -41,8 +38,7 @@ public class PrettyPrintVisitor implements Visitor
     }
   }
 
-  private void isayln(String s)
-  {
+  private void isayln(String s) {
     say("    ");
     say(s);
     try {
@@ -53,8 +49,7 @@ public class PrettyPrintVisitor implements Visitor
     }
   }
 
-  private void say(String s)
-  {
+  private void say(String s) {
     try {
       this.writer.write(s);
     } catch (Exception e) {
@@ -63,8 +58,7 @@ public class PrettyPrintVisitor implements Visitor
     }
   }
 
-  private void isay(String s)
-  {
+  private void isay(String s) {
     say("    ");
     say(s);
 
@@ -73,64 +67,55 @@ public class PrettyPrintVisitor implements Visitor
   // /////////////////////////////////////////////////////
   // statements
   @Override
-  public void visit(Aload s)
-  {
+  public void visit(Aload s) {
     this.isayln("aload " + s.index);
     return;
   }
 
   @Override
-  public void visit(Areturn s)
-  {
+  public void visit(Areturn s) {
     this.isayln("areturn");
     return;
   }
 
   @Override
-  public void visit(Astore s)
-  {
+  public void visit(Astore s) {
     this.isayln("astore " + s.index);
     return;
   }
 
   @Override
-  public void visit(Goto s)
-  {
+  public void visit(Goto s) {
     this.isayln("goto " + s.l.toString());
     return;
   }
 
   @Override
-  public void visit(Ificmplt s)
-  {
+  public void visit(Ificmplt s) {
     this.isayln("if_icmplt " + s.l.toString());
     return;
   }
 
   @Override
-  public void visit(Ifne s)
-  {
+  public void visit(Ifne s) {
     this.isayln("ifne " + s.l.toString());
     return;
   }
 
   @Override
-  public void visit(Iload s)
-  {
+  public void visit(Iload s) {
     this.isayln("iload " + s.index);
     return;
   }
 
   @Override
-  public void visit(Imul s)
-  {
+  public void visit(Imul s) {
     this.isayln("imul");
     return;
   }
 
   @Override
-  public void visit(Invokevirtual s)
-  {
+  public void visit(Invokevirtual s) {
     this.say("    invokevirtual " + s.c + "/" + s.f + "(");
     for (Type.T t : s.at) {
       t.accept(this);
@@ -142,50 +127,43 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Ireturn s)
-  {
+  public void visit(Ireturn s) {
     this.isayln("ireturn");
     return;
   }
 
   @Override
-  public void visit(Istore s)
-  {
+  public void visit(Istore s) {
     this.isayln("istore " + s.index);
     return;
   }
 
   @Override
-  public void visit(Iadd s)
-  {
+  public void visit(Iadd s) {
     this.isayln("iadd");
     return;
   }
 
   @Override
-  public void visit(Isub s)
-  {
+  public void visit(Isub s) {
     this.isayln("isub");
     return;
   }
 
   @Override
-  public void visit(LabelJ s)
-  {
+  public void visit(LabelJ s) {
     this.sayln(s.l.toString() + ":");
     return;
   }
 
   @Override
-  public void visit(Ldc s)
-  {
+  public void visit(Ldc s) {
     this.isayln("ldc " + s.i);
     return;
   }
 
   @Override
-  public void visit(New s)
-  {
+  public void visit(New s) {
     this.isayln("new " + s.c);
     this.isayln("dup");// duplicate top single-word item on the stack
     this.isayln("invokespecial " + s.c + "/<init>()V");
@@ -193,9 +171,8 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Print s)
-  {
-	/*
+  public void visit(Print s) {
+  /*
 	 * getstatic 会让一个objref进栈 invokevirtual会调用一个函数
 	 * swap的原因是，在Tanslate时让print的exp先进栈了
 	 */
@@ -207,33 +184,28 @@ public class PrettyPrintVisitor implements Visitor
 
   // type
   @Override
-  public void visit(ClassType t)
-  {
+  public void visit(ClassType t) {
     this.say("L" + t.id + ";");
   }
 
   @Override
-  public void visit(Int t)
-  {
+  public void visit(Int t) {
     this.say("I");
   }
 
   @Override
-  public void visit(IntArray t)
-  {
+  public void visit(IntArray t) {
     this.say("[I");
   }
 
   // dec
   @Override
-  public void visit(DecSingle d)
-  {
+  public void visit(DecSingle d) {
   }
 
   // method
   @Override
-  public void visit(MethodSingle m)
-  {
+  public void visit(MethodSingle m) {
     this.say(".method public " + m.id + "(");
     for (Dec.T d : m.formals) {
       DecSingle dd = (DecSingle) d;
@@ -255,8 +227,7 @@ public class PrettyPrintVisitor implements Visitor
 
   // class
   @Override
-  public void visit(ClassSingle c)
-  {
+  public void visit(ClassSingle c) {
     // Every class must go into its own class file.
     try {
       this.writer = new java.io.BufferedWriter(
@@ -312,8 +283,7 @@ public class PrettyPrintVisitor implements Visitor
 
   // main class
   @Override
-  public void visit(MainClassSingle c)
-  {
+  public void visit(MainClassSingle c) {
     // Every class must go into its own class file.
     try {
       this.writer = new java.io.BufferedWriter(
@@ -349,8 +319,7 @@ public class PrettyPrintVisitor implements Visitor
 
   // program
   @Override
-  public void visit(ProgramSingle p)
-  {
+  public void visit(ProgramSingle p) {
 
     p.mainClass.accept(this);
 
@@ -361,43 +330,37 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Iand s)
-  {
+  public void visit(Iand s) {
     this.isayln("iand");
 
   }
 
   @Override
-  public void visit(IAload s)
-  {
+  public void visit(IAload s) {
     this.isayln("iaload");
 
   }
 
   @Override
-  public void visit(ArrayLength s)
-  {
+  public void visit(ArrayLength s) {
     this.isayln("arraylength");
 
   }
 
   @Override
-  public void visit(NewIntArray s)
-  {
+  public void visit(NewIntArray s) {
     this.isayln("newarray int");
 
   }
 
   @Override
-  public void visit(IAstore s)
-  {
+  public void visit(IAstore s) {
     this.isayln("iastore");
 
   }
 
   @Override
-  public void visit(Getfield s)
-  {
+  public void visit(Getfield s) {
     this.isay("getfield " + s.classId + "/" + s.id + " ");
     s.type.accept(this);
     this.sayln("");
@@ -405,8 +368,7 @@ public class PrettyPrintVisitor implements Visitor
   }
 
   @Override
-  public void visit(Putfield s)
-  {
+  public void visit(Putfield s) {
     this.isay("putfield " + s.classId + "/" + s.id + " ");
     s.type.accept(this);
     this.sayln("");

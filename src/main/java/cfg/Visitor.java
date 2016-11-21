@@ -1,7 +1,6 @@
 package cfg;
 
-public interface Visitor
-{
+public interface Visitor {
   // operand
   void visit(Cfg.Operand.Int o);
 

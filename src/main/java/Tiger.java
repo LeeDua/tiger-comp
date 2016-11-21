@@ -1,5 +1,4 @@
 import ast.Ast.Program;
-import control.CommandLine;
 import control.CommandLineParser;
 import control.Verbose;
 import org.apache.commons.cli.ParseException;
@@ -109,10 +108,10 @@ public class Tiger
 
   private Object codegenC()
   {
-    codegen.C.TranslateVisitor transC = new codegen.C.TranslateVisitor();
+    codegen.RuntimeC.TranslateVisitor transC = new codegen.RuntimeC.TranslateVisitor();
     this.theAst.accept(transC);
-    codegen.C.Ast.Program.T cAst = transC.program;
-    codegen.C.PrettyPrintVisitor ppc = new codegen.C.PrettyPrintVisitor();
+    codegen.RuntimeC.Ast.Program.T cAst = transC.program;
+    codegen.RuntimeC.PrettyPrintVisitor ppc = new codegen.RuntimeC.PrettyPrintVisitor();
     cAst.accept(ppc);
     return null;
   }

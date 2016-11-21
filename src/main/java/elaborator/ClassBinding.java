@@ -5,14 +5,12 @@ import ast.Ast.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ClassBinding
-{
+public class ClassBinding {
   String extendss; // null for non-existing extends
   HashMap<String, Type.T> fields;
   HashMap<String, MethodType> methods;
 
-  public ClassBinding(String extendss)
-  {
+  public ClassBinding(String extendss) {
     this.extendss = extendss;
     this.fields = new HashMap<>();
     this.methods = new HashMap<>();
@@ -20,8 +18,7 @@ public class ClassBinding
 
   public ClassBinding(String extendss,
                       HashMap<String, Type.T> fields,
-                      HashMap<String, MethodType> methods)
-  {
+                      HashMap<String, MethodType> methods) {
     this.extendss = extendss;
     this.fields = fields;
     this.methods = methods;
@@ -34,8 +31,7 @@ public class ClassBinding
    * @param fname field name
    * @param type  field type
    */
-  public void put(String fname, Type.T type) throws ElabExpection
-  {
+  public void put(String fname, Type.T type) throws ElabExpection {
     if (this.fields.get(fname) != null) {
       throw new ElabExpection("duplicated class field: " + fname);
     }
@@ -49,8 +45,7 @@ public class ClassBinding
    * @param mid method name
    * @param mt  method type
    */
-  public void put(String mid, MethodType mt) throws ElabExpection
-  {
+  public void put(String mid, MethodType mt) throws ElabExpection {
     if (this.methods.get(mid) != null) {
       throw new ElabExpection("duplicated class method: " + mid);
     }
@@ -58,8 +53,7 @@ public class ClassBinding
   }
 
   @Override
-  public String toString()
-  {
+  public String toString() {
     StringBuilder sb = new StringBuilder();
     if (this.extendss != null) {
       sb.append("extends ").append(this.extendss);

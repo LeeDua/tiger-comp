@@ -19,8 +19,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by qc1iu on 3/4/16.
  */
-public class ElaboratorVisitorTest
-{
+public class ElaboratorVisitorTest {
   String[] files = {
       "BinarySearch.java",
       "BinaryTree.java",
@@ -37,8 +36,7 @@ public class ElaboratorVisitorTest
   public ExpectedException expectedEx = ExpectedException.none();
 
   @Test
-  public void testNoError()
-  {
+  public void testNoError() {
     for (String fname : files) {
       InputStream in = null;
       try {
@@ -62,8 +60,7 @@ public class ElaboratorVisitorTest
   }
 
   @Test
-  public void testExtends() throws ParseException
-  {
+  public void testExtends() throws ParseException {
     InputStream in = null;
     try {
       in = new BufferedInputStream(
@@ -84,8 +81,7 @@ public class ElaboratorVisitorTest
   }
 
   @Test
-  public void testUndeclError()
-  {
+  public void testUndeclError() {
     InputStream in = null;
     try {
       in = new BufferedInputStream(
@@ -113,12 +109,12 @@ public class ElaboratorVisitorTest
   }
 
   @Test
-  public void testMethodMissMatchError()
-  {
+  public void testMethodMissMatchError() {
     InputStream in = null;
     try {
       in = new BufferedInputStream(
-          new FileInputStream("src/test/resources/TestMethodMissMatchError.java"));
+          new FileInputStream(
+              "src/test/resources/TestMethodMissMatchError.java"));
     } catch (FileNotFoundException e) {
       System.err.println(e.getMessage());
       System.exit(1);
@@ -138,12 +134,12 @@ public class ElaboratorVisitorTest
   }
 
   @Test
-  public void testTypeMissMatchError()
-  {
+  public void testTypeMissMatchError() {
     InputStream in = null;
     try {
       in = new BufferedInputStream(
-          new FileInputStream("src/test/resources/TestTypeMissMatchError.java"));
+          new FileInputStream(
+              "src/test/resources/TestTypeMissMatchError.java"));
     } catch (FileNotFoundException e) {
       System.err.println(e.getMessage());
       System.exit(1);
@@ -163,8 +159,7 @@ public class ElaboratorVisitorTest
   }
 
   @Test
-  public void testClassOverLoad()
-  {
+  public void testClassOverLoad() {
     InputStream in = null;
     try {
       in = new BufferedInputStream(

@@ -6,16 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Deprecated
-public class Lexer
-{
+public class Lexer {
   private String fname; // the input file name to be compiled
   private InputStream fstream; // input stream for the above file
   private TokenMap tmap;
   private TerminalSet terminals;
   private int linenum = 1;
 
-  public Lexer(String fname, InputStream fstream)
-  {
+  public Lexer(String fname, InputStream fstream) {
     this.fname = fname;
     this.fstream = fstream;
     this.tmap = new TokenMap();
@@ -23,8 +21,7 @@ public class Lexer
   }
 
 
-  private int carefulRead() throws IOException
-  {
+  private int carefulRead() throws IOException {
     this.fstream.mark(1);
     int c = this.fstream.read();
     if (c == '\n') {
@@ -36,8 +33,7 @@ public class Lexer
   // When called, return the next token (refer to the code "Token.java")
   // from the input stream.
   // Return TOKEN_EOF when reaching the end of the input stream.
-  private Token nextTokenInternal() throws Exception
-  {
+  private Token nextTokenInternal() throws Exception {
     int c = carefulRead();
     // skip all kinds of "blanks"
     while ('\t' == c || '\n' == c || '\r' == c || c == ' ') {
@@ -51,8 +47,7 @@ public class Lexer
 
   }
 
-  private Token expectIdOrNum(String s) throws IOException
-  {
+  private Token expectIdOrNum(String s) throws IOException {
     char[] buf = s.toCharArray();
     for (char c : buf) {
       if (c >= '0' && c <= '9') {
@@ -68,8 +63,7 @@ public class Lexer
   }
 
 
-  private Token expectIdOrNumOrKey(int c, String s) throws IOException
-  {
+  private Token expectIdOrNumOrKey(int c, String s) throws IOException {
     if (s.equals("") && this.tmap.getKind(String.valueOf((char) c)) != null) {
       return new Token(tmap.getKind(String.valueOf((char) c)), linenum, s);
     } else if (this.tmap.getKind(s) != null) {
@@ -79,8 +73,7 @@ public class Lexer
     return expectIdOrNum(s);
   }
 
-  private Token expectIdOrKeyOrNumOrComment(int c, String s) throws Exception
-  {
+  private Token expectIdOrKeyOrNumOrComment(int c, String s) throws Exception {
     if (s.equals("") && c == '&') {
       if ('&' == carefulRead()) {
         return new Token(Kind.TOKEN_AND, linenum, "&&");
@@ -96,8 +89,7 @@ public class Lexer
 
   }
 
-  private Token expect(int c, String s) throws Exception
-  {
+  private Token expect(int c, String s) throws Exception {
     if (terminals.isTerminal(c)) {
       if (c == '\n') {
         this.linenum--;
@@ -111,8 +103,7 @@ public class Lexer
   /**
    * skip comments
    */
-  private Token dealComments() throws Exception
-  {
+  private Token dealComments() throws Exception {
     int ex = this.fstream.read();
     switch (ex) {
       case '/':
@@ -125,14 +116,12 @@ public class Lexer
     return null;
   }
 
-  private enum commKind
-  {
+  private enum commKind {
     IN_COMM,
     EXIT
   }
 
-  private Token expectComm() throws Exception
-  {
+  private Token expectComm() throws Exception {
     boolean flag = true;
     while (flag) {
       int c = carefulRead();
@@ -146,8 +135,7 @@ public class Lexer
     return new Token(Kind.TOKEN_COMMENT, linenum, "comment");
   }
 
-  private Token expectComm2() throws Exception
-  {
+  private Token expectComm2() throws Exception {
     commKind state = commKind.IN_COMM;
     boolean flag = true;
     while (flag) {
@@ -176,8 +164,7 @@ public class Lexer
     return new Token(Kind.TOKEN_COMMENT, linenum, "comment");
   }
 
-  public Token nextToken()
-  {
+  public Token nextToken() {
     Token t = null;
     try {
       while (t == null ||

@@ -2,64 +2,57 @@ package util;
 
 import java.util.LinkedList;
 
-public class Graph<X>
-{
+public class Graph<X> {
 
   // graph node
-  public class Node
-  {
+  public class Node {
     X data;
     int inDegree;
     int outDegree;
     public LinkedList<Edge> edges;
 
-    public Node()
-    {
+    public Node() {
       this.data = null;
       this.edges = null;
       this.inDegree = 0;
       this.outDegree = 0;
     }
 
-    public Node(X data)
-    {
+    public Node(X data) {
       this.data = data;
       this.edges = new LinkedList<>();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
       return data.toString();
     }
   }
 
   // graph edge
-  public class Edge
-  {
+  public class Edge {
     Node from;
     Node to;
 
-    public Edge(Node from, Node to)
-    {
+    public Edge(Node from, Node to) {
       this.from = from;
       this.to = to;
     }
 
     @Override
-    public boolean equals(Object o)
-    {
-      if (o == null)
+    public boolean equals(Object o) {
+      if (o == null) {
         return false;
-      if (!(o instanceof Graph.Edge))
+      }
+      if (!(o instanceof Graph.Edge)) {
         return false;
+      }
 
       return (this == o);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
       return (this.from.toString() + "->" + this.to.toString());
     }
   }
@@ -68,69 +61,66 @@ public class Graph<X>
   LinkedList<Node> graph;
   String gname;
 
-  public Graph(String name)
-  {
+  public Graph(String name) {
     this.gname = name;
     this.graph = new LinkedList<>();
   }
 
-  private void addNode(Node node)
-  {
+  private void addNode(Node node) {
     this.graph.addLast(node);
   }
 
-  public void addNode(X data)
-  {
+  public void addNode(X data) {
     for (Node n : this.graph)
-      if (n.data.equals(data))
+      if (n.data.equals(data)) {
         new util.Bug();
+      }
 
     Node node = new Node(data);
     this.addNode(node);
   }
 
-  public Node lookupNode(X data)
-  {
+  public Node lookupNode(X data) {
     for (Node node : this.graph) {
-      if (node.data.equals(data))
+      if (node.data.equals(data)) {
         return node;
+      }
     }
     return null;
   }
 
-  private void addEdge(Node from, Node to)
-  {
+  private void addEdge(Node from, Node to) {
     from.outDegree++;
     to.inDegree++;
     from.edges.addLast(new Edge(from, to));
   }
 
-  public void addEdge(X from, X to)
-  {
+  public void addEdge(X from, X to) {
     Node f = this.lookupNode(from);
     Node t = this.lookupNode(to);
 
-    if (f == null || t == null)
+    if (f == null || t == null) {
       new util.Bug();
+    }
 
     this.addEdge(f, t);
   }
 
-  public void dfsDoit(Node n, java.util.HashSet<Node> visited)
-  {
+  public void dfsDoit(Node n, java.util.HashSet<Node> visited) {
     visited.add(n);
     // System.out.println("now visiting: "+n);
 
     for (Edge edge : n.edges)
-      if (!visited.contains(edge.to))
+      if (!visited.contains(edge.to)) {
         dfsDoit(edge.to, visited);
+      }
   }
 
-  public void dfs(X start)
-  {
+  public void dfs(X start) {
     Node startNode = this.lookupNode(start);
-    if (startNode == null)
+    if (startNode == null) {
       new util.Bug();
+    }
 
     java.util.HashSet<Node> visited = new java.util.HashSet<>();
 
@@ -143,15 +133,14 @@ public class Graph<X>
      */
   }
 
-  public void visualize()
-  {
+  public void visualize() {
     Dot dot = new Dot();
     String fname;
 
     fname = this.gname;
 
     for (Node node : this.graph) {
-      if (node.inDegree == 0 && node.outDegree == 0){
+      if (node.inDegree == 0 && node.outDegree == 0) {
         dot.insert(null, null, node.toString());
       }
       for (Edge edge : node.edges)

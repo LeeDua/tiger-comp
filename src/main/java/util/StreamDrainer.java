@@ -7,17 +7,14 @@ import java.io.InputStreamReader;
 /**
  * Created by qc1iu on 25/04/16.
  */
-public class StreamDrainer implements Runnable
-{
+public class StreamDrainer implements Runnable {
   private InputStream ins;
 
-  public StreamDrainer(InputStream ins)
-  {
+  public StreamDrainer(InputStream ins) {
     this.ins = ins;
   }
 
-  public void run()
-  {
+  public void run() {
     try {
       BufferedReader reader = new BufferedReader(
           new InputStreamReader(ins));

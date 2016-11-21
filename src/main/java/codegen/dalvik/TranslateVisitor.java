@@ -20,8 +20,7 @@ import util.Temp;
 
 // Given a Java AST, translate it into Dalvik bytecode.
 
-public class TranslateVisitor implements ast.Visitor
-{
+public class TranslateVisitor implements ast.Visitor {
   private String classId;
   private Type.T type; // type after translation
   private Dec.T dec;
@@ -37,8 +36,7 @@ public class TranslateVisitor implements ast.Visitor
   private MainClass.T mainClass;
   public Program.T program;
 
-  public TranslateVisitor()
-  {
+  public TranslateVisitor() {
     this.classId = null;
     this.type = null;
     this.dec = null;
@@ -54,48 +52,40 @@ public class TranslateVisitor implements ast.Visitor
 
   static int count = 0;
 
-  String getTemp()
-  {
+  String getTemp() {
     // however, we should check that "count<=256"
     return "v" + count++;
   }
 
-  void resetCount()
-  {
+  void resetCount() {
     count = 0;
   }
 
   // utility functions
-  private void emitDec(Type.T ty, String id)
-  {
+  private void emitDec(Type.T ty, String id) {
     this.tmpVars.addLast(new DecSingle(ty, id));
   }
 
-  private void emit(Stm.T s)
-  {
+  private void emit(Stm.T s) {
     this.stms.add(s);
   }
 
   // /////////////////////////////////////////////////////
   // expressions
   @Override
-  public void visit(ast.Ast.Exp.Add e)
-  {
+  public void visit(ast.Ast.Exp.Add e) {
   }
 
   @Override
-  public void visit(ast.Ast.Exp.And e)
-  {
+  public void visit(ast.Ast.Exp.And e) {
   }
 
   @Override
-  public void visit(ast.Ast.Exp.ArraySelect e)
-  {
+  public void visit(ast.Ast.Exp.ArraySelect e) {
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Call e)
-  {
+  public void visit(ast.Ast.Exp.Call e) {
     e.caller.accept(this);
     for (ast.Ast.Exp.T x : e.args) {
       x.accept(this);
@@ -112,13 +102,11 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.False e)
-  {
+  public void visit(ast.Ast.Exp.False e) {
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Id e)
-  {
+  public void visit(ast.Ast.Exp.Id e) {
     e.type.accept(this);
     ;
     this.evar = e.id;
@@ -128,13 +116,11 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Length e)
-  {
+  public void visit(ast.Ast.Exp.Length e) {
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Lt e)
-  {
+  public void visit(ast.Ast.Exp.Lt e) {
     Label tl = new Label(), fl = new Label(), el = new Label();
     e.left.accept(this);
     String lname = this.evar;
@@ -155,13 +141,11 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.NewIntArray e)
-  {
+  public void visit(ast.Ast.Exp.NewIntArray e) {
   }
 
   @Override
-  public void visit(ast.Ast.Exp.NewObject e)
-  {
+  public void visit(ast.Ast.Exp.NewObject e) {
     String newname = Temp.next();
     this.evar = newname;
     this.etype = new Type.ClassType(e.id);
@@ -170,13 +154,11 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Not e)
-  {
+  public void visit(ast.Ast.Exp.Not e) {
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Num e)
-  {
+  public void visit(ast.Ast.Exp.Num e) {
     String newname = Temp.next();
     this.evar = newname;
     this.etype = new Type.Int();
@@ -186,8 +168,7 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Sub e)
-  {
+  public void visit(ast.Ast.Exp.Sub e) {
     e.left.accept(this);
     String left = this.evar;
     e.right.accept(this);
@@ -201,14 +182,12 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.This e)
-  {
+  public void visit(ast.Ast.Exp.This e) {
     return;
   }
 
   @Override
-  public void visit(ast.Ast.Exp.Times e)
-  {
+  public void visit(ast.Ast.Exp.Times e) {
     e.left.accept(this);
     String left = this.evar;
     e.right.accept(this);
@@ -221,15 +200,13 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Exp.True e)
-  {
+  public void visit(ast.Ast.Exp.True e) {
   }
 
   // ///////////////////////////////////////////////////
   // statements
   @Override
-  public void visit(ast.Ast.Stm.Assign s)
-  {
+  public void visit(ast.Ast.Stm.Assign s) {
     s.exp.accept(this);
     String right = this.evar;
     s.type.accept(this);
@@ -243,18 +220,15 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Stm.AssignArray s)
-  {
+  public void visit(ast.Ast.Stm.AssignArray s) {
   }
 
   @Override
-  public void visit(ast.Ast.Stm.Block s)
-  {
+  public void visit(ast.Ast.Stm.Block s) {
   }
 
   @Override
-  public void visit(ast.Ast.Stm.If s)
-  {
+  public void visit(ast.Ast.Stm.If s) {
     Label tl = new Label(), fl = new Label(), el = new Label();
 
     s.condition.accept(this);
@@ -271,8 +245,7 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Stm.Print s)
-  {
+  public void visit(ast.Ast.Stm.Print s) {
     String newname = Temp.next();
     s.exp.accept(this);
     emit(new Print(newname, this.evar));
@@ -280,37 +253,31 @@ public class TranslateVisitor implements ast.Visitor
   }
 
   @Override
-  public void visit(ast.Ast.Stm.While s)
-  {
+  public void visit(ast.Ast.Stm.While s) {
   }
 
   // ////////////////////////////////////////////////////////
   // type
   @Override
-  public void visit(ast.Ast.Type.Boolean t)
-  {
+  public void visit(ast.Ast.Type.Boolean t) {
   }
 
   @Override
-  public void visit(ast.Ast.Type.ClassType t)
-  {
+  public void visit(ast.Ast.Type.ClassType t) {
   }
 
   @Override
-  public void visit(ast.Ast.Type.Int t)
-  {
+  public void visit(ast.Ast.Type.Int t) {
     this.type = new Type.Int();
   }
 
   @Override
-  public void visit(ast.Ast.Type.IntArray t)
-  {
+  public void visit(ast.Ast.Type.IntArray t) {
   }
 
   // dec
   @Override
-  public void visit(ast.Ast.Dec.DecSingle d)
-  {
+  public void visit(ast.Ast.Dec.DecSingle d) {
     d.type.accept(this);
     this.dec = new DecSingle(this.type, d.id);
     return;
@@ -318,8 +285,7 @@ public class TranslateVisitor implements ast.Visitor
 
   // method
   @Override
-  public void visit(ast.Ast.Method.MethodSingle m)
-  {
+  public void visit(ast.Ast.Method.MethodSingle m) {
     // There are two passes here:
     // In the 1st pass, the method is translated
     // into a three-address-code like intermediate representation.
@@ -364,8 +330,7 @@ public class TranslateVisitor implements ast.Visitor
   // ///////////////////////////////////////////////////////////////
   // class
   @Override
-  public void visit(ast.Ast.Class.ClassSingle c)
-  {
+  public void visit(ast.Ast.Class.ClassSingle c) {
     this.classId = c.id;
     LinkedList<Dec.T> newDecs = new LinkedList<Dec.T>();
     for (ast.Ast.Dec.T dec : c.decs) {
@@ -384,8 +349,7 @@ public class TranslateVisitor implements ast.Visitor
   // /////////////////////////////////////////////////////////////////
   // main class
   @Override
-  public void visit(ast.Ast.MainClass.MainClassSingle c)
-  {
+  public void visit(ast.Ast.MainClass.MainClassSingle c) {
     c.stm.accept(this);
     this.mainClass = new MainClassSingle(c.id, c.arg, this.stms);
     this.stms = new LinkedList<Stm.T>();
@@ -394,8 +358,7 @@ public class TranslateVisitor implements ast.Visitor
 
   // program
   @Override
-  public void visit(ast.Ast.Program.ProgramSingle p)
-  {
+  public void visit(ast.Ast.Program.ProgramSingle p) {
     // do translations
     p.mainClass.accept(this);
 

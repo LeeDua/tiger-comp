@@ -6,20 +6,16 @@ import util.Bug;
 import control.Control.ConSlp;
 
 @Deprecated
-public class CommandLine
-{
-  interface F<X>
-  {
+public class CommandLine {
+  interface F<X> {
     void f(X x);
   }
 
-  enum Kind
-  {
+  enum Kind {
     Empty, Bool, Int, String, StringList,
   }
 
-  static class Arg<X>
-  {
+  static class Arg<X> {
     String name;
     String option;
     String desription;
@@ -27,8 +23,7 @@ public class CommandLine
     F<X> action;
 
     public Arg(String name, String option, String description, Kind kind,
-               F<X> action)
-    {
+               F<X> action) {
       this.name = name;
       this.option = option;
       this.desription = description;
@@ -40,15 +35,14 @@ public class CommandLine
   private LinkedList<Arg<Object>> args;
 
   @SuppressWarnings("unchecked")
-  public CommandLine()
-  {
+  public CommandLine() {
     this.args = new util.Flist<Arg<Object>>()
-        .list(new Arg<Object>("codegen", "{bytecode|C|dalvik|x86}",
+        .list(new Arg<Object>("codegen", "{bytecode|RuntimeC|dalvik|x86}",
                 "which code generator to use", Kind.String, (ss) -> {
               String s = (String) ss;
               if (s.equals("bytecode")) {
                 control.Control.ConCodeGen.codegen = control.Control.ConCodeGen.Kind_t.Bytecode;
-              } else if (s.equals("C")) {
+              } else if (s.equals("RuntimeC")) {
                 control.Control.ConCodeGen.codegen = control.Control.ConCodeGen.Kind_t.C;
               } else if (s.equals("dalvik")) {
                 control.Control.ConCodeGen.codegen = control.Control.ConCodeGen.Kind_t.Dalvik;
@@ -153,8 +147,7 @@ public class CommandLine
 
   // scan the command line arguments, return the file name
   // in it. The file name should be unique.
-  public String scan(String[] cargs)
-  {
+  public String scan(String[] cargs) {
     String filename = null;
 
     for (int i = 0; i < cargs.length; i++) {
@@ -240,8 +233,7 @@ public class CommandLine
     return filename;
   }
 
-  private void outputSpace(int n)
-  {
+  private void outputSpace(int n) {
     if (n < 0) {
       new Bug();
     }
@@ -251,8 +243,7 @@ public class CommandLine
     return;
   }
 
-  public void output()
-  {
+  public void output() {
     int max = 0;
     for (Arg<Object> a : this.args) {
       int current = a.name.length();
@@ -283,8 +274,7 @@ public class CommandLine
     return;
   }
 
-  public void usage()
-  {
+  public void usage() {
     System.out.println(
         "The Tiger compiler. Copyright (C) 2013-2015, SSE of USTC.\n"
             + "Usage: java Tiger [options] <filename>\n");

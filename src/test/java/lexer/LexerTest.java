@@ -19,20 +19,18 @@ public class LexerTest {
   int tmp = 0;
 
 
-  private Vector<Token> getTokens(Vector<Token> tokens, Token current)
-  {
+  private Vector<Token> getTokens(Vector<Token> tokens, Token current) {
     if (current.kind == Token.Kind.TOKEN_EOF) {
       return tokens;
     } else {
-      System.out.println(tmp++ +" "+current.toString());
+      System.out.println(tmp++ + " " + current.toString());
       tokens.add(current);
       return getTokens(tokens, l.nextToken());
     }
   }
 
   @Test
-  public void testLinkedList() throws Exception
-  {
+  public void testLinkedList() throws Exception {
     System.out.println("test lex LinkedList.java");
     InputStream fstream = new BufferedInputStream(
         new FileInputStream("src/test/resources/LinkedList.java"));
@@ -58,8 +56,7 @@ public class LexerTest {
   }
 
   @Test
-  public void testBubbleSort() throws Exception
-  {
+  public void testBubbleSort() throws Exception {
     System.out.println("test lex BubbleSort.java");
     InputStream fstream = new BufferedInputStream(
         new FileInputStream("src/test/resources/BubbleSort.java"));
@@ -74,16 +71,15 @@ public class LexerTest {
   }
 
   @Test
-  public void testPrint() throws Exception
-  {
+  public void testPrint() throws Exception {
     System.out.println("testPrint");
     InputStream fstream = new BufferedInputStream(
         new ByteArrayInputStream("public static void main".getBytes()));
     this.l = new Lexer("a.java", fstream);
 
     Vector<Token> tokens = getTokens(new Vector<>(), l.nextToken());
-    for (Token t :tokens
-    ) {
+    for (Token t : tokens
+        ) {
       System.out.println(t.toString());
     }
   }

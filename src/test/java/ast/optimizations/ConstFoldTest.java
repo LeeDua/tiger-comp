@@ -15,11 +15,9 @@ import static org.junit.Assert.*;
 /**
  * Created by qc1iu on 21/03/16.
  */
-public class ConstFoldTest
-{
+public class ConstFoldTest {
   @Test
-  public void testOptTimes()
-  {
+  public void testOptTimes() {
     System.out.println("test consfold Exp.Times");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("3*4".getBytes()));
@@ -42,8 +40,7 @@ public class ConstFoldTest
   }
 
   @Test
-  public void testOptMultiTimes()
-  {
+  public void testOptMultiTimes() {
     System.out.println("test consfold multi Exp.Times");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("x*5*4*3".getBytes()));
@@ -70,8 +67,7 @@ public class ConstFoldTest
   }
 
   @Test
-  public void testOptAdd()
-  {
+  public void testOptAdd() {
     System.out.println("test consfold Exp.Add");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("1+5".getBytes()));
@@ -95,8 +91,7 @@ public class ConstFoldTest
   }
 
   @Test
-  public void testOptMultiAdd()
-  {
+  public void testOptMultiAdd() {
     System.out.println("test consfold multi Exp.Add");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("x+5+4+3".getBytes()));
@@ -123,8 +118,7 @@ public class ConstFoldTest
   }
 
   @Test
-  public void testOptSub()
-  {
+  public void testOptSub() {
     System.out.println("test consfold Exp.Sub");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("1-2".getBytes()));
@@ -148,8 +142,7 @@ public class ConstFoldTest
   }
 
   @Test
-  public void testOptMultiSub()
-  {
+  public void testOptMultiSub() {
     System.out.println("test consfold multi Exp.Sub");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("x-1-2-3".getBytes()));
@@ -176,8 +169,7 @@ public class ConstFoldTest
   }
 
   @Test
-  public void testExpNot()
-  {
+  public void testExpNot() {
     System.out.println("test consfold multi Exp.Not");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("!!!true".getBytes()));
@@ -204,8 +196,7 @@ public class ConstFoldTest
   }
 
   @Test
-  public void testExpAnd()
-  {
+  public void testExpAnd() {
     System.out.println("test consfold Exp.And");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("true&&false".getBytes()));
@@ -232,8 +223,7 @@ public class ConstFoldTest
   }
 
   @Test
-  public void testExpMultiAnd()
-  {
+  public void testExpMultiAnd() {
     System.out.println("test consfold multi Exp.And");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("true&&false&&true&&!true".getBytes()));

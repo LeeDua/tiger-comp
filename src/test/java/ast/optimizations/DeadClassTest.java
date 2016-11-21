@@ -14,11 +14,9 @@ import static org.junit.Assert.*;
 /**
  * Created by qc1iu on 16/03/16.
  */
-public class DeadClassTest
-{
+public class DeadClassTest {
   @Test
-  public void testDeadClass() throws IOException
-  {
+  public void testDeadClass() throws IOException {
     try {
       InputStream in = new BufferedInputStream(
           new FileInputStream("src/test/resources/TestDeadClass.java"));
@@ -35,14 +33,14 @@ public class DeadClassTest
       assertEquals(0, ev.getErrorStack().size());
       System.out.println("  Elaborate finished.");
       System.out.println("  before opt: classes size = [1]");
-      assertEquals(1, ((Ast.Program.ProgramSingle)prog).classes.size());
+      assertEquals(1, ((Ast.Program.ProgramSingle) prog).classes.size());
       // DeadClass opt
       DeadClass dc = new DeadClass();
       prog.accept(dc);
       prog = dc.program;
       System.out.println("  DeadClass opt finished.");
       System.out.println("  after opt: classes size = [0]");
-      assertEquals(0, ((Ast.Program.ProgramSingle)prog).classes.size());
+      assertEquals(0, ((Ast.Program.ProgramSingle) prog).classes.size());
     } finally {
     }
 

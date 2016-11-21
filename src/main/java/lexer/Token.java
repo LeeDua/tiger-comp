@@ -1,10 +1,8 @@
 package lexer;
 
 @Deprecated
-public class Token
-{
-  public enum Kind
-  {
+public class Token {
+  public enum Kind {
     TOKEN_ADD, // "+"
     TOKEN_AND, // "&&"
     TOKEN_ASSIGN, // "="
@@ -60,26 +58,22 @@ public class Token
 
   // Some tokens don't come with lexeme but
   // others do.
-  public Token(Kind kind, Integer lineNum)
-  {
+  public Token(Kind kind, Integer lineNum) {
     this.kind = kind;
     this.lineNum = lineNum;
   }
 
-  public Token(Kind kind, Integer lineNum, String lexeme)
-  {
+  public Token(Kind kind, Integer lineNum, String lexeme) {
     this(kind, lineNum);
     this.lexeme = lexeme;
   }
 
-  public Token()
-  {
+  public Token() {
     ;
   }
 
   @Override
-  public String toString()
-  {
+  public String toString() {
     String s;
 
     // to check that the "lineNum" field has been properly set.
@@ -93,8 +87,7 @@ public class Token
   }
 
   @Override
-  public boolean equals(Object obj)
-  {
+  public boolean equals(Object obj) {
     Token t = (Token) obj;
     if (this.kind == t.kind &&
         this.lineNum == t.lineNum &&

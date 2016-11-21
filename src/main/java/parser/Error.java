@@ -1,12 +1,11 @@
 package parser;
 
 import lexer.Token;
+
 @Deprecated
-public enum Error
-{
+public enum Error {
   SYNTAX_ERROR() {
-    public void error(Token.Kind expect, Token.Kind current, int linenum)
-    {
+    public void error(Token.Kind expect, Token.Kind current, int linenum) {
       System.err.print("syntax error> expect ");
       System.err.print(expect.toString());
       System.err.print(", but got ");
@@ -16,8 +15,7 @@ public enum Error
     }
 
     @Override
-    public void error(String info, int linenum)
-    {
+    public void error(String info, int linenum) {
       System.out.println("syntax error> " + info + " :line " + linenum);
       System.exit(1);
     }

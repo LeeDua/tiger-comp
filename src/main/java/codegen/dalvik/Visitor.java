@@ -8,8 +8,7 @@ import codegen.dalvik.Ast.Dec.*;
 import codegen.dalvik.Ast.Program.*;
 import codegen.dalvik.Ast.MainClass.*;
 
-public interface Visitor
-{
+public interface Visitor {
   // statements
   public void visit(ReturnObject s);
 

@@ -38,8 +38,7 @@ import ast.Ast.Type;
 import ast.Ast.Type.ClassType;
 
 public class ElaboratorVisitor
-    implements ast.Visitor
-{
+    implements ast.Visitor {
   ClassTable classTable; // symbol table for class
   /**
    * Symbol table for each method.Binding a new MethodTable when elab a new
@@ -52,13 +51,11 @@ public class ElaboratorVisitor
   int linenum;
   Vector<ElabError.T> errorStack;
 
-  public Vector<ElabError.T> getErrorStack()
-  {
+  public Vector<ElabError.T> getErrorStack() {
     return this.errorStack;
   }
 
-  public ElaboratorVisitor()
-  {
+  public ElaboratorVisitor() {
     this.classTable = new ClassTable();
     this.methodTable = new MethodTable();
     this.currentClass = null;
@@ -66,8 +63,7 @@ public class ElaboratorVisitor
     this.errorStack = new Vector<>();
   }
 
-  private Vector<ElabError.T> emitError(ElabError.T error)
-  {
+  private Vector<ElabError.T> emitError(ElabError.T error) {
     this.errorStack.add(error);
     return this.errorStack;
   }
@@ -75,8 +71,7 @@ public class ElaboratorVisitor
   // /////////////////////////////////////////////////////
   // expressions
   @Override
-  public void visit(Add e)
-  {
+  public void visit(Add e) {
     this.linenum = e.linenum;
     e.left.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
@@ -91,8 +86,7 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(And e)
-  {
+  public void visit(And e) {
     this.linenum = e.linenum;
     e.left.accept(this);
     if (this.type.getType() != Type.TYPE_BOOLEAN) {
@@ -107,8 +101,7 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(ArraySelect e)
-  {
+  public void visit(ArraySelect e) {
     this.linenum = e.linenum;
     e.index.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
@@ -128,8 +121,7 @@ public class ElaboratorVisitor
    * @param baseName
    * @return
    */
-  private boolean findBase(String subName, String baseName)
-  {
+  private boolean findBase(String subName, String baseName) {
     if (subName == null) {
       return false;
     }
@@ -153,8 +145,7 @@ public class ElaboratorVisitor
    * Otherwise, return null.
    */
   private LinkedList<Type.T> elabArgsList(String id, LinkedList<Type.T> args,
-                                          LinkedList<Type.T> proto)
-  {
+                                          LinkedList<Type.T> proto) {
     if (args.size() != proto.size()) {
       emitError(new ElabError.MethodMissMatch(id, proto, args, linenum));
     }
@@ -177,8 +168,7 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(Call e)
-  {
+  public void visit(Call e) {
     this.linenum = e.linenum;
     e.caller.accept(this);
     Type.T callerType = this.type;
@@ -210,15 +200,13 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(False e)
-  {
+  public void visit(False e) {
     this.linenum = e.linenum;
     this.type = new Type.Boolean();
   }
 
   @Override
-  public void visit(Id e)
-  {
+  public void visit(Id e) {
     this.linenum = e.linenum;
     // first look up the id in method table
     Type.T type = this.methodTable.get(e.id);
@@ -239,16 +227,14 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(Length e)
-  {
+  public void visit(Length e) {
     this.linenum = e.linenum;
     e.array.accept(this);
     this.type = new Type.Int();
   }
 
   @Override
-  public void visit(Lt e)
-  {
+  public void visit(Lt e) {
     this.linenum = e.linenum;
     e.left.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
@@ -264,8 +250,7 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(NewIntArray e)
-  {
+  public void visit(NewIntArray e) {
     this.linenum = e.linenum;
     e.exp.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
@@ -276,30 +261,26 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(NewObject e)
-  {
+  public void visit(NewObject e) {
     this.linenum = e.linenum;
     this.type = new Type.ClassType(e.id);
   }
 
   @Override
-  public void visit(Not e)
-  {
+  public void visit(Not e) {
     this.linenum = e.linenum;
     e.exp.accept(this);
     this.type = new Type.Boolean();
   }
 
   @Override
-  public void visit(Num e)
-  {
+  public void visit(Num e) {
     this.linenum = e.linenum;
     this.type = new Type.Int();
   }
 
   @Override
-  public void visit(Sub e)
-  {
+  public void visit(Sub e) {
     this.linenum = e.linenum;
     e.left.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
@@ -315,15 +296,13 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(This e)
-  {
+  public void visit(This e) {
     this.linenum = e.linenum;
     this.type = new Type.ClassType(this.currentClass);
   }
 
   @Override
-  public void visit(Times e)
-  {
+  public void visit(Times e) {
     this.linenum = e.linenum;
     e.left.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
@@ -339,16 +318,14 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(True e)
-  {
+  public void visit(True e) {
     this.linenum = e.linenum;
     this.type = new Type.Boolean();
   }
 
   // statements
   @Override
-  public void visit(Assign s)
-  {
+  public void visit(Assign s) {
     // first look up the id in method table
     Type.T type = this.methodTable.get(s.id);
     // if search failed, then s.id must
@@ -364,8 +341,7 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(AssignArray s)
-  {
+  public void visit(AssignArray s) {
     Type.T type = this.methodTable.get(s.id);
     if (type == null) {
       type = this.classTable.getFieldType(this.currentClass, s.id);
@@ -389,15 +365,13 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(Block s)
-  {
+  public void visit(Block s) {
     for (Stm.T t : s.stms)
       t.accept(this);
   }
 
   @Override
-  public void visit(If s)
-  {
+  public void visit(If s) {
     s.condition.accept(this);
     if (this.type.getType() != Type.TYPE_BOOLEAN) {
       emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type,
@@ -408,8 +382,7 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(Print s)
-  {
+  public void visit(Print s) {
     s.exp.accept(this);
     if (this.type.getType() != Type.TYPE_INT) {
       emitError(
@@ -418,8 +391,7 @@ public class ElaboratorVisitor
   }
 
   @Override
-  public void visit(While s)
-  {
+  public void visit(While s) {
     s.condition.accept(this);
     if (this.type.getType() != Type.TYPE_BOOLEAN) {
       emitError(new ElabError.TypeMissMatchError(new Type.Boolean(), this.type,
@@ -430,40 +402,34 @@ public class ElaboratorVisitor
 
   // type
   @Override
-  public void visit(Type.Boolean t)
-  {
+  public void visit(Type.Boolean t) {
     new util.Bug("The Ast is wrong!");
   }
 
   @Override
-  public void visit(Type.ClassType t)
-  {
+  public void visit(Type.ClassType t) {
     new util.Bug("The Ast is wrong!");
   }
 
   @Override
-  public void visit(Type.Int t)
-  {
+  public void visit(Type.Int t) {
     new util.Bug("The Ast is wrong!");
   }
 
   @Override
-  public void visit(Type.IntArray t)
-  {
+  public void visit(Type.IntArray t) {
     new util.Bug("The Ast is wrong!");
   }
 
   // dec
   @Override
-  public void visit(Dec.DecSingle d)
-  {
+  public void visit(Dec.DecSingle d) {
     new util.Bug("The Ast is wrong!");
   }
 
   // method
   @Override
-  public void visit(Method.MethodSingle m)
-  {
+  public void visit(Method.MethodSingle m) {
     // construct the method table
     this.methodTable = new MethodTable();
     try {
@@ -487,8 +453,7 @@ public class ElaboratorVisitor
 
   // class
   @Override
-  public void visit(Class.ClassSingle c)
-  {
+  public void visit(Class.ClassSingle c) {
     this.currentClass = c.id;
     for (Method.T m : c.methods) {
       m.accept(this);
@@ -497,8 +462,7 @@ public class ElaboratorVisitor
 
   // main class
   @Override
-  public void visit(MainClass.MainClassSingle c)
-  {
+  public void visit(MainClass.MainClassSingle c) {
     this.currentClass = c.id;
     // "main" has an argument "arg" of type "String[]", but
     // one has no chance to use it. So it's safe to skip it...
@@ -507,8 +471,7 @@ public class ElaboratorVisitor
   }
 
   // build class table for Main class
-  private void buildMainClass(MainClass.MainClassSingle main)
-  {
+  private void buildMainClass(MainClass.MainClassSingle main) {
     try {
       this.classTable.put(main.id, new ClassBinding(null));
     } catch (ElabExpection e) {
@@ -518,8 +481,7 @@ public class ElaboratorVisitor
   }
 
   // class table for normal classes
-  private void buildClass(ClassSingle c)
-  {
+  private void buildClass(ClassSingle c) {
     try {
       this.classTable.put(c.id, new ClassBinding(c.extendss));
       // VarDecls
@@ -544,8 +506,7 @@ public class ElaboratorVisitor
    * a class table is a mapping from class names to class bindings
    * classTable: className -> ClassBinding{extends, fields, methods}
    */
-  void buildSymbleTable(ProgramSingle p)
-  {
+  void buildSymbleTable(ProgramSingle p) {
     buildMainClass((MainClass.MainClassSingle) p.mainClass);
     for (Class.T c : p.classes) {
       buildClass((ClassSingle) c);
@@ -554,8 +515,7 @@ public class ElaboratorVisitor
 
   // program
   @Override
-  public void visit(ProgramSingle p)
-  {
+  public void visit(ProgramSingle p) {
     // setp 1
     buildSymbleTable(p);
     // step 2: elaborate each class in turn, under the class table

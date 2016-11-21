@@ -10,12 +10,10 @@ import static org.junit.Assert.*;
 /**
  * Created by qc1iu on 2/26/16.
  */
-public class LexerccTest
-{
+public class LexerccTest {
 
   @Test
-  public void testLexerTest() throws ParseException
-  {
+  public void testLexerTest() throws ParseException {
     System.out.println("test lex LinkedList.java");
     InputStream fstream = null;
     try {
@@ -45,8 +43,7 @@ public class LexerccTest
   }
 
   @Test
-  public void testBrace() throws ParseException
-  {
+  public void testBrace() throws ParseException {
     System.out.println("test Brace");
     InputStream in = new BufferedInputStream(new ByteArrayInputStream(
         "[]".getBytes()));
@@ -57,23 +54,22 @@ public class LexerccTest
   }
 
   @Test
-  public void testComment() throws ParseException
-  {
+  public void testComment() throws ParseException {
     System.out.println("test Comment.");
     InputStream in = new BufferedInputStream(new ByteArrayInputStream(
         ("/*This is a MULTILINE_COMMENT\n" +
             "whitch has tow line.*/\n" +
             "//This is a LINE_COMMENT.\n" +
             "/***********MULTILINE_COMMENT************/\n" +
-            "// In comment, we can input all charactors!@#$%^&*()(*&^%$##.\n").getBytes()));
+            "// In comment, we can input all charactors!@#$%^&*()(*&^%$##.\n")
+            .getBytes()));
     Parser lex = new Parser(in);
     LinkedList<Token> tokens = lex.lexerTest();
     assertEquals(0, tokens.size());
   }
 
   @Test
-  public void testExpCall() throws ParseException
-  {
+  public void testExpCall() throws ParseException {
     System.out.println("test lex Exp.call");
     InputStream in = new BufferedInputStream(new ByteArrayInputStream(
         "a= this.foo()[10];".getBytes()));
@@ -81,7 +77,7 @@ public class LexerccTest
     LinkedList<Token> tokens = lex.lexerTest();
     String[] ss = {"a", "=", "this", ".", "foo", "(", ")", "[", "10", "]", ";"};
     assertEquals(ss.length, tokens.size());
-    for (int i=0; i<ss.length; i++) {
+    for (int i = 0; i < ss.length; i++) {
       assertEquals(ss[i], tokens.get(i).image);
     }
   }

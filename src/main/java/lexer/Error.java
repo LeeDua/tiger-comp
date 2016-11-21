@@ -1,12 +1,10 @@
 package lexer;
 
 @Deprecated
-public enum Error
-{
+public enum Error {
   LEXER() {
     @Override
-    public void error(int linenum)
-    {
+    public void error(int linenum) {
       System.err.println("lexer error> line:" + linenum);
       System.exit(1);
     }
@@ -15,8 +13,7 @@ public enum Error
 
   ILLEGAL_NUMBER() {
     @Override
-    public void error(int linenum)
-    {
+    public void error(int linenum) {
       System.out.println("lexer error>illegal number" + linenum);
 
     }

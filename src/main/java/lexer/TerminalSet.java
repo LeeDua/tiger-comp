@@ -6,12 +6,10 @@ import java.util.HashSet;
  * Created by qc1iu on 2/23/16.
  */
 @Deprecated
-public class TerminalSet
-{
+public class TerminalSet {
   public HashSet<Character> terminals;
 
-  public TerminalSet()
-  {
+  public TerminalSet() {
     terminals = new HashSet<>();
     terminals.add('/');
     terminals.add(' ');
@@ -35,8 +33,7 @@ public class TerminalSet
     terminals.add('&');
   }
 
-  public boolean isTerminal(int c)
-  {
+  public boolean isTerminal(int c) {
     if (c == -1) {
       return true;
     }

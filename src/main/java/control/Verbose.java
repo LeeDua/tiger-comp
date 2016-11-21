@@ -1,11 +1,9 @@
 package control;
 
-public class Verbose
-{
+public class Verbose {
   public static int level = 0;
 
-  public static interface F
-  {
+  public static interface F {
     Object f();
   }
 
@@ -14,8 +12,7 @@ public class Verbose
   public static final int SUBPASS = 2;
   public static final int DETAIL = 3;
 
-  public static boolean order(int l)
-  {
+  public static boolean order(int l) {
     if (l <= Verbose.level) {
       return true;
     } else {
@@ -23,8 +20,7 @@ public class Verbose
     }
   }
 
-  public static Object trace(String s, F action, int level)
-  {
+  public static Object trace(String s, F action, int level) {
     boolean exsit = order(level);
     if (exsit) {
       Trace.space();

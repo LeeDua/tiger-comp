@@ -1,18 +1,15 @@
 package ast.optimizations;
 
-public class Main
-{
+public class Main {
   private ast.Ast.Program.T program;
   boolean changed;
 
-  public Main(ast.Ast.Program.T p)
-  {
+  public Main(ast.Ast.Program.T p) {
     this.program = p;
     this.changed = false;
   }
 
-  public ast.Ast.Program.T opt()
-  {
+  public ast.Ast.Program.T opt() {
     do {
       this.changed = false;
       DeadClass dc = new DeadClass();

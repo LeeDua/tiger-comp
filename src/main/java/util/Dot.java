@@ -8,19 +8,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 
-public class Dot
-{
-  class DotElement<X, Y, Z>
-  {
+public class Dot {
+  class DotElement<X, Y, Z> {
     Triple<X, Y, Z> e;
 
-    public DotElement(X x, Y y, Z z)
-    {
+    public DotElement(X x, Y y, Z z) {
       this.e = new Triple<>(x, y, z);
     }
 
-    public String toString()
-    {
+    public String toString() {
       String s = "";
       if (this.e.z != null) {
         s = this.e.z.toString();
@@ -34,25 +30,21 @@ public class Dot
 
   LinkedList<DotElement<String, String, String>> list;
 
-  public Dot()
-  {
+  public Dot() {
     this.list = new LinkedList<>();
   }
 
-  public void insert(String from, String to)
-  {
+  public void insert(String from, String to) {
     this.list.addFirst(new DotElement<>(from, to, null));
   }
 
-  public void insert(String from, String to, String info)
-  {
+  public void insert(String from, String to, String info) {
 
     String s = util.Temp.next() + "[label=\"" + info + "\"]";
     this.list.addFirst(new DotElement<>(from, to, s));
   }
 
-  public String toString()
-  {
+  public String toString() {
     StringBuilder sb = new StringBuilder();
 
     for (DotElement<String, String, String> e : this.list) {
@@ -62,8 +54,7 @@ public class Dot
     return sb.toString();
   }
 
-  public void toDot(String fname)
-  {
+  public void toDot(String fname) {
     String fn = fname + ".dot";
     try {
       File f = new File(fn);
@@ -87,8 +78,7 @@ public class Dot
     }
   }
 
-  void visualize(String name)
-  {
+  void visualize(String name) {
     toDot(name);
     String format = "-Tsvg";
     String postfix = "svg";
@@ -122,17 +112,14 @@ public class Dot
     try {
       // Read this article:
       // http://walsh.iteye.com/blog/449051
-      final class StreamDrainer implements Runnable
-      {
+      final class StreamDrainer implements Runnable {
         private InputStream ins;
 
-        public StreamDrainer(InputStream ins)
-        {
+        public StreamDrainer(InputStream ins) {
           this.ins = ins;
         }
 
-        public void run()
-        {
+        public void run() {
           try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(
                 ins));
@@ -152,10 +139,11 @@ public class Dot
       process.getOutputStream().close();
       int exitValue = process.waitFor();
       if (!control.Control.ConAst.dumpDot) {
-        if (new File(name + ".dot").delete())
+        if (new File(name + ".dot").delete()) {
           ;
-        else
+        } else {
           throw new Throwable();
+        }
       }
     } catch (Throwable o) {
       o.printStackTrace();

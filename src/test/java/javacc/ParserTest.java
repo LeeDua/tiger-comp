@@ -12,11 +12,9 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by qc1iu on 2/27/16.
  */
-public class ParserTest
-{
+public class ParserTest {
   @Test
-  public void testOneStatement() throws ParseException
-  {
+  public void testOneStatement() throws ParseException {
     System.out.println("test one statement");
     InputStream in = new BufferedInputStream(new ByteArrayInputStream(
         ("class LinkedList{\n" +
@@ -39,8 +37,7 @@ public class ParserTest
   }
 
   @Test
-  public void testParser() throws ParseException, FileNotFoundException
-  {
+  public void testParser() throws ParseException, FileNotFoundException {
     System.out.println("test parse LinkedList.java");
     InputStream in = new BufferedInputStream(
         new FileInputStream("src/test/resources/LinkedList.java"));
@@ -51,8 +48,7 @@ public class ParserTest
   }
 
   @Test
-  public void testParseType() throws ParseException
-  {
+  public void testParseType() throws ParseException {
     System.out.println("test parse type");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("int[]".getBytes()));
@@ -62,8 +58,7 @@ public class ParserTest
   }
 
   @Test
-  public void testParseDecl() throws ParseException
-  {
+  public void testParseDecl() throws ParseException {
     System.out.println("test parse type");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("int[] a1;".getBytes()));
@@ -73,8 +68,7 @@ public class ParserTest
   }
 
   @Test
-  public void testParseArraySelect() throws ParseException
-  {
+  public void testParseArraySelect() throws ParseException {
     System.out.println("test parse Exp.Call");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("this.foo()[10];".getBytes()));
@@ -86,8 +80,7 @@ public class ParserTest
   }
 
   @Test
-  public void testMultiAdd()
-  {
+  public void testMultiAdd() {
     System.out.println("test parse multi Exp.Add");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("1+2+3+4-5".getBytes()));
@@ -106,8 +99,7 @@ public class ParserTest
   }
 
   @Test
-  public void testMultiSub()
-  {
+  public void testMultiSub() {
     System.out.println("test parse multi Exp.Sub");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("1-2-3-4-5".getBytes()));
@@ -126,8 +118,7 @@ public class ParserTest
   }
 
   @Test
-  public void testMultiAddSub()
-  {
+  public void testMultiAddSub() {
     System.out.println("test parse multi Exp.Add Exp.Sub");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("1-2-3-(4+5)".getBytes()));
@@ -146,8 +137,7 @@ public class ParserTest
   }
 
   @Test
-  public void testMultiTimes()
-  {
+  public void testMultiTimes() {
     System.out.println("test parse multi Exp.Times");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("1*2*3*4".getBytes()));
@@ -166,8 +156,7 @@ public class ParserTest
   }
 
   @Test
-  public void testParen()
-  {
+  public void testParen() {
     System.out.println("test parse paren");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("(1+2)*3".getBytes()));
@@ -186,8 +175,7 @@ public class ParserTest
   }
 
   @Test
-  public void testMultiNot()
-  {
+  public void testMultiNot() {
     System.out.println("test parse multi Exp.Not");
     InputStream in = new BufferedInputStream(
         new ByteArrayInputStream("!!!(true&&false)".getBytes()));

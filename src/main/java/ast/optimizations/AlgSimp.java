@@ -18,8 +18,7 @@ import java.util.LinkedList;
 
 // Algebraic simplification optimizations on an AST.
 
-public class AlgSimp implements ast.Visitor
-{
+public class AlgSimp implements ast.Visitor {
   boolean isZero;
   Ast.MainClass.T _main;
   Ast.Class.T _class;
@@ -29,16 +28,14 @@ public class AlgSimp implements ast.Visitor
   boolean changed;
   public Program.T program;
 
-  public AlgSimp()
-  {
+  public AlgSimp() {
     this.program = null;
     this.changed = false;
   }
 
   // expressions
   @Override
-  public void visit(Add e)
-  {
+  public void visit(Add e) {
     e.left.accept(this);
     Ast.Exp.T left = this._exp;
     boolean left0 = this.isZero;
@@ -64,15 +61,13 @@ public class AlgSimp implements ast.Visitor
   }
 
   @Override
-  public void visit(And e)
-  {
+  public void visit(And e) {
     this._exp = e;
     this.isZero = false;
   }
 
   @Override
-  public void visit(ArraySelect e)
-  {
+  public void visit(ArraySelect e) {
     e.array.accept(this);
     Ast.Exp.T array = this._exp;
     e.index.accept(this);
@@ -82,8 +77,7 @@ public class AlgSimp implements ast.Visitor
   }
 
   @Override
-  public void visit(Call e)
-  {
+  public void visit(Call e) {
     LinkedList<Ast.Exp.T> args = new LinkedList<>();
     e.caller.accept(this);
     Ast.Exp.T caller = this._exp;
@@ -97,30 +91,26 @@ public class AlgSimp implements ast.Visitor
   }
 
   @Override
-  public void visit(False e)
-  {
+  public void visit(False e) {
     this._exp = e;
     this.isZero = false;
   }
 
   @Override
-  public void visit(Id e)
-  {
+  public void visit(Id e) {
     this._exp = e;
     this.isZero = false;
   }
 
   @Override
-  public void visit(Length e)
-  {
+  public void visit(Length e) {
     e.array.accept(this);
     this._exp = new Ast.Exp.Length(this._exp, e.linenum);
     this.isZero = false;
   }
 
   @Override
-  public void visit(Lt e)
-  {
+  public void visit(Lt e) {
     e.left.accept(this);
     Ast.Exp.T left = this._exp;
     e.right.accept(this);
@@ -130,37 +120,32 @@ public class AlgSimp implements ast.Visitor
   }
 
   @Override
-  public void visit(NewIntArray e)
-  {
+  public void visit(NewIntArray e) {
     e.exp.accept(this);
     this._exp = new Ast.Exp.NewIntArray(this._exp, e.linenum);
     this.isZero = false;
   }
 
   @Override
-  public void visit(NewObject e)
-  {
+  public void visit(NewObject e) {
     this._exp = e;
     this.isZero = false;
   }
 
   @Override
-  public void visit(Not e)
-  {
+  public void visit(Not e) {
     this._exp = e;
     this.isZero = false;
   }
 
   @Override
-  public void visit(Num e)
-  {
+  public void visit(Num e) {
     this._exp = e;
     this.isZero = (e.num == 0);
   }
 
   @Override
-  public void visit(Sub e)
-  {
+  public void visit(Sub e) {
     e.left.accept(this);
     Ast.Exp.T left = this._exp;
     boolean left0 = this.isZero;
@@ -182,15 +167,13 @@ public class AlgSimp implements ast.Visitor
   }
 
   @Override
-  public void visit(This e)
-  {
+  public void visit(This e) {
     this._exp = e;
     this.isZero = false;
   }
 
   @Override
-  public void visit(Times e)
-  {
+  public void visit(Times e) {
     e.left.accept(this);
     Ast.Exp.T left = this._exp;
     boolean left0 = this.isZero;
@@ -208,8 +191,7 @@ public class AlgSimp implements ast.Visitor
   }
 
   @Override
-  public void visit(True e)
-  {
+  public void visit(True e) {
     this.isZero = false;
     this._exp = e;
   }
@@ -217,16 +199,14 @@ public class AlgSimp implements ast.Visitor
   /////////////////////////////////////////
   // statements
   @Override
-  public void visit(Assign s)
-  {
+  public void visit(Assign s) {
     s.exp.accept(this);
     this._stm = new Ast.Stm.Assign(s.id, this._exp, s.type, s.isField,
         s.linenum);
   }
 
   @Override
-  public void visit(AssignArray s)
-  {
+  public void visit(AssignArray s) {
     s.index.accept(this);
     Ast.Exp.T index = this._exp;
     s.exp.accept(this);
@@ -236,8 +216,7 @@ public class AlgSimp implements ast.Visitor
   }
 
   @Override
-  public void visit(Block s)
-  {
+  public void visit(Block s) {
     LinkedList<Ast.Stm.T> stms = new LinkedList<>();
     for (Ast.Stm.T ss : s.stms) {
       ss.accept(this);
@@ -247,8 +226,7 @@ public class AlgSimp implements ast.Visitor
   }
 
   @Override
-  public void visit(If s)
-  {
+  public void visit(If s) {
     s.condition.accept(this);
     Ast.Exp.T cond = this._exp;
     s.thenn.accept(this);
@@ -260,15 +238,13 @@ public class AlgSimp implements ast.Visitor
   }
 
   @Override
-  public void visit(Print s)
-  {
+  public void visit(Print s) {
     s.exp.accept(this);
     this._stm = new Ast.Stm.Print(this._exp, s.linenum);
   }
 
   @Override
-  public void visit(While s)
-  {
+  public void visit(While s) {
     s.condition.accept(this);
     Ast.Exp.T cond = this._exp;
     s.body.accept(this);
@@ -278,40 +254,34 @@ public class AlgSimp implements ast.Visitor
 
   // type
   @Override
-  public void visit(Boolean t)
-  {
+  public void visit(Boolean t) {
     new util.Bug("impossible");
   }
 
   @Override
-  public void visit(ClassType t)
-  {
+  public void visit(ClassType t) {
     new util.Bug("impossible");
   }
 
   @Override
-  public void visit(Int t)
-  {
+  public void visit(Int t) {
     new util.Bug("impossible");
   }
 
   @Override
-  public void visit(IntArray t)
-  {
+  public void visit(IntArray t) {
     new util.Bug("impossible");
   }
 
   // dec
   @Override
-  public void visit(DecSingle d)
-  {
+  public void visit(DecSingle d) {
     new util.Bug("impossible");
   }
 
   // method
   @Override
-  public void visit(MethodSingle m)
-  {
+  public void visit(MethodSingle m) {
     LinkedList<Ast.Stm.T> stms = new LinkedList<>();
     for (Ast.Stm.T s : m.stms) {
       s.accept(this);
@@ -324,8 +294,7 @@ public class AlgSimp implements ast.Visitor
 
   // class
   @Override
-  public void visit(ClassSingle c)
-  {
+  public void visit(ClassSingle c) {
     LinkedList<Ast.Method.T> methods = new LinkedList<>();
     for (Ast.Method.T m : c.methods) {
       m.accept(this);
@@ -336,16 +305,14 @@ public class AlgSimp implements ast.Visitor
 
   // main class
   @Override
-  public void visit(MainClassSingle c)
-  {
+  public void visit(MainClassSingle c) {
     c.stm.accept(this);
     this._main = new Ast.MainClass.MainClassSingle(c.id, c.arg, this._stm);
   }
 
   // program
   @Override
-  public void visit(ProgramSingle p)
-  {
+  public void visit(ProgramSingle p) {
     p.mainClass.accept(this);
     LinkedList<Ast.Class.T> classes = new LinkedList<>();
     for (Ast.Class.T c : p.classes) {

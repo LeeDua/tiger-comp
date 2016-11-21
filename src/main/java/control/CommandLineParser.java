@@ -7,20 +7,18 @@ package control;
 import org.apache.commons.cli.*;
 import org.apache.commons.cli.CommandLine;
 
-public class CommandLineParser
-{
+public class CommandLineParser {
   private static final String VERSION = "v0.0.3";
   private static final String HEADER =
       "The tiger compiler " + VERSION +
-          ". Copyright (C) 2013-2016, CSS of USTC.\n\n";
+          ". Copyright (RuntimeC) 2013-2016, CSS of USTC.\n\n";
   private static final String FOOTER =
       "\nPlease report issues at https://github.com/qc1iu/tiger-comp/issues";
 
   private Options opts;
   private String[] args;
 
-  public CommandLineParser(String[] args)
-  {
+  public CommandLineParser(String[] args) {
     this.args = args;
     opts = new Options();
     opts.addOption(Option.builder("o")
@@ -53,15 +51,13 @@ public class CommandLineParser
         .build());
   }
 
-  private void Usage()
-  {
+  private void Usage() {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("tiger", HEADER, opts, FOOTER, true);
     System.out.println();
   }
 
-  public void scan() throws ParseException
-  {
+  public void scan() throws ParseException {
     CommandLine cmd = parse(this.opts, this.args);
     if (cmd.hasOption("h")) {
       Usage();
@@ -81,7 +77,7 @@ public class CommandLineParser
     if (cmd.hasOption("codegen")) {
       String generator = cmd.getOptionValue("codegen");
       switch (generator) {
-        case "C":
+        case "RuntimeC":
           Control.ConCodeGen.codegen = Control.ConCodeGen.Kind_t.C;
           break;
         case "Bytecode":
@@ -94,7 +90,7 @@ public class CommandLineParser
           Control.ConCodeGen.codegen = Control.ConCodeGen.Kind_t.X86;
           break;
         default:
-          throw new ParseException("expect {C|Bytecode|Dalvik|X86}");
+          throw new ParseException("expect {RuntimeC|Bytecode|Dalvik|X86}");
       }
     }
     if (cmd.hasOption("v")) {
@@ -118,8 +114,7 @@ public class CommandLineParser
     }
   }
 
-  private CommandLine parse(Options opts, String[] args) throws ParseException
-  {
+  private CommandLine parse(Options opts, String[] args) throws ParseException {
     return new DefaultParser().parse(opts, args);
   }
 
