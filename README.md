@@ -24,6 +24,26 @@ use
 
 and is will translate .java to `.j(jasmin)`.
 
+## CFG-based Optimizations
+Dog-comp has various optimizations on  [control-flow graph](https://en.wikipedia.org/wiki/Control_flow_graph) (CFG). CFG is a graph-based program representation with basic blocks as nodes and control transfers between blocks as edges. A control-flow graph is a good candidate intermediate representation for it makes optimizations easier to perform.
+
+![](https://raw.githubusercontent.com/qc1iu/dog-comp/master/screenshots/Element_Equal.jpg)
+
+CFG-based program representations make program optimizations much easier, due to the fact that it's much easier to calculate the control flow and data flow information required to perform optimizations. Generally speaking, an optimization can be divided into two phases: [program analysis](https://en.wikipedia.org/wiki/Program_analysis) and rewriting. During the program analysis phase (usually data-flow analysis), the dog-comp analyzes the target program to get useful static information as an approximation of the program's dynamic behaviour. And such information will be used in the second phase: program rewriting, the dog-comp rewrites the program according to the static information obtained in the first phase. As a result fo these two steps, the program is altered in some way---it is optimized. For instance, in the [dead-code elimination optimization](https://github.com/qc1iu/dog-comp/blob/master/src/cfg/optimization/dead-code.go), the program analysis phase will determine whether or not the variable x defined by x = e will be used anywhere in this program; if x will not be used, the program rewriting phase will remove this assignment from this program (and the program shrinks). 
+
+Dog-comp solves three [data-flow equations](https://en.wikipedia.org/wiki/Data-flow_analysis):
+
+1. [Liveness Analysis](https://en.wikipedia.org/wiki/Live_variable_analysis)
+2. [Reaching Definitions](https://en.wikipedia.org/wiki/Reaching_definition)
+3. [Available Expressions](https://en.wikipedia.org/wiki/Available_expression)
+
+and then do some optimization
+
+1. Dead-code Elimination
+2. Constant Propagation
+3. Copy Propagation
+4. Common Sub-Expression Elimination (CSE)
+
 ## GC Support
 
 In tiger, we use a gc named **Gimple garbage collector**, whitch means `gc is simple`. And we use the algorithm called [Cheney's algorithm](https://en.wikipedia.org/wiki/Cheney's_algorithm) which uses a breadth-first strategy.
