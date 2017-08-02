@@ -9,7 +9,7 @@ The Tiger compiler. Copyright (C) 2013-2015, SSE of USTC.
 Reference Manual) compile. Just for fun, it has a garbage collector using copy collection algorithm.
 
 
-##Getting Start
+## Getting Start
 
 
 ### compile to C programming language
@@ -24,11 +24,11 @@ use
 
 and is will translate .java to `.j(jasmin)`.
 
-##GC Support
+## GC Support
 
 In tiger, we use a gc named **Gimple garbage collector**, whitch means `gc is simple`. And we use the algorithm called [Cheney's algorithm](https://en.wikipedia.org/wiki/Cheney's_algorithm) which uses a breadth-first strategy.
 
-###Object Model
+### Object Model
 
 An object model is the strategy that how an object can be laid out in memory (the heap). A good object model should support all kinds of possible operations efficiently on an object: virtual method dispatching, locking, garbage collection, etc., whereas at the same time be as compact as possible to save storage. 
 
@@ -74,13 +74,13 @@ There are two different forms of objects in MiniJava: normal objects and (intege
       	  | e_{length-1} | /e
       	  ----------------/
 
-###Play In Runtime
+### Play In Runtime
 
 Since the evaluation order of the argument list, when using `clang`, need add the compile options **`__CLANG__`**
 	
 	tiger-comp/runtime$ clang test/Test_GC3.java.c runtime.c -D__CLANG__
 
-###command-line
+### command-line
 
 	-heapSize <n>            set the Java heap size (in bytes)
 	-verbose {0|1|2|3}       trace method execuated
@@ -88,16 +88,10 @@ Since the evaluation order of the argument list, when using `clang`, need add th
    	-help                    help
 
 
-##Caveats & Limitations
+## Caveats & Limitations
 
 Too many...
 
-##More
+## More
 
 [dog-comp](https://github.com/qc1iu/dog-comp "dog-comp") is a MiniJava compiler  implements in Golang which has [dataflow optimazation.](https://en.wikipedia.org/wiki/Data-flow_analysis)
-
-
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/qc1iu/tiger-comp/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
