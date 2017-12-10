@@ -8,6 +8,41 @@ public class Tac {
   public static class Type {
     public static abstract class T implements Acceptable {
     }
+
+    public static class Int extends T {
+
+      @Override
+      public void accept(Visitor v) {
+      }
+    }
+
+    public static class Boolean extends T {
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+
+    public static class IntArray extends T {
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+    public static class ClassType extends T {
+      String id;
+
+      public ClassType(String id) {
+        this.id = id;
+      }
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
   }
 
   // ///////////////////////////////////////////////////
@@ -20,19 +55,10 @@ public class Tac {
     public static class DecSingle extends T {
       public Type.T type;
       public String id;
-      public boolean isField;
 
-      public DecSingle(Type.T type, String id, boolean isField) {
+      public DecSingle(Type.T type, String id) {
         this.type = type;
         this.id = id;
-        this.isField = isField;
-      }
-
-      public DecSingle(Type.T type, String id, boolean isField, int linenum) {
-        this.type = type;
-        this.id = id;
-        this.isField = isField;
-        this.lineNum = linenum;
       }
 
       @Override
@@ -43,25 +69,90 @@ public class Tac {
 
 
   ////////////////////////////////////////////////////////////
-  public static class VarInfo {
-    public static abstract class T implements Acceptable{
+  public static class Operand {
+    public static abstract class T implements Acceptable {
       Type.T type;
     }
+
     public static class Var extends T {
       String id;
+      public Var(String id) {
+        this.id = id;
+      }
 
       @Override
       public void accept(Visitor v) {
       }
     }
+
     public static class Int extends T {
-      int num;
+      int value;
 
+      public Int(int value) {
+        this.value = value;
+      }
       @Override
       public void accept(Visitor v) {
       }
     }
 
+  }
+
+  public static class UnOp {
+    public static abstract class T implements Acceptable {
+
+    }
+
+    public static class Not extends T {
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+  }
+
+  public static class BinOp {
+    public static abstract class T implements Acceptable {
+    }
+
+    public static class Add extends T {
+      @Override
+      public void accept(Visitor v) {
+      }
+    }
+
+    public static class Sub extends T {
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+
+    public static class Times extends T {
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+
+    public static class Lt extends T {
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+
+    public static class And extends T {
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
   }
 
   // /////////////////////////////////////////////////////////
@@ -70,12 +161,34 @@ public class Tac {
     public static abstract class T implements Acceptable {
       public int linenum;
     }
+    public static class AssignUnOp extends T {
+      public Operand.T dst;
+      public Operand.T exp;
+      public UnOp.T op;
 
-    public static class AssignArraySelect extends T {
-      public String dst;
-      public VarInfo.Var array;
-      public VarInfo.T index;
+      public AssignUnOp(Operand.T dst, Operand.T exp, UnOp.T op) {
+        this.dst = dst;
+        this.exp = exp;
+        this.op = op;
+      }
 
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+    public static class AssignBinOp extends T {
+      public Operand.T dst;
+      public Operand.T left;
+      public Operand.T right;
+      public BinOp.T op;
+
+      public AssignBinOp(Operand.T dst, BinOp.T op, Operand.T left, Operand.T right) {
+        this.dst = dst;
+        this.op = op;
+        this.left = left;
+        this.right = right;
+      }
 
       @Override
       public void accept(Visitor v) {
@@ -83,10 +196,31 @@ public class Tac {
       }
     }
 
+    public static class AssignArraySelect extends T {
+      public Operand.Var dst;
+      public Operand.Var array;
+      public Operand.T index;
+
+      public AssignArraySelect(Operand.Var dst, Operand.Var array,
+                               Operand.T index) {
+        this.dst = dst;
+        this.array = array;
+        this.index = index;
+      }
+
+
+
+
+      @Override
+      public void accept(Visitor v) {
+      }
+    }
+
     public static class AssignArray extends T {
-      public String dst;
-      public VarInfo.T index;
-      public VarInfo.T exp;
+      public Operand.Var dst;
+      public Operand.T index;
+      public Operand.T exp;
+
       @Override
       public void accept(Visitor v) {
       }
@@ -96,7 +230,7 @@ public class Tac {
       public String dst;
       public String obj;
       public String f;
-      public LinkedList<VarInfo.T> args;
+      public LinkedList<Operand.T> args;
 
 
       @Override
@@ -105,16 +239,29 @@ public class Tac {
     }
 
     public static class AssignArrayLength extends T {
-      public VarInfo.Var dst;
-      public VarInfo.Var array;
+      public Operand.Var dst;
+      public Operand.Var array;
+
+      public AssignArrayLength(Operand.Var dst, Operand.Var array) {
+        this.dst = dst;
+        this.array = array;
+      }
+
+
+
       @Override
       public void accept(Visitor v) {
       }
     }
 
     public static class AssignNewIntArray extends T {
-      public VarInfo.Var dst;
-      public VarInfo.T size;
+      public Operand.T dst;
+      public Operand.T size;
+
+      public AssignNewIntArray(Operand.T dst, Operand.T size) {
+        this.dst = dst;
+        this.size = size;
+      }
 
       @Override
       public void accept(Visitor v) {
@@ -122,8 +269,13 @@ public class Tac {
     }
 
     public static class AssignNewObject extends T {
-      public VarInfo.Var dst;
+      public Operand.T dst;
       public String c; // class id
+
+      public AssignNewObject(Operand.T dst, String c) {
+        this.dst = dst;
+        this.c = c;
+      }
 
       @Override
       public void accept(Visitor v) {
@@ -131,15 +283,16 @@ public class Tac {
     }
 
     public static class Print extends T {
-      public VarInfo.T arg;
+      public Operand.T arg;
 
       @Override
       public void accept(Visitor v) {
       }
     }
+
     // if
     public static class If extends T {
-      public VarInfo.T condition;
+      public Operand.T condition;
       public T xen;
       public T ilse;
 
@@ -151,7 +304,7 @@ public class Tac {
 
     // while
     public static class While extends T {
-      public VarInfo.T condition;
+      public Operand.T condition;
       public T body;
 
       @Override
@@ -173,8 +326,21 @@ public class Tac {
       public String id;
       public LinkedList<Dec.T> formals;
       public LinkedList<Dec.T> locals;
+
+      public MethodSingle(Type.T retType, String id,
+                          LinkedList<Dec.T> formals,
+                          LinkedList<Dec.T> locals,
+                          LinkedList<Stm.T> stms, Operand.T retExp) {
+        this.retType = retType;
+        this.id = id;
+        this.formals = formals;
+        this.locals = locals;
+        this.stms = stms;
+        this.retExp = retExp;
+      }
+
       public LinkedList<Stm.T> stms;
-      public VarInfo.T retExp;
+      public Operand.T retExp;
 
       @Override
       public void accept(Visitor v) {
@@ -190,9 +356,17 @@ public class Tac {
     public static class ClassSingle extends T {
       public String id;
       public String extendss; // null for non-existing "extends"
-      public java.util.LinkedList<Dec.T> decs;
-      public java.util.LinkedList<Method.T> methods;
+      public LinkedList<Dec.T> decs;
+      public LinkedList<Method.T> methods;
 
+
+      public ClassSingle(String id, String extendss, LinkedList<Dec.T> decls,
+                         LinkedList<Method.T> methods) {
+        this.id = id;
+        this.extendss = extendss;
+        this.decs = decls;
+        this.methods = methods;
+      }
 
       @Override
       public void accept(Visitor v) {
@@ -209,6 +383,12 @@ public class Tac {
       public String id;// Sum
       public String arg;// a
       public Stm.T stm;// system.out.println
+
+      public MainClassSingle(String id, String arg, Stm.T stm) {
+        this.id = id;
+        this.arg = arg;
+        this.stm = stm;
+      }
 
       @Override
       public void accept(Visitor v) {

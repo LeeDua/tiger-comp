@@ -1,4 +1,5 @@
 package tac;
 
-public class Visitor {
+interface  Visitor {
+
 }
