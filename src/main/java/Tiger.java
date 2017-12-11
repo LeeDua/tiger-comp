@@ -1,7 +1,11 @@
 import ast.Ast;
-import ast.PrettyPrintVisitor;
+import tac.PrettyPrintVisitor;
+import tac.TranslateVisitor;
+import elaborator.ElabError;
+import elaborator.ElaboratorVisitor;
 import javacc.ParseException;
 import javacc.Parser;
+import tac.Tac;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -18,9 +22,26 @@ public class Tiger {
     Ast.Program.T prog = p.parser();
 
 
-    PrettyPrintVisitor pp = new PrettyPrintVisitor();
-    prog.accept(pp);
-    System.out.println(pp.toString());
+    //PrettyPrintVisitor pp = new PrettyPrintVisitor();
+    //prog.accept(pp);
+    //System.out.println(pp.toString());
+
+
+    ElaboratorVisitor elab = new ElaboratorVisitor();
+    prog.accept(elab);
+    for (ElabError.T e :elab.getErrorStack()) {
+      e.toString();
+    }
+
+    TranslateVisitor trans = new TranslateVisitor();
+    prog.accept(trans);
+
+    Tac.Program.T tac = trans.prog;
+
+    PrettyPrintVisitor tacPrinter = new PrettyPrintVisitor();
+    tac.accept(tacPrinter);
+
+    System.out.println(tacPrinter.toString());
 
   }
 }

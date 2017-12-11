@@ -1,8 +1,6 @@
-package ast2tac;
+package tac;
 
 import ast.Ast;
-import tac.Tac;
-import util.Todo;
 
 import java.util.LinkedList;
 
@@ -12,7 +10,7 @@ public class TranslateVisitor implements ast.Visitor {
   private Tac.Stm.T stm;
   private Tac.MainClass.T main;
   private Tac.Class.T clazz;
-  private Tac.Program.T prog;
+  public Tac.Program.T prog;
   private Tac.Dec.T dec;
   private Tac.Type.T type;
   private Tac.Method.T method;
@@ -72,14 +70,25 @@ public class TranslateVisitor implements ast.Visitor {
 
   @Override
   public void visit(Ast.Exp.Call e) {
-    // TODO: 12/10/17
-    new util.Todo();
+    e.caller.accept(this);
+    Tac.Operand.T caller = this.operand;
+    LinkedList<Tac.Operand.T> args = new LinkedList<>();
+    for (Ast.Exp.T arg : e.args) {
+      arg.accept(this);
+      args.add(this.operand);
+    }
+
+    e.retType.accept(this);
+    this.operand = genVar(this.type);
+
+    emit(new Tac.Stm.AssignCall(this.operand, caller, e.id, args));
+
 
   }
 
   @Override
   public void visit(Ast.Exp.False e) {
-    this.operand = new Tac.Operand.Int(0);
+    this.operand = new Tac.Operand.False();
   }
 
   @Override
@@ -126,7 +135,7 @@ public class TranslateVisitor implements ast.Visitor {
 
   @Override
   public void visit(Ast.Exp.Not e) {
-    e.accept(this);
+    e.exp.accept(this);
     Tac.Operand.T exp = this.operand;
     this.operand = genVar(this.type);
     emit(new Tac.Stm.AssignUnOp(this.operand, exp, new Tac.UnOp.Not()));
@@ -171,7 +180,7 @@ public class TranslateVisitor implements ast.Visitor {
 
   @Override
   public void visit(Ast.Exp.True e) {
-    this.operand = new Tac.Operand.Int(1);
+    this.operand = new Tac.Operand.True();
   }
 
   ///////////////////////////////////////////////////////////
@@ -179,31 +188,61 @@ public class TranslateVisitor implements ast.Visitor {
   @Override
   public void visit(Ast.Stm.Assign s) {
 
+    s.exp.accept(this);
+    Tac.Operand.T src = this.operand;
+
+    s.type.accept(this);
+    this.operand = new Tac.Operand.Var(s.id);
+    emit(new Tac.Stm.Assign(this.operand, src));
+
   }
 
   @Override
   public void visit(Ast.Stm.AssignArray s) {
+    s.exp.accept(this);
+    Tac.Operand.T exp = this.operand;
+    s.index.accept(this);
+    Tac.Operand.T index = this.operand;
+    s.type.accept(this);
+    this.operand = new Tac.Operand.Var(s.id);
+    emit(new Tac.Stm.AssignArray((Tac.Operand.Var) this.operand,
+        (Tac.Operand.Var) exp, index));
 
   }
 
   @Override
   public void visit(Ast.Stm.Block s) {
-
+    LinkedList<Tac.Stm.T> tacStm = new LinkedList<>();
+    for (Ast.Stm.T stm : s.stms) {
+      stm.accept(this);
+      tacStm.add(this.stm);
+    }
+    this.stm = new Tac.Stm.Block(tacStm);
   }
 
   @Override
   public void visit(Ast.Stm.If s) {
-
+    s.condition.accept(this);
+    Tac.Operand.T cond = this.operand;
+    emit(new Tac.Stm.If(cond));
+    s.thenn.accept(this);
+    s.elsee.accept(this);
   }
 
   @Override
   public void visit(Ast.Stm.Print s) {
+    s.exp.accept(this);
+    Tac.Operand.T exp = this.operand;
+    emit(new Tac.Stm.Print(exp));
 
   }
 
   @Override
   public void visit(Ast.Stm.While s) {
+    s.condition.accept(this);
+    emit(new Tac.Stm.While(this.operand));
 
+    s.body.accept(this);
   }
 
   @Override
@@ -234,6 +273,11 @@ public class TranslateVisitor implements ast.Visitor {
 
   @Override
   public void visit(Ast.Method.MethodSingle m) {
+    this.genLocals = new LinkedList<>();
+    this.stms = new LinkedList<>();
+
+
+
     m.retType.accept(this);
     Tac.Type.T retType = this.type;
     LinkedList<Tac.Dec.T> formals = new LinkedList<>();
@@ -246,14 +290,13 @@ public class TranslateVisitor implements ast.Visitor {
       d.accept(this);
       locals.add(this.dec);
     }
-    LinkedList<Tac.Stm.T> stms = new LinkedList<>();
     for (Ast.Stm.T s : m.stms) {
       s.accept(this);
-      stms.add(this.stm);
     }
     m.retExp.accept(this);
+    locals.addAll(this.genLocals);
     this.method = new Tac.Method.MethodSingle(retType, m.id, formals, locals,
-        stms, this.operand);
+        this.stms, this.operand);
 
   }
 
@@ -280,7 +323,7 @@ public class TranslateVisitor implements ast.Visitor {
 
   @Override
   public void visit(Ast.Program.ProgramSingle p) {
-    p.mainClass.accept(this);
+   // p.mainClass.accept(this);
     LinkedList<Tac.Class.T> classes = new LinkedList<>();
     for (Ast.Class.T e : p.classes) {
       e.accept(this);

@@ -13,6 +13,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
 
@@ -20,7 +21,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
-
+        v.visit(this);
       }
     }
 
@@ -28,6 +29,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
 
       }
     }
@@ -40,6 +42,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
 
       }
     }
@@ -63,6 +66,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
   }
@@ -71,7 +75,6 @@ public class Tac {
   ////////////////////////////////////////////////////////////
   public static class Operand {
     public static abstract class T implements Acceptable {
-      Type.T type;
     }
 
     public static class Var extends T {
@@ -82,6 +85,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
 
@@ -93,6 +97,23 @@ public class Tac {
       }
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
+      }
+    }
+
+    public static class True extends T {
+
+      @Override
+      public void accept(Visitor v) {
+        v.visit(this);
+      }
+    }
+
+    public static class False extends T {
+
+      @Override
+      public void accept(Visitor v) {
+        v.visit(this);
       }
     }
 
@@ -107,6 +128,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
 
       }
     }
@@ -119,6 +141,7 @@ public class Tac {
     public static class Add extends T {
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
 
@@ -126,6 +149,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
 
       }
     }
@@ -134,6 +158,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
 
       }
     }
@@ -142,6 +167,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
 
       }
     }
@@ -150,6 +176,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
 
       }
     }
@@ -174,6 +201,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
 
       }
     }
@@ -192,6 +220,23 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
+
+      }
+    }
+
+    public static class Assign extends T {
+      public Operand.T dst;
+      public Operand.T src;
+
+      public Assign(Operand.T dst, Operand.T src) {
+        this.dst = dst;
+        this.src = src;
+      }
+
+      @Override
+      public void accept(Visitor v) {
+        v.visit(this);
 
       }
     }
@@ -213,6 +258,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
 
@@ -221,20 +267,15 @@ public class Tac {
       public Operand.T index;
       public Operand.T exp;
 
-      @Override
-      public void accept(Visitor v) {
+      public AssignArray(Operand.Var dst, Operand.T index, Operand.T exp) {
+        this.dst = dst;
+        this.index = index;
+        this.exp = exp;
       }
-    }
-
-    public static class InvokeVirtual extends T {
-      public String dst;
-      public String obj;
-      public String f;
-      public LinkedList<Operand.T> args;
-
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
 
@@ -251,6 +292,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
 
@@ -265,6 +307,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
 
@@ -279,36 +322,81 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
 
     public static class Print extends T {
       public Operand.T arg;
-
+      public Print (Operand.T arg) {
+        this.arg = arg;
+      }
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
 
     // if
     public static class If extends T {
-      public Operand.T condition;
-      public T xen;
-      public T ilse;
+      public Operand.T cond;
+
+      public If(Operand.T cond) {
+        this.cond = cond;
+      }
 
       @Override
       public void accept(Visitor v) {
-
+        v.visit(this);
       }
     }
 
     // while
     public static class While extends T {
-      public Operand.T condition;
-      public T body;
+      public Operand.T cond;
+
+      public While(Operand.T cond) {
+        this.cond = cond;
+      }
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
+
+      }
+    }
+
+    public static class Block extends T {
+      public LinkedList<T> stms;
+      public Block(LinkedList<T> stms) {
+        this.stms = stms;
+      }
+      @Override
+      public void accept(Visitor v) {
+        v.visit(this);
+
+      }
+    }
+
+    public static class AssignCall extends T {
+      public Operand.T dst;
+      public Operand.T caller;
+      public String methodName;
+      public LinkedList<Operand.T> args;
+
+      public AssignCall(Operand.T dst,
+                        Operand.T caller,
+                        String methodName,
+                        LinkedList<Operand.T> args) {
+        this.dst = dst;
+        this.caller = caller;
+        this.methodName = methodName;
+        this.args = args;
+      }
+
+      @Override
+      public void accept(Visitor v) {
+        v.visit(this);
 
       }
     }
@@ -344,6 +432,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
   }
@@ -370,6 +459,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
   }
@@ -392,6 +482,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
 
@@ -414,6 +505,7 @@ public class Tac {
 
       @Override
       public void accept(Visitor v) {
+        v.visit(this);
       }
     }
 
