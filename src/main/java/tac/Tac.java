@@ -1,5 +1,7 @@
 package tac;
 
+import ast.Ast;
+
 import java.util.LinkedList;
 
 public class Tac {
@@ -340,9 +342,13 @@ public class Tac {
     // if
     public static class If extends T {
       public Operand.T cond;
+      public T xen;
+      public T ilse;
 
-      public If(Operand.T cond) {
+      public If(Operand.T cond, T xen, T ilse) {
         this.cond = cond;
+        this.xen = xen;
+        this.ilse = ilse;
       }
 
       @Override
@@ -353,10 +359,12 @@ public class Tac {
 
     // while
     public static class While extends T {
-      public Operand.T cond;
+      public Ast.Exp.T cond;
+      public T body;
 
-      public While(Operand.T cond) {
+      public While(Ast.Exp.T cond, T body) {
         this.cond = cond;
+        this.body = body;
       }
 
       @Override

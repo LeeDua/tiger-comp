@@ -7,7 +7,6 @@ import java.util.LinkedList;
 public class TranslateVisitor implements ast.Visitor {
 
   private Tac.Operand.T operand;
-  private Tac.Stm.T stm;
   private Tac.MainClass.T main;
   private Tac.Class.T clazz;
   public Tac.Program.T prog;
@@ -37,7 +36,7 @@ public class TranslateVisitor implements ast.Visitor {
     e.right.accept(this);
     right = this.operand;
 
-    this.operand = genVar(this.type);
+    this.operand = genVar(new Tac.Type.Int());
     emit(new Tac.Stm.AssignBinOp((Tac.Operand.Var) this.operand,
         new Tac.BinOp.Add(),
         left, right));
@@ -51,7 +50,7 @@ public class TranslateVisitor implements ast.Visitor {
     left = this.operand;
     e.right.accept(this);
     right = this.operand;
-    this.operand = genVar(this.type);
+    this.operand = genVar(new Tac.Type.Boolean());
     emit(new Tac.Stm.AssignBinOp((Tac.Operand.Var) this.operand,
         new Tac.BinOp.And(),
         left, right));
@@ -63,7 +62,7 @@ public class TranslateVisitor implements ast.Visitor {
     Tac.Operand.T array = this.operand;
     e.index.accept(this);
     Tac.Operand.T index = this.operand;
-    this.operand = genVar(this.type);
+    this.operand = genVar(new Tac.Type.Int());
     emit(new Tac.Stm.AssignArraySelect((Tac.Operand.Var) this.operand,
         (Tac.Operand.Var) array, index));
   }
@@ -100,7 +99,7 @@ public class TranslateVisitor implements ast.Visitor {
   public void visit(Ast.Exp.Length e) {
     e.array.accept(this);
     Tac.Operand.Var array = (Tac.Operand.Var) this.operand;
-    this.operand = genVar(this.type);
+    this.operand = genVar(new Tac.Type.Int());
     emit(new Tac.Stm.AssignArrayLength((Tac.Operand.Var) this.operand, array));
   }
 
@@ -111,7 +110,7 @@ public class TranslateVisitor implements ast.Visitor {
     left = this.operand;
     e.right.accept(this);
     right = this.operand;
-    this.operand = genVar(this.type);
+    this.operand = genVar(new Tac.Type.Boolean());
     emit(new Tac.Stm.AssignBinOp((Tac.Operand.Var) this.operand,
         new Tac.BinOp.Lt(), left, right));
 
@@ -121,15 +120,13 @@ public class TranslateVisitor implements ast.Visitor {
   public void visit(Ast.Exp.NewIntArray e) {
     e.exp.accept(this);
     Tac.Operand.T size = this.operand;
-    this.type = new Tac.Type.IntArray();
-    this.operand = genVar(this.type);
+    this.operand = genVar(new Tac.Type.IntArray());
     emit(new Tac.Stm.AssignNewIntArray(this.operand, size));
   }
 
   @Override
   public void visit(Ast.Exp.NewObject e) {
-    this.type = new Tac.Type.ClassType(e.id);
-    this.operand = genVar(this.type);
+    this.operand = genVar(new Tac.Type.ClassType(e.id));
     emit(new Tac.Stm.AssignNewObject(this.operand, e.id));
   }
 
@@ -137,14 +134,13 @@ public class TranslateVisitor implements ast.Visitor {
   public void visit(Ast.Exp.Not e) {
     e.exp.accept(this);
     Tac.Operand.T exp = this.operand;
-    this.operand = genVar(this.type);
+    this.operand = genVar(new Tac.Type.Boolean());
     emit(new Tac.Stm.AssignUnOp(this.operand, exp, new Tac.UnOp.Not()));
   }
 
   @Override
   public void visit(Ast.Exp.Num e) {
     this.operand = new Tac.Operand.Int(e.num);
-    this.type = new Tac.Type.Int();
   }
 
   @Override
@@ -154,7 +150,7 @@ public class TranslateVisitor implements ast.Visitor {
     left = this.operand;
     e.right.accept(this);
     right = this.operand;
-    this.operand = genVar(this.type);
+    this.operand = genVar(new Tac.Type.Int());
     emit(new Tac.Stm.AssignBinOp(this.operand, new Tac.BinOp.Sub(), left,
         right));
   }
@@ -172,7 +168,7 @@ public class TranslateVisitor implements ast.Visitor {
     left = this.operand;
     e.right.accept(this);
     right = this.operand;
-    this.operand = genVar(this.type);
+    this.operand = genVar(new Tac.Type.Int());
 
     emit(new Tac.Stm.AssignBinOp(this.operand, new Tac.BinOp.Times(), left,
         right));
@@ -191,7 +187,7 @@ public class TranslateVisitor implements ast.Visitor {
     s.exp.accept(this);
     Tac.Operand.T src = this.operand;
 
-    s.type.accept(this);
+    //s.type.accept(this);
     this.operand = new Tac.Operand.Var(s.id);
     emit(new Tac.Stm.Assign(this.operand, src));
 
@@ -203,30 +199,40 @@ public class TranslateVisitor implements ast.Visitor {
     Tac.Operand.T exp = this.operand;
     s.index.accept(this);
     Tac.Operand.T index = this.operand;
-    s.type.accept(this);
+    //s.type.accept(this);
     this.operand = new Tac.Operand.Var(s.id);
     emit(new Tac.Stm.AssignArray((Tac.Operand.Var) this.operand,
-        (Tac.Operand.Var) exp, index));
+        index, exp));
 
   }
 
   @Override
   public void visit(Ast.Stm.Block s) {
-    LinkedList<Tac.Stm.T> tacStm = new LinkedList<>();
+    LinkedList<Tac.Stm.T> old = this.stms;
+    this.stms = new LinkedList<>();
     for (Ast.Stm.T stm : s.stms) {
       stm.accept(this);
-      tacStm.add(this.stm);
     }
-    this.stm = new Tac.Stm.Block(tacStm);
+    LinkedList<Tac.Stm.T> body = this.stms;
+    this.stms = old;
+    emit(new Tac.Stm.Block(body));
   }
 
   @Override
   public void visit(Ast.Stm.If s) {
     s.condition.accept(this);
     Tac.Operand.T cond = this.operand;
-    emit(new Tac.Stm.If(cond));
+    LinkedList<Tac.Stm.T> old = this.stms;
+    this.stms = new LinkedList<>();
     s.thenn.accept(this);
+    Tac.Stm.T xen = new Tac.Stm.Block(this.stms);
+
+    this.stms = new LinkedList<>();
     s.elsee.accept(this);
+    Tac.Stm.T ilse = new Tac.Stm.Block(this.stms);
+
+    this.stms = old;
+    emit(new Tac.Stm.If(cond, xen, ilse));
   }
 
   @Override
@@ -239,10 +245,14 @@ public class TranslateVisitor implements ast.Visitor {
 
   @Override
   public void visit(Ast.Stm.While s) {
-    s.condition.accept(this);
-    emit(new Tac.Stm.While(this.operand));
-
+    //s.condition.accept(this);
+    LinkedList<Tac.Stm.T> old = this.stms;
+    this.stms = new LinkedList<>();
     s.body.accept(this);
+    Tac.Stm.T body = new Tac.Stm.Block(this.stms);
+    this.stms = old;
+    emit(new Tac.Stm.While(s.condition, body));
+
   }
 
   @Override

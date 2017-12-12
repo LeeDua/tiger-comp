@@ -189,25 +189,34 @@ public class PrettyPrintVisitor implements Visitor {
   public void visit(Tac.Stm.If e) {
     this.say("if (");
     e.cond.accept(this);
-    this.say(")");;
+    this.say(")");
+    e.xen.accept(this);
+    this.say("else");
+    e.ilse.accept(this);
   }
 
   @Override
   public void visit(Tac.Stm.While e) {
     this.say("while(");
-    e.cond.accept(this);
+    ast.PrettyPrintVisitor p = new ast.PrettyPrintVisitor();
+    e.cond.accept(p);
+    this.say(p.toString());
+    //e.cond.accept(this);
     this.say(")");
+    e.body.accept(this);
   }
 
   @Override
   public void visit(Tac.Stm.Block e) {
-    this.say("{");
+    this.sayln("{");
     this.indent();
     for (Tac.Stm.T s : e.stms) {
+      this.printSpaces();
       s.accept(this);
       this.sayln(";");
     }
     this.unIndent();
+    this.printSpaces();
     this.say("}");
   }
 

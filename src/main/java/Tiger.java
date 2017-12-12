@@ -17,7 +17,7 @@ public class Tiger {
     System.out.println("// tiger !");
 
     Parser p = new Parser(new BufferedInputStream(
-        new FileInputStream("src/test/resources/LinkedList.java")));
+        new FileInputStream("src/test/resources/BinarySearch.java")));
 
     Ast.Program.T prog = p.parser();
 
