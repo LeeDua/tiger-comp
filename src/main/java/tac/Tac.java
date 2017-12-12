@@ -472,12 +472,14 @@ public class Tac {
     public static class MainClassSingle extends T {
       public String id;// Sum
       public String arg;// a
-      public Stm.T stm;// system.out.println
+      public LinkedList<Dec.T> locals;
+      public LinkedList<Stm.T> stms;
 
-      public MainClassSingle(String id, String arg, Stm.T stm) {
+      public MainClassSingle(String id, String arg, LinkedList<Dec.T> locals, LinkedList<Stm.T> stms) {
         this.id = id;
         this.arg = arg;
-        this.stm = stm;
+        this.locals = locals;
+        this.stms = stms;
       }
 
       @Override

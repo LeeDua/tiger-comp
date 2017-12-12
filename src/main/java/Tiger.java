@@ -14,7 +14,7 @@ import java.io.FileNotFoundException;
 public class Tiger {
   public static void main(String[] args)
       throws FileNotFoundException, ParseException {
-    System.out.println("tiger !");
+    System.out.println("// tiger !");
 
     Parser p = new Parser(new BufferedInputStream(
         new FileInputStream("src/test/resources/LinkedList.java")));

@@ -1,5 +1,7 @@
 package tac;
 
+import ast.Ast;
+
 public class PrettyPrintVisitor implements Visitor {
 
   private StringBuilder sb;
@@ -200,10 +202,12 @@ public class PrettyPrintVisitor implements Visitor {
   @Override
   public void visit(Tac.Stm.Block e) {
     this.say("{");
+    this.indent();
     for (Tac.Stm.T s : e.stms) {
       s.accept(this);
       this.sayln(";");
     }
+    this.unIndent();
     this.say("}");
   }
 
@@ -251,9 +255,8 @@ public class PrettyPrintVisitor implements Visitor {
     this.say(" " + m.id + "(");
     int i = 0;
     for (Tac.Dec.T d : m.formals) {
-      Tac.Dec.DecSingle dec = (Tac.Dec.DecSingle) d;
       i++;
-      dec.accept(this);
+      d.accept(this);
       if (i != m.formals.size()) {
         this.say(", ");
       }
@@ -261,27 +264,54 @@ public class PrettyPrintVisitor implements Visitor {
     this.sayln(")");
     this.sayln("  {");
     for (Tac.Dec.T d : m.locals) {
-      Tac.Dec.DecSingle dec = (Tac.Dec.DecSingle) d;
-      this.say("    ");
-      dec.accept(this);
+      this.indent();
+      this.printSpaces();
+      d.accept(this);
       this.say(";\n");
+      this.unIndent();
     }
     this.sayln("");
     for (Tac.Stm.T s : m.stms){
+      this.indent();
+      this.printSpaces();
       s.accept(this);
       this.sayln(";");
+      this.unIndent();
     }
 
-    this.say("    return ");
+    this.indent();
+    this.printSpaces();
+    this.say("return ");
     m.retExp.accept(this);
     this.sayln(";");
+    this.unIndent();
     this.sayln("  }");
 
   }
 
   @Override
-  public void visit(Tac.MainClass.MainClassSingle e) {
-    new util.Todo();
+  public void visit(Tac.MainClass.MainClassSingle c) {
+    this.sayln("class " + c.id);
+    this.sayln("{");
+    this.sayln("  public static void main (String[] " + c.arg + ")");
+    this.sayln("  {");
+    for (Tac.Dec.T d : c.locals) {
+      this.indent();
+      this.printSpaces();
+      d.accept(this);
+      this.say(";\n");
+      this.unIndent();
+    }
+    for (Tac.Stm.T s : c.stms) {
+      this.indent();
+      this.printSpaces();
+      s.accept(this);
+      this.sayln(";");
+      this.unIndent();
+    }
+
+    this.sayln("  }");
+    this.sayln("}");
   }
 
   @Override
@@ -308,7 +338,7 @@ public class PrettyPrintVisitor implements Visitor {
 
   @Override
   public void visit(Tac.Program.ProgramSingle p) {
-    // p.mainClass.accept(this);
+     p.mainClass.accept(this);
     this.sayln("");
     for (Tac.Class.T classs : p.classes) {
       classs.accept(this);

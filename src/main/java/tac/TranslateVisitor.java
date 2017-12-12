@@ -317,13 +317,15 @@ public class TranslateVisitor implements ast.Visitor {
 
   @Override
   public void visit(Ast.MainClass.MainClassSingle c) {
+    this.genLocals = new LinkedList<>();
+    this.stms = new LinkedList<>();
     c.stm.accept(this);
-    this.main = new Tac.MainClass.MainClassSingle(c.id, c.arg, this.stm);
+    this.main = new Tac.MainClass.MainClassSingle(c.id, c.arg, this.genLocals, this.stms);
   }
 
   @Override
   public void visit(Ast.Program.ProgramSingle p) {
-   // p.mainClass.accept(this);
+    p.mainClass.accept(this);
     LinkedList<Tac.Class.T> classes = new LinkedList<>();
     for (Ast.Class.T e : p.classes) {
       e.accept(this);
