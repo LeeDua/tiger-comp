@@ -54,7 +54,6 @@ public class Tac {
   // dec
   public static class Dec {
     public static abstract class T implements Acceptable {
-      int lineNum;
     }
 
     public static class DecSingle extends T {

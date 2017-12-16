@@ -4,7 +4,7 @@ import ast.Ast;
 
 import java.util.LinkedList;
 
-public class TranslateVisitor implements ast.Visitor {
+public class Ast2TacVisitor implements ast.Visitor {
 
   private Tac.Operand.T operand;
   private Tac.MainClass.T main;

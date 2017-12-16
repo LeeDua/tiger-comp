@@ -1,14 +1,12 @@
 package system;
 
 import ast.Ast;
-import ast.PrettyPrintVisitor;
-import elaborator.ElabError;
 import elaborator.ElaboratorVisitor;
 import javacc.ParseException;
 import javacc.Parser;
 import org.junit.Test;
 import tac.Tac;
-import tac.TranslateVisitor;
+import tac.Ast2TacVisitor;
 import util.StreamDrainer;
 
 import java.io.*;
@@ -47,7 +45,7 @@ public class Ast2TacTest {
         prog.accept(elab);    // elab
 
         // ast2tac
-        TranslateVisitor trans = new TranslateVisitor();
+        Ast2TacVisitor trans = new Ast2TacVisitor();
         prog.accept(trans);
 
 
