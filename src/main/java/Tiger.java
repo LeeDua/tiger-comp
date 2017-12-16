@@ -1,10 +1,10 @@
 import ast.Ast;
-import tac.PrettyPrintVisitor;
-import tac.TranslateVisitor;
 import elaborator.ElabError;
 import elaborator.ElaboratorVisitor;
 import javacc.ParseException;
 import javacc.Parser;
+import tac.Ast2TacVisitor;
+import tac.PrettyPrintVisitor;
 import tac.Tac;
 
 import java.io.BufferedInputStream;
@@ -33,7 +33,7 @@ public class Tiger {
       e.toString();
     }
 
-    TranslateVisitor trans = new TranslateVisitor();
+    tac.Ast2TacVisitor trans = new Ast2TacVisitor();
     prog.accept(trans);
 
     Tac.Program.T tac = trans.prog;
