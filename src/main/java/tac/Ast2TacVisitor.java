@@ -80,7 +80,7 @@ public class Ast2TacVisitor implements ast.Visitor {
     e.retType.accept(this);
     this.operand = genVar(this.type);
 
-    emit(new Tac.Stm.AssignCall(this.operand, caller, e.id, args));
+    emit(new Tac.Stm.AssignCall(this.operand, caller, new Tac.Type.ClassType(e.type.id), e.id, args));
 
 
   }
