@@ -94,7 +94,7 @@ public class TranslateVisitor implements ast.Visitor {
       t.accept(this);
       at.add(this.type);
     }
-    emit(new Invokevirtual(e.id, e.type, at, rt));
+    emit(new Invokevirtual(e.id, new Type.ClassType(e.type.id), at, rt));
     return;
   }
 

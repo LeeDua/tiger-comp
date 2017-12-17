@@ -117,7 +117,7 @@ public class TranslateVisitor implements ast.Visitor {
   public void visit(ast.Ast.Exp.Call e) {
     e.caller.accept(this);
     String newid = this.genId();
-    this.tmpVars.add(new Dec.DecSingle(new Type.ClassType(e.type), newid));
+    this.tmpVars.add(new Dec.DecSingle(new Type.ClassType(e.type.id), newid));
     Exp.T exp = this.exp;
     LinkedList<Exp.T> args = new LinkedList<>();
     for (ast.Ast.Exp.T x : e.args) {

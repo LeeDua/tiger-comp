@@ -178,7 +178,7 @@ public class ElaboratorVisitor
               linenum));
     }
     Type.ClassType ty = (ClassType) callerType;
-    e.type = ty.id;
+    e.type = ty;
     MethodType methodType = this.classTable.getMethodType(ty.id, e.id);
     if (methodType == null) {
       emitError(new ElabError.UndeclError(e.id, linenum));

@@ -166,11 +166,11 @@ public class Ast {
 
     public static class Invokevirtual extends T {
       public String f;
-      public String c;
+      public Type.ClassType c;
       public LinkedList<Type.T> at;
       public Type.T rt;
 
-      public Invokevirtual(String f, String c, LinkedList<Type.T> at,
+      public Invokevirtual(String f, Type.ClassType c, LinkedList<Type.T> at,
                            Type.T rt) {
         this.f = f;
         this.c = c;

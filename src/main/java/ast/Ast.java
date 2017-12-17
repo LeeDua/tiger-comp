@@ -226,12 +226,12 @@ public class Ast {
       public T caller;
       public String id; // method name that be invoked
       public java.util.LinkedList<T> args;
-      public String type; // type of caller
+      public Type.ClassType type; // type of caller
       public java.util.LinkedList<Type.T> at; // args type list
       public Type.T retType;
 
       public Call(T caller, String id, java.util.LinkedList<T> args,
-                  String type, java.util.LinkedList<Type.T> at, Type.T retType,
+                  Type.ClassType type, java.util.LinkedList<Type.T> at, Type.T retType,
                   int linenum) {
         this.caller = caller;
         this.id = id;

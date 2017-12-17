@@ -33,7 +33,7 @@ public class Tiger {
       e.toString();
     }
 
-    tac.Ast2TacVisitor trans = new Ast2TacVisitor();
+    Ast2TacVisitor trans = new Ast2TacVisitor();
     prog.accept(trans);
 
     Tac.Program.T tac = trans.prog;
