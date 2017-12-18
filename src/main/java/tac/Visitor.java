@@ -1,6 +1,6 @@
 package tac;
 
-interface  Visitor {
+public interface  Visitor {
   // operand
   void visit(Tac.Operand.Var e);
   void visit(Tac.Operand.Int e);

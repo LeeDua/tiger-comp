@@ -32,6 +32,11 @@ public class Flt {
     }
 
     public static class ClassType extends T {
+      String id;
+
+      public ClassType(String id) {
+        this.id = id;
+      }
 
       @Override
       public void accept(Visitor v) {
@@ -72,6 +77,40 @@ public class Flt {
     public static abstract class T implements Acceptable {}
 
     public static class Var extends T {
+      public String id;
+
+      public Var(String id) {
+        this.id = id;
+      }
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+
+    public static class Int extends T {
+      public int value;
+
+      public Int(int value) {
+        this.value = value;
+      }
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+
+    public static class True extends T {
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+
+    public static class False extends T {
 
       @Override
       public void accept(Visitor v) {
@@ -116,6 +155,38 @@ public class Flt {
   public static class BinOp {
     public static abstract class T implements Acceptable {}
     public static class Add extends T {
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+
+    public static class And extends T {
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+
+    public static class Sub extends T {
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+
+    public static class Times extends T {
+
+      @Override
+      public void accept(Visitor v) {
+
+      }
+    }
+
+    public static class Lt extends T {
 
       @Override
       public void accept(Visitor v) {
@@ -211,11 +282,11 @@ public class Flt {
     }
 
     public static class AssignArray extends T {
-      public Operand.Var dst;
+      public Operand.T dst; // must be Var
       public Operand.T index;
       public Operand.T exp;
 
-      public AssignArray(Operand.Var dst, Operand.T index, Operand.T exp) {
+      public AssignArray(Operand.T dst, Operand.T index, Operand.T exp) {
         this.dst = dst;
         this.index = index;
         this.exp = exp;
@@ -458,12 +529,12 @@ public class Flt {
     public static class AssignCall extends T {
       public Operand.T dst;
       public Operand.T caller;
-      public Type.ClassType callerTpye;
+      public Type.T callerTpye; // must be classType
       public String methodName;
       public Vector<Operand.T> args;
 
       public AssignCall(Operand.T dst, Operand.T caller,
-                        Type.ClassType callerTpye, String methodName,
+                        Type.T callerTpye, String methodName,
                         Vector<Operand.T> args) {
         this.dst = dst;
         this.caller = caller;
@@ -489,14 +560,19 @@ public class Flt {
       public String id;
       public Vector<Dec.T> formals;
       public Vector<Dec.T> locals;
+      public Vector<Stm.T> stms;
+      public Operand.T retExp;
 
       public MethodSingle(Type.T retType, String id,
                           Vector<Dec.T> formals,
-                          Vector<Dec.T> locals) {
+                          Vector<Dec.T> locals,
+                          Vector<Stm.T> stms, Operand.T retExp) {
         this.retType = retType;
         this.id = id;
         this.formals = formals;
         this.locals = locals;
+        this.stms = stms;
+        this.retExp = retExp;
       }
 
       @Override
@@ -565,6 +641,13 @@ public class Flt {
     public static class ProgramSingle extends T {
       public MainClass.T mainClass;
       public Vector<Class.T> classes;
+
+      public ProgramSingle(MainClass.T mainClass,
+                           Vector<Class.T> classes) {
+        this.mainClass = mainClass;
+        this.classes = classes;
+      }
+
       @Override
       public void accept(Visitor v) {
 

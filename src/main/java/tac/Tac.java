@@ -36,7 +36,7 @@ public class Tac {
       }
     }
     public static class ClassType extends T {
-      String id;
+      public String id;
 
       public ClassType(String id) {
         this.id = id;
@@ -79,7 +79,7 @@ public class Tac {
     }
 
     public static class Var extends T {
-      String id;
+      public String id;
       public Var(String id) {
         this.id = id;
       }
@@ -91,7 +91,7 @@ public class Tac {
     }
 
     public static class Int extends T {
-      int value;
+      public int value;
 
       public Int(int value) {
         this.value = value;
@@ -421,6 +421,8 @@ public class Tac {
       public String id;
       public LinkedList<Dec.T> formals;
       public LinkedList<Dec.T> locals;
+      public LinkedList<Stm.T> stms;
+      public Operand.T retExp;
 
       public MethodSingle(Type.T retType, String id,
                           LinkedList<Dec.T> formals,
@@ -434,8 +436,7 @@ public class Tac {
         this.retExp = retExp;
       }
 
-      public LinkedList<Stm.T> stms;
-      public Operand.T retExp;
+
 
       @Override
       public void accept(Visitor v) {

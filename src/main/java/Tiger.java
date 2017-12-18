@@ -1,6 +1,7 @@
 import ast.Ast;
 import elaborator.ElabError;
 import elaborator.ElaboratorVisitor;
+import flatten.Tac2FltVisitor;
 import javacc.ParseException;
 import javacc.Parser;
 import tac.Ast2TacVisitor;
@@ -40,8 +41,12 @@ public class Tiger {
 
     PrettyPrintVisitor tacPrinter = new PrettyPrintVisitor();
     tac.accept(tacPrinter);
-
     System.out.println(tacPrinter.toString());
+
+    Tac2FltVisitor t2f = new Tac2FltVisitor();
+    tac.accept(t2f);
+
+
 
   }
 }
