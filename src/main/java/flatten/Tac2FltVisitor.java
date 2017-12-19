@@ -16,7 +16,7 @@ public class Tac2FltVisitor implements tac.Visitor {
   Flt.BinOp.T binop;
   Flt.UnOp.T unop;
 
-  public Tac2FltVisitor(){
+  public Tac2FltVisitor() {
     this.classes = new Vector<>();
     this.stms = new Vector<>();
     this.methods = new Vector<>();
@@ -192,8 +192,43 @@ public class Tac2FltVisitor implements tac.Visitor {
     emit(new Flt.Stm.AssignNewObject(this.operand, e.c));
   }
 
+
+  private void transIfStms(Tac.Stm.T s) {
+    new util.Todo();
+    if (s instanceof Tac.Stm.AssignUnOp) {
+
+    } else if (s instanceof Tac.Stm.AssignBinOp) {
+
+    } else if (s instanceof Tac.Stm.Assign) {
+
+    } else if (s instanceof Tac.Stm.AssignArraySelect) {
+
+    } else if (s instanceof Tac.Stm.AssignArray) {
+
+    } else if (s instanceof Tac.Stm.AssignArrayLength) {
+
+    } else if (s instanceof Tac.Stm.AssignNewIntArray) {
+
+    } else if (s instanceof Tac.Stm.AssignNewObject) {
+
+    } else if (s instanceof Tac.Stm.Print) {
+
+    } else if (s instanceof Tac.Stm.If) {
+
+    } else if (s instanceof Tac.Stm.While) {
+
+    } else if (s instanceof Tac.Stm.Block) {
+
+    } else if (s instanceof Tac.Stm.AssignCall) {
+
+    } else {
+      new util.Bug();
+    }
+  }
+
   @Override
   public void visit(Tac.Stm.If e) {
+
     // TODO: 12/18/17
     new util.Todo();
 
