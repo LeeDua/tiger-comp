@@ -80,8 +80,10 @@ public class Tac {
 
     public static class Var extends T {
       public String id;
-      public Var(String id) {
+      public Type.T type;
+      public Var(String id, Type.T type) {
         this.id = id;
+        this.type = type;
       }
 
       @Override

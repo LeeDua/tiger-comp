@@ -25,7 +25,7 @@ public class Ast2TacVisitor implements ast.Visitor {
     String fresh = util.Temp.next();
     Tac.Dec.DecSingle dec = new Tac.Dec.DecSingle(ty, fresh);
     this.genLocals.add(dec);
-    return new Tac.Operand.Var(fresh);
+    return new Tac.Operand.Var(fresh, ty);
   }
 
   public void visit(Ast.Exp.Add e) {
@@ -92,7 +92,8 @@ public class Ast2TacVisitor implements ast.Visitor {
 
   @Override
   public void visit(Ast.Exp.Id e) {
-    this.operand = new Tac.Operand.Var(e.id);
+    e.type.accept(this);
+    this.operand = new Tac.Operand.Var(e.id, this.type);
   }
 
   @Override
@@ -158,7 +159,7 @@ public class Ast2TacVisitor implements ast.Visitor {
   @Override
   public void visit(Ast.Exp.This e) {
     // should have using corresponding class type.
-    this.operand = new Tac.Operand.Var("this");
+    this.operand = new Tac.Operand.Var("this",null);
   }
 
   @Override
@@ -187,8 +188,8 @@ public class Ast2TacVisitor implements ast.Visitor {
     s.exp.accept(this);
     Tac.Operand.T src = this.operand;
 
-    //s.type.accept(this);
-    this.operand = new Tac.Operand.Var(s.id);
+    s.type.accept(this);
+    this.operand = new Tac.Operand.Var(s.id, this.type);
     emit(new Tac.Stm.Assign(this.operand, src));
 
   }
@@ -199,8 +200,8 @@ public class Ast2TacVisitor implements ast.Visitor {
     Tac.Operand.T exp = this.operand;
     s.index.accept(this);
     Tac.Operand.T index = this.operand;
-    //s.type.accept(this);
-    this.operand = new Tac.Operand.Var(s.id);
+    s.type.accept(this);
+    this.operand = new Tac.Operand.Var(s.id, this.type);
     emit(new Tac.Stm.AssignArray((Tac.Operand.Var) this.operand,
         index, exp));
 
